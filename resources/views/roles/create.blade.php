@@ -1,56 +1,70 @@
-@extends('layouts.app')
-
+@extends('layouts.template')
 
 @section('content')
-<div class="row">
-    <div class="col-lg-12 margin-tb">
-        <div class="pull-left">
-            <h2>Create New Role</h2>
+<div class="col-md-12">
+
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+
+        <div class="card">
+            <div class="card-header">
+                <div class="float-start">
+                    Add New Role
+                </div>
+                <div class="float-end">
+                    <a href="{{ route('roles.index') }}" class="btn btn-primary btn-sm">&larr; Back</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <form action="{{ route('roles.store') }}" method="post">
+                    @csrf
+
+                    <div class="mb-3 row">
+                        <label for="name" class="col-md-4 col-form-label text-md-end text-start">Name</label>
+                        <div class="col-md-6">
+                          <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}">
+                            @if ($errors->has('name'))
+                                <span class="text-danger">{{ $errors->first('name') }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="mb-3 row">
+                        <label for="permissions" class="col-md-4 col-form-label text-md-end text-start">Permissions</label>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @forelse ($permissions as $permission)
+                                    <div class="form-check">
+                                        <input class="form-check-input @error('permissions') is-invalid @enderror"
+                                               type="checkbox"
+                                               value="{{ $permission->id }}"
+                                               id="permission_{{ $permission->id }}"
+                                               name="permissions[]"
+                                               {{ in_array($permission->id, $rolePermissions ?? []) ? 'checked' : '' }}>
+                                        <label class="form-check-label" for="permission_{{ $permission->id }}">
+                                            {{ $permission->name }}
+                                        </label>
+                                    </div>
+                                @empty
+                                    <p>No permissions available.</p>
+                                @endforelse
+                            </div>
+                            @if ($errors->has('permissions'))
+                                <span class="text-danger">{{ $errors->first('permissions') }}</span>
+                            @endif
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3 row">
+                        <input type="submit" class="col-md-3 offset-md-5 btn btn-primary" value="Add Role">
+                    </div>
+                    
+                </form>
+            </div>
         </div>
-        <div class="pull-right">
-            <a class="btn btn-primary" href="{{ route('roles.index') }}"> Back</a>
-        </div>
-    </div>
+    </div>    
 </div>
-
-
-@if (count($errors) > 0)
-    <div class="alert alert-danger">
-        <strong>Whoops!</strong> There were some problems with your input.<br><br>
-        <ul>
-        @foreach ($errors->all() as $error)
-            <li>{{ $error }}</li>
-        @endforeach
-        </ul>
-    </div>
-@endif
-
-
-{!! Form::open(array('route' => 'roles.store','method'=>'POST')) !!}
-<div class="row">
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group">
-            <strong>Name:</strong>
-            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group">
-            <strong>Permission:</strong>
-            <br/>
-            @foreach($permission as $value)
-                <label>{{ Form::checkbox('permission[]', $value->id, false, array('class' => 'name')) }}
-                {{ $value->name }}</label>
-            <br/>
-            @endforeach
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-        <button type="submit" class="btn btn-primary">Submit</button>
-    </div>
 </div>
-{!! Form::close() !!}
-
-
-<p class="text-center text-primary"><small>Tutorial by ItSolutionStuff.com</small></p>
+    
 @endsection

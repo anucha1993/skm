@@ -1,32 +1,38 @@
 @extends('layouts.app')
 
-
 @section('content')
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-left">
-                <h2> Show Product</h2>
-            </div>
-            <div class="pull-right">
-                <a class="btn btn-primary" href="{{ route('products.index') }}"> Back</a>
-            </div>
-        </div>
-    </div>
 
+<div class="row justify-content-center">
+    <div class="col-md-8">
 
-    <div class="row">
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Name:</strong>
-                {{ $product->name }}
+        <div class="card">
+            <div class="card-header">
+                <div class="float-start">
+                    Product Information
+                </div>
+                <div class="float-end">
+                    <a href="{{ route('products.index') }}" class="btn btn-primary btn-sm">&larr; Back</a>
+                </div>
+            </div>
+            <div class="card-body">
+
+                    <div class="row">
+                        <label for="name" class="col-md-4 col-form-label text-md-end text-start"><strong>Name:</strong></label>
+                        <div class="col-md-6" style="line-height: 35px;">
+                            {{ $product->name }}
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <label for="description" class="col-md-4 col-form-label text-md-end text-start"><strong>Description:</strong></label>
+                        <div class="col-md-6" style="line-height: 35px;">
+                            {{ $product->description }}
+                        </div>
+                    </div>
+        
             </div>
         </div>
-        <div class="col-xs-12 col-sm-12 col-md-12">
-            <div class="form-group">
-                <strong>Details:</strong>
-                {{ $product->detail }}
-            </div>
-        </div>
-    </div>
+    </div>    
+</div>
+    
 @endsection
-<p class="text-center text-primary"><small>Tutorial by ItSolutionStuff.com</small></p>
