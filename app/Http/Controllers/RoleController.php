@@ -35,9 +35,12 @@ class RoleController extends Controller
      */
     public function create(): View
     {
-        return view('roles.create', [
-            'permissions' => Permission::get()
-        ]);
+        // return view('roles.create', [
+        //     'permissions' => Permission::get()
+        // ]);
+
+        $permissions = Permission::orderBy('name_view')->get()->groupBy('name_view'); // จัดกลุ่มตาม name_view
+        return view('roles.create', compact('permissions'));
     }
 
     /**
@@ -79,14 +82,14 @@ class RoleController extends Controller
             abort(403, 'SUPER ADMIN ROLE CAN NOT BE EDITED');
         }
 
-        $rolePermissions = DB::table("role_has_permissions")->where("role_id",$role->id)
-            ->pluck('permission_id')
-            ->all();
+        $permissions = Permission::orderBy('name_view')->get()->groupBy('name_view'); // จัดกลุ่มตาม name_view
+         $rolePermissions = $role->permissions->pluck('id')->toArray();
 
         return view('roles.edit', [
             'role' => $role,
             'permissions' => Permission::get(),
-            'rolePermissions' => $rolePermissions
+            'rolePermissions' => $rolePermissions,
+            'permissions' => $permissions,
         ]);
     }
 

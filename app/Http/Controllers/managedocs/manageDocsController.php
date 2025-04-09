@@ -34,6 +34,8 @@ class manageDocsController extends Controller
         return view('managedocs.create',compact('country'));
     }
 
+  
+
     public function store(Request $request)
     {
         //dd($request);
@@ -51,5 +53,38 @@ class manageDocsController extends Controller
                 'managedoc_id' =>$managedoc->managedoc_id,
             ]);
         }
+    }
+    public function edit(managedocsModel $managedoc)
+    {
+        $country = countryJobModel::latest()->get();
+        // $managefiles = managefilesModel::where()
+        return view('managedocs.edit',compact('country','managedoc'));
+    }
+    public function update(managedocsModel $managedoc, Request $request)
+    {
+         // Update ข้อมูลทั้งหมด
+         $managedoc->update($request->all());
+         // ลบรายการเก่าออก
+         managefilesModel::where('managedoc_id',$managedoc->managedoc_id)->delete();
+         // Loop สร้างรายการใหม่
+         foreach ($request->managefile_no as $key => $item)
+         {
+             managefilesModel::create([
+                 'managefile_no' =>$request->managefile_no[$key],
+                 'managefile_code' =>$request->managefile_code[$key],
+                 'managefile_name' =>$request->managefile_name[$key],
+                 'managefile_step' =>$request->managefile_step[$key],
+                 'managefile_status' =>$request->managefile_status[$key],
+                 'managedoc_id' =>$managedoc->managedoc_id,
+             ]);
+         }
+
+         return redirect()->route('managedocs.index')->with('success','Updated Successfully');
+         
+    }
+
+    public function destroy(managedocsModel $managedoc)
+    {
+        
     }
 }

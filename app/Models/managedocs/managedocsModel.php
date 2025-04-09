@@ -18,6 +18,11 @@ class managedocsModel extends Model
         'managedoc_status',
     ];
 
+    public function managefiles()
+    {
+        return $this->hasMany(managefilesModel::class, 'managedoc_id', 'managedoc_id');
+    }
+    
     public function managefile()
     {
         return $this->belongsTo(managefilesModel::class, 'managedoc_id', 'managedoc_id');

@@ -155,6 +155,12 @@
 							<li><a href="bc_extra.html">Other</a></li>
 						</ul>
 					</li> --}}
+					<li class="nav-item pcoded-hasmenu">
+						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Setting</span></a>
+						<ul class="pcoded-submenu">
+							<li><a href="{{route('managedocs.index')}}">ระบบจัดการเอกสาร</a></li>
+						</ul>
+					</li>
 					{{-- <li class="nav-item pcoded-menu-caption">
 					    <label>Forms &amp; table</label>
 					</li>

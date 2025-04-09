@@ -29,8 +29,45 @@
                             @endif
                         </div>
                     </div>
+                    
+                    
 
+                    
                     <div class="mb-3 row">
+                        <label for="permissions" class="col-md-4 col-form-label text-md-end text-start"></label>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                @forelse ($permissions as $groupName => $groupPermissions)
+                                    <div class="mb-2">
+                                        <h5>{{ $groupName }}</h5>
+                                        <div class="d-flex flex-wrap">
+                                            @forelse ($groupPermissions as $permission)
+                                                <div class="form-check me-4" style="width: 45%;">
+                                                    <input class="form-check-input @error('permissions') is-invalid @enderror"
+                                                           type="checkbox"
+                                                           value="{{ $permission->id }}"
+                                                           id="permission_{{ $permission->id }}"
+                                                           name="permissions[]">
+                                                    <label class="form-check-label" for="permission_{{ $permission->id }}">
+                                                        {{ $permission->action_name.'-'.$permission->name_view }}
+                                                    </label>
+                                                </div>
+                                            @empty
+                                                <p>No permissions in this group.</p>
+                                            @endforelse
+                                        </div>
+                                    </div>
+                                @empty
+                                    <p>No permissions available.</p>
+                                @endforelse
+                            </div>
+                            @if ($errors->has('permissions'))
+                                <span class="text-danger">{{ $errors->first('permissions') }}</span>
+                            @endif
+                        </div>
+                    </div>
+
+                    {{-- <div class="mb-3 row">
                         <label for="permissions" class="col-md-4 col-form-label text-md-end text-start">Permissions</label>
                         <div class="col-md-6">
                             <div class="form-group">
@@ -54,7 +91,7 @@
                                 <span class="text-danger">{{ $errors->first('permissions') }}</span>
                             @endif
                         </div>
-                    </div>
+                    </div> --}}
                     
                     <div class="mb-3 row">
                         <input type="submit" class="col-md-3 offset-md-5 btn btn-primary" value="Add Role">

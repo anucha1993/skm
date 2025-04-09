@@ -1,6 +1,8 @@
 @extends('layouts.app')
 
 @section('content')
+
+
 <div class="card">
     <div class="card-header">Product List</div>
     <div class="card-body">
@@ -36,6 +38,7 @@
                             @can('delete-product')
                                 <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Do you want to delete this product?');"><i class="bi bi-trash"></i> Delete</button>
                             @endcan
+                            
                         </form>
                     </td>
                 </tr>
