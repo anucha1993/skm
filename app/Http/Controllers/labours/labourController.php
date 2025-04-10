@@ -9,6 +9,12 @@ use App\Http\Controllers\Controller;
 class labourController extends Controller
 {
     //
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+    
     public function create(): View
     {
         return view('labours.create');
