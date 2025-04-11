@@ -103,10 +103,12 @@
 					<li class="nav-item pcoded-menu-caption">
 						<label>Navigation</label>
 					</li>
-					{{-- <li class="nav-item">
-					    <a href="{{route('employee.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">ข้อมูลสิทธิ์พนักงาน</span></a>
-					</li>
+
 					<li class="nav-item">
+					    <a href="{{route('customers.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">ข้อมูลนายจ้าง</span></a>
+					</li>
+
+					{{-- <li class="nav-item">
 					    <a href="{{route('asset.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-monitor"></i></span><span class="pcoded-mtext">ข้อมูลทรัพย์สิน</span></a>
 					</li> --}}
 					
@@ -158,9 +160,13 @@
 					<li class="nav-item pcoded-hasmenu">
 						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Setting</span></a>
 						<ul class="pcoded-submenu">
-							<li><a href="{{route('managedocs.index')}}">ระบบจัดการเอกสาร</a></li>
+							<li><a href="{{route('managedocs.index')}}">ManageDocument</a></li>
+							<li><a href="{{route('global-sets.index')}}">GlobalSets</a></li>
+		
 						</ul>
+			
 					</li>
+					
 					{{-- <li class="nav-item pcoded-menu-caption">
 					    <label>Forms &amp; table</label>
 					</li>

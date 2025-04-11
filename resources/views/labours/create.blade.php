@@ -237,6 +237,18 @@
                                         <div class="col-sm-8">
                                             <select name="labour_hospital" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
+                                                @if(!empty($hospitalGlobalSet))
+                                                    @php
+                                                        // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                        $values = $hospitalGlobalSet->values;
+                                                        if($hospitalGlobalSet->sort_order_preference == 'alphabetical') {
+                                                            $values = $values->sortBy('value');
+                                                        }
+                                                    @endphp
+                                                    @foreach($values as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </div>
                                     </div>
@@ -308,6 +320,12 @@
                                         <div class="col-sm-8">
                                             <select name="country_id" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
+                                                @forelse ($manageDocs as $item)
+                                                <option value="{{$item->managedoc_id}}">{{$item->managedoc_name}}</option>
+                                                @empty
+                                                    
+                                                @endforelse
+                
                                             </select>
                                         </div>
                                     </div>
@@ -316,10 +334,22 @@
                                 <div class="col-md-6">
                                     <div class="form-group row">
                                         <label for=""
-                                            class="col-sm-4 col-form-label-sm text-right">ประเทศงาน</label>
+                                            class="col-sm-4 col-form-label-sm text-right">ประเทศสมัครงาน</label>
                                         <div class="col-sm-8">
                                             <select name="country_id" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
+                                                @if(!empty($countryGlobalSet))
+                                                    @php
+                                                        // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                        $values = $countryGlobalSet->values;
+                                                        if($countryGlobalSet->sort_order_preference == 'alphabetical') {
+                                                            $values = $values->sortBy('value');
+                                                        }
+                                                    @endphp
+                                                    @foreach($values as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </div>
                                     </div>
@@ -332,6 +362,18 @@
                                         <div class="col-sm-8">
                                             <select name="job_group_id" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
+                                                @if(!empty($jobGroupGlobalSet))
+                                                    @php
+                                                        // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                        $values = $jobGroupGlobalSet->values;
+                                                        if($jobGroupGlobalSet->sort_order_preference == 'alphabetical') {
+                                                            $values = $values->sortBy('value');
+                                                        }
+                                                    @endphp
+                                                    @foreach($values as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </div>
                                     </div>
@@ -344,6 +386,18 @@
                                         <div class="col-sm-8">
                                             <select name="position_id" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
+                                                @if(!empty($positionGlobalSet))
+                                                @php
+                                                    // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                    $values = $positionGlobalSet->values;
+                                                    if($positionGlobalSet->sort_order_preference == 'alphabetical') {
+                                                        $values = $values->sortBy('value');
+                                                    }
+                                                @endphp
+                                                @foreach($values as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                @endforeach
+                                            @endif
                                             </select>
                                         </div>
                                     </div>
@@ -362,6 +416,18 @@
                                     <div class="col-sm-8">
                                         <select name="labour_status" class="form-control form-control-sm" required>
                                             <option value="">--Select--</option>
+                                            @if(!empty($statusGlobalSet))
+                                            @php
+                                                // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                $values = $statusGlobalSet->values;
+                                                if($statusGlobalSet->sort_order_preference == 'alphabetical') {
+                                                    $values = $values->sortBy('value');
+                                                }
+                                            @endphp
+                                            @foreach($values as $item)
+                                                <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                            @endforeach
+                                        @endif
                                         </select>
                                     </div>
                                 </div>
@@ -395,6 +461,18 @@
                                         <div class="col-sm-8">
                                             <select name="lacation_test_id" class="form-control form-control-sm" >
                                                 <option value="">--Select--</option>
+                                                @if(!empty($ExaminationCenterGlobalSet))
+                                                @php
+                                                    // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                    $values = $ExaminationCenterGlobalSet->values;
+                                                    if($ExaminationCenterGlobalSet->sort_order_preference == 'alphabetical') {
+                                                        $values = $values->sortBy('value');
+                                                    }
+                                                @endphp
+                                                @foreach($values as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                @endforeach
+                                            @endif
                                             </select>
                                         </div>
                                     </div>
@@ -426,6 +504,18 @@
                                         <div class="col-sm-8">
                                             <select name="staff_id" class="form-control form-control-sm" >
                                                 <option value="">--Select--</option>
+                                                @if(!empty($StaffGlobalSet))
+                                                @php
+                                                    // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                    $values = $StaffGlobalSet->values;
+                                                    if($StaffGlobalSet->sort_order_preference == 'alphabetical') {
+                                                        $values = $values->sortBy('value');
+                                                    }
+                                                @endphp
+                                                @foreach($values as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                @endforeach
+                                            @endif
                                             </select>
                                         </div>
                                     </div>
@@ -437,6 +527,18 @@
                                         <div class="col-sm-8">
                                             <select name="staff_sub_id" class="form-control form-control-sm" >
                                                 <option value="">--Select--</option>
+                                                @if(!empty($StaffsubGlobalSet))
+                                                @php
+                                                    // ถ้าต้องการเรียงลำดับแบบ alphabetical
+                                                    $values = $StaffsubGlobalSet->values;
+                                                    if($StaffsubGlobalSet->sort_order_preference == 'alphabetical') {
+                                                        $values = $values->sortBy('value');
+                                                    }
+                                                @endphp
+                                                @foreach($values as $item)
+                                                    <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                @endforeach
+                                            @endif
                                             </select>
                                         </div>
                                     </div>
@@ -453,7 +555,6 @@
                     </div>
                 </div>
             </div>
-
             <button type="submit" class="btn btn-success text-white float-right"> บันทึกข้อมูล</button>
         </div>
 
