@@ -106,6 +106,11 @@
 
 					<li class="nav-item">
 					    <a href="{{route('customers.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">ข้อมูลนายจ้าง</span></a>
+					   
+					</li>
+					<li class="nav-item">
+				
+					    <a href="{{route('labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">ข้อมูลคนงาน</span></a>
 					</li>
 
 					{{-- <li class="nav-item">

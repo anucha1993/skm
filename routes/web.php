@@ -13,6 +13,8 @@ use App\Http\Controllers\assets\AssetAccountController;
 use App\Http\Controllers\globalsets\GlobalSetController;
 use App\Http\Controllers\managedocs\manageDocsController;
 use App\Http\Controllers\customers\CustomerFileController;
+use App\Http\Controllers\labours\labourUploadfilesController;
+use App\Http\Controllers\labours\labourUploadImageProfileController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,7 +43,20 @@ Route::resources([
 ]);
 
 //labour
-Route::resource('labours', LabourController::class);
+Route::resource('labours', labourController::class);
+Route::prefix('labours/api')->group(function () {
+    Route::get('/data',        [labourController::class, 'data'])->name('labours.data');   
+});
+//upload image profile 
+Route::middleware(['auth', 'verified'])   // ถ้าใช้ Laravel Breeze/Jetstream
+      ->post('/labours/{labour}/image-profile', [labourUploadImageProfileController::class, 'uploadImage'])
+      ->name('labours.upload-image');
+
+
+
+
+
+
 Route::resource('managedocs', manageDocsController::class);
 
 

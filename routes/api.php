@@ -1,8 +1,8 @@
 <?php
 
-use App\Http\Controllers\Api\labours\API_laboursController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\labours\labourUploadfilesController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,4 +19,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('labours', API_laboursController::class);
+// ⬇︎ POST สำหรับอัปโหลดไฟล์
+Route::post('labours/{labour}/list-files/{listFile}', [LabourUploadfilesController::class, 'upload'])->name('labours.list-files.upload'); // <- ชื่อ route
+
+// ⬇︎ DELETE สำหรับลบไฟล์
+Route::delete('list-files/{listFile}', [LabourUploadfilesController::class, 'destroy'])->name('labours.list-files.destroy');
+// route ดู / ดาวน์โหลด (ใช้ GET)
+Route::get('list-files/{listFile}/download', [LabourUploadfilesController::class, 'download'])->name('labours.list-files.download');

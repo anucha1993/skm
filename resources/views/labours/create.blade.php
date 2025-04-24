@@ -20,7 +20,8 @@
 </form>
  </div>
 </div> --}}
-
+<form action="{{ route('labours.store') }}" method="POST">
+    @csrf
     <div class="row">
         <!-- [ tabs ] start -->
         <div class="col-sm-12">
@@ -299,6 +300,11 @@
                                         <div class="col-sm-8">
                                             <select name="company_id" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
+                                                @forelse ($customers as $item)
+                                                    <option  value="{{ $item->id }}">{{ $item->name }}
+                                                    </option>
+                                                @empty
+                                                @endforelse
                                             </select>
                                         </div>
                                     </div>
@@ -318,7 +324,7 @@
                                         <label for=""
                                             class="col-sm-4 col-form-label-sm text-right">การจัดเก็บเอกสาร</label>
                                         <div class="col-sm-8">
-                                            <select name="country_id" class="form-control form-control-sm">
+                                            <select name="managedoc_id" class="form-control form-control-sm">
                                                 <option value="">--Select--</option>
                                                 @forelse ($manageDocs as $item)
                                                 <option value="{{$item->managedoc_id}}">{{$item->managedoc_name}}</option>
@@ -557,6 +563,8 @@
             </div>
             <button type="submit" class="btn btn-success text-white float-right"> บันทึกข้อมูล</button>
         </div>
+    </form>
+        
 
         <script>
             //คำนวนอายุ
