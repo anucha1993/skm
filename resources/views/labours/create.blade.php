@@ -260,7 +260,7 @@
                                         <label for=""
                                             class="col-sm-4 col-form-label-sm text-right">วันรับผลโรค</label>
                                         <div class="col-sm-8">
-                                            <input type="date" name="labour_disease_receivedate"
+                                            <input type="date" name="labour_disease_receive_date"
                                                 class="form-control form-control-sm">
                                         </div>
                                     </div>
@@ -490,7 +490,7 @@
                                         <label for=""
                                             class="col-sm-4 col-form-label-sm text-right">รอบสอบวันที่ </label>
                                         <div class="col-sm-8">
-                                            <input type="date" class="form-control form-control-sm">
+                                            <input type="date" name="lacation_test_date" class="form-control form-control-sm">
                                         </div>
                                     </div>
                                 </div>

@@ -6,12 +6,13 @@ use Illuminate\View\View;
 use Illuminate\Http\Request;
 
 use App\Models\customers\Customer;
+use Illuminate\Support\Facades\DB;
 use App\Models\labours\labourModel;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
 
-use App\Models\globalsets\GlobalSetModel;
+use Illuminate\Support\Facades\Auth;
 use App\Models\labours\listfilesModel;
+use App\Models\globalsets\GlobalSetModel;
 use App\Models\managedocs\managedocsModel;
 use App\Models\managedocs\managefilesModel;
 
@@ -22,22 +23,52 @@ class labourController extends Controller
     public function __construct()
     {
         $this->middleware('auth');
+        $this->middleware('permission:create-labour|edit-labour|delete-labour', ['only' => ['index', 'show']]);
+        $this->middleware('permission:create-labour', ['only' => ['create', 'store']]);
+        $this->middleware('permission:edit-labour', ['only' => ['edit', 'update']]);
+        $this->middleware('permission:delete-labour', ['only' => ['destroy']]);
     }
 
     public function index(Request $request)
     {
-        return view('labours.index');
+        // 1) จำนวนคนงานทั้งหมด
+        $totalLabours = LabourModel::count();
+
+        $allStatus = [
+            'รอดำเนินการ', // pending
+            'กำลังดำเนินการ', // processing
+            'ดำเนินการเสร็จ', // completed
+            'ยกเลิก', // cancelled
+        ];
+        $statusCounts = LabourModel::with('labourStatus:value,id')->select('labour_status', DB::raw('COUNT(*) as total'))->groupBy('labour_status')->get()->mapWithKeys(fn($row) => [$row->labourStatus->value ?? 'ไม่ระบุ' => $row->total])->toArray();
+        /* เติม 0 ให้สถานะที่ไม่มี */
+        $statusCounts = array_replace(array_fill_keys($allStatus, 0), $statusCounts);
+
+        return view('labours.index', compact('totalLabours', 'statusCounts'));
     }
 
     public function data()
     {
-        $fallback = asset('images/user_icon.png'); // <<— รูป default
+        $fallback = asset('images/user_icon.png');
 
-        $labours = LabourModel::select(['labour_id', 'labour_prefix', 'labour_firstname', 'labour_lastname', 'labour_phone_one', 'labour_image_thumbnail_path as thumbnail'])
+        $labours = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value')
+            ->select(['labour_id', 'labour_prefix', 'labour_firstname', 'labour_lastname', 'labour_phone_one', 'labour_image_thumbnail_path AS thumbnail', 'country_id', 'job_group_id'])
             ->orderByDesc('labour_id')
             ->get()
             ->map(function ($row) use ($fallback) {
+                // รูป
                 $row->thumbnail = $row->thumbnail ? asset('storage/' . ltrim($row->thumbnail, '/')) : $fallback;
+
+                // ⇢ NEW ⇠  ทำ badge ของ Step
+                $badges = collect(['A', 'B'])
+                    ->map(function ($s) use ($row) {
+                        $ok = in_array($s, $row->completed_steps);
+                        $cls = $ok ? 'success' : 'secondary'; // เขียว=ครบ / เทา=ยังไม่ครบ
+                        return "<span class='badge bg-{$cls}'>Step {$s}</span>";
+                    })
+                    ->implode(' ');
+
+                $row->steps_badge = $badges;
                 return $row;
             });
 
@@ -56,9 +87,26 @@ class labourController extends Controller
         $StaffsubGlobalSet = GlobalSetModel::with('values')->where('id', 8)->first();
         $manageDocs = managedocsModel::latest()->get();
         $customers = Customer::latest()->get();
-        $listFiles = listfilesModel::where('labour_id',$labour->labour_id)->get();
+        $listFiles = listfilesModel::where('labour_id', $labour->labour_id)->get();
 
-        return view('labours.edit', compact('listFiles','labour', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet'));
+        return view('labours.edit', compact('listFiles', 'labour', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet'));
+    }
+
+    public function show(labourModel $labour)
+    {
+        $hospitalGlobalSet = GlobalSetModel::with('values')->where('id', 1)->first();
+        $countryGlobalSet = GlobalSetModel::with('values')->where('id', 3)->first();
+        $jobGroupGlobalSet = GlobalSetModel::with('values')->where('id', 4)->first();
+        $positionGlobalSet = GlobalSetModel::with('values')->where('id', 5)->first();
+        $statusGlobalSet = GlobalSetModel::with('values')->where('id', 6)->first();
+        $ExaminationCenterGlobalSet = GlobalSetModel::with('values')->where('id', 2)->first();
+        $StaffGlobalSet = GlobalSetModel::with('values')->where('id', 7)->first();
+        $StaffsubGlobalSet = GlobalSetModel::with('values')->where('id', 8)->first();
+        $manageDocs = managedocsModel::latest()->get();
+        $customers = Customer::latest()->get();
+        $listFiles = listfilesModel::where('labour_id', $labour->labour_id)->get();
+
+        return view('labours.show', compact('listFiles', 'labour', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet'));
     }
 
     public function create(): View
@@ -93,13 +141,12 @@ class labourController extends Controller
                     'managefile_code' => $item->managefile_code,
                     'managefile_name' => $item->managefile_name,
                     'managefile_step' => $item->managefile_step,
-                    'file_path' => NULL,
+                    'file_path' => null,
                 ]);
             }
         }
 
         $labour->update($request->all());
-
     }
 
     public function store(Request $request)

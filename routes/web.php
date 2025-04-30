@@ -11,6 +11,7 @@ use App\Http\Controllers\employee\employeeController;
 use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\assets\AssetAccountController;
 use App\Http\Controllers\globalsets\GlobalSetController;
+use App\Http\Controllers\labours\LabourReportController;
 use App\Http\Controllers\managedocs\manageDocsController;
 use App\Http\Controllers\customers\CustomerFileController;
 use App\Http\Controllers\labours\labourUploadfilesController;
@@ -52,7 +53,11 @@ Route::middleware(['auth', 'verified'])   // ถ้าใช้ Laravel Breeze/J
       ->post('/labours/{labour}/image-profile', [labourUploadImageProfileController::class, 'uploadImage'])
       ->name('labours.upload-image');
 
-
+// labour Reports
+Route::prefix('report/labours')->name('report.labours.')->group(function () {
+    Route::get('/',             [LabourReportController::class, 'index'])->name('index');
+    Route::get('/export',       [LabourReportController::class, 'export'])->name('export');
+});
 
 
 

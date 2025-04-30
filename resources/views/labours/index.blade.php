@@ -1,62 +1,138 @@
 @extends('layouts.template')
 
 @section('content')
-<div class="row">
-    <div class="col-sm-12">
-        <div class="card shadow-sm">
-            <div class="card-header"><h5 class="mb-0">ข้อมูลคนงาน</h5></div>
 
+<div class="row">
+    <div class="col">
+        <div class="card">
             <div class="card-body">
-                <table id="labours-table" class="table table-bordered" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>รหัส</th>
-                            <th>รูปภาพ</th>
-                            <th>คำนำหน้า</th>
-                            <th>ชื่อ</th>
-                            <th>สกุล</th>
-                            <th>โทรศัพท์</th>
-                            
-                            <th>จัดการ</th> 
-                        </tr>
-                    </thead>
-                    <tbody></tbody>
-                </table>
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <h3 class="text-success">{{ $totalLabours }}</h3>
+                        <h6 class="text-muted m-b-0">คนงานทั้งหมด</h6>
+                    </div>
+                    <div class="col-6">
+                        <div id="seo-chart1" class="d-flex align-items-end"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-<script>
+
+    @foreach ($statusCounts as $label => $count)
+    <div class="col">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-6">
+                        <h3>{{ $count }}</h3>
+                        <h6 class="text-muted m-b-0">{{ $label }}</h6>
+                    </div>
+                    <div class="col-6">
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    @endforeach
+
+    </div>
+
+  
+
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="card shadow-sm">
+                <div class="card-header">
+                    <h5 class="mb-0">ข้อมูลคนงาน</h5>
+                </div>
+
+                <div class="card-body">
+                    <table id="labours-table" class="table table-bordered" style="width:100%">
+                        <thead>
+                            <tr>
+                                <th>รหัส</th>
+                                <th>รูปภาพ</th>
+                                <th>ชื่อ-สกุล</th>
+                                <th>ประเทศ</th>
+                                <th>ประเภทงาน</th>
+                                <th>Steps</th>
+                                <th>โทรศัพท์</th>
+
+                                <th>จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
         $('#labours-table').DataTable({
-        processing: true,
-        ajax: '{{ route("labours.data") }}',
-        columns: [
-            { data:'labour_id'},
-            {
-                data:'thumbnail', orderable:false, searchable:false,
-                render: d => `<img src="${d || '{{ asset("images/user_icon.png") }}'}"
-                     class="rounded-circle mx-auto d-block"
-                     style="width:30px;height:30px;object-fit:cover;">`
-            },
-            { data:'labour_prefix'   },
-            { data:'labour_firstname'},
-            { data:'labour_lastname' },
-            { data:'labour_phone_one'},
-           
-            {   // ***** ปุ่มดู-แก้ไข-ลบ *****
-                data:'labour_id', orderable:false, searchable:false,
-                render: function(id){
-                    return `
-                        <a href="{{ url('labours') }}/${id}" class="btn btn-sm btn-info me-1">ดู</a>
-                        <a href="{{ url('labours') }}/${id}/edit" class="btn btn-sm btn-warning me-1">แก้ไข</a>
-                        <button class="btn btn-sm btn-danger btn-delete" data-id="${id}">ลบ</button>
-                    `;
-                }
-            },
-        ],
-        language:{ url:'//cdn.datatables.net/plug-ins/1.13.8/i18n/th.json' }
-    });
+            processing: true,
+            ajax: '{{ route('labours.data') }}',
+            columns: [{
+                    data: 'labour_id'
+                },
+                { // thumbnail
+                    data: 'thumbnail',
+                    orderable: false,
+                    searchable: false,
+                    render: d => `
+                <img src="${d}" class="rounded-circle mx-auto d-block"
+                     style="width:30px;height:30px;object-fit:cover;">
+            `
+                },
+                { // >>> ชื่อ-สกุล
+                    data: null, // รับทั้งแถว
+                    render: function(data, type, row) {
+                        // row.labour_prefix, row.labour_firstname, row.labour_lastname
+                        return `${row.labour_prefix+'.'} ${row.labour_firstname} ${row.labour_lastname}`;
+                    }
+                },
+
+                {
+                    data: 'country.value',
+                    defaultContent: '-'
+                },
+                {
+                    data: 'job_group.value',
+                    title: 'งาน',
+                    defaultContent: '-'
+                },
+
+
+                { // ***** NEW – Steps *****
+                    data: 'steps_badge',
+                    orderable: false,
+                    searchable: false,
+                    render: d => d // HTML badge ที่สร้างมาแล้ว
+                },
+
+                {
+                    data: 'labour_phone_one'
+                },
+
+                { // ***** ปุ่มจัดการ *****
+                    data: 'labour_id',
+                    orderable: false,
+                    searchable: false,
+                    render: id => `
+                <a href="{{ url('labours') }}/${id}" class="btn btn-sm btn-info me-1">ดู</a>
+                @can('edit-labour')
+                <a href="{{ url('labours') }}/${id}/edit" class="btn btn-sm btn-warning me-1">แก้ไข</a>
+                 @endcan
+                   @can('delete-labour')
+                <a href="{{ url('labours') }}/${id}/delete" class="btn btn-sm btn-danger me-1" onclick="return confirm('คุณต้องการลบข้อมูลนี้ใช่หรือไม่?');">ลบ</a>
+                 @endcan
+            `
+                },
+            ],
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/th.json'
+            }
+        });
     </script>
 @endsection
-
-

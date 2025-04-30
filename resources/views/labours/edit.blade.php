@@ -28,8 +28,17 @@
             <div class="col-sm-12">
                 <div class="card">
                     <div class="card-header">
-                        <h5>เพิ่มข้อมูลคนงาน</h5>
-
+                        <h5>แก้ไขข้อมูลคนงาน</h5>
+                        <div class="">
+                            @foreach (['A', 'B'] as $step)
+                                @php $done = in_array($step, $labour->completed_steps); @endphp
+                                <span class="badge bg-{{ $done ? 'success' : 'secondary' }}">
+                                    Step {{ $step }} {{ $done ? 'ครบ' : 'ยังไม่ครบ' }}
+                                </span>
+                            @endforeach
+                        </div>
+                        
+                        
                     </div>
 
                     <div class="card-body">
@@ -286,7 +295,7 @@
                                             <label for=""
                                                 class="col-sm-4 col-form-label-sm text-right">วันรับผลโรค</label>
                                             <div class="col-sm-8">
-                                                <input type="date" name="labour_disease_receivedate"
+                                                <input type="date" name="labour_disease_receive_date"
                                                     value="{{ $labour->labour_disease_receivedate }}"
                                                     class="form-control form-control-sm">
                                             </div>
@@ -547,7 +556,7 @@
                                             <label for=""
                                                 class="col-sm-4 col-form-label-sm text-right">รอบสอบวันที่ </label>
                                             <div class="col-sm-8">
-                                                <input type="date" class="form-control form-control-sm">
+                                                <input type="date" name="lacation_test_date" value="{{$labour->lacation_test_date}}" class="form-control form-control-sm">
                                             </div>
                                         </div>
                                     </div>
@@ -700,8 +709,7 @@
                     processData: false,
                     success(res) {
                         // แทนที่ cell ไฟล์
-                        $row.find('td').eq(3)
-                            .html('<i class="fa fa-file-earmark-fill fs-3"></i>');
+                        // $row.find('td').eq(3).html('<i class="fa fa-file-earmark-fill fs-3"></i>');
                         // แทนที่ cell Action
                         const btns = `
                   <a href="${res.url}" target="_blank" class="btn btn-info btn-sm me-1">
@@ -734,8 +742,7 @@
                     type: 'DELETE',
                     success() {
                         // ไอคอนไฟล์
-                        $row.find('td').eq(3)
-                            .html('<i class="fa fa-file-earmark-slash fs-3 text-muted"></i>');
+                       // $row.find('td').eq(3).html('<i class="fa fa-file-earmark-slash fs-3 text-muted"></i>');
                         // คืน input
                         const id = $row.data('id');
                         const inp =
@@ -903,9 +910,11 @@
                     if (ageMonths > 0) {
                         ageString += ' ' + ageMonths + ' เดือน';
                     }
+
                     if (ageDays > 0) {
                         ageString += ' ' + ageDays + ' วัน';
                     }
+                    
 
                     $('#total-birthday').val(ageString); // เลือก Element ด้วย ID โดยตรง
 
