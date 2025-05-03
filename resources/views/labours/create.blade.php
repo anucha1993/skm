@@ -417,8 +417,7 @@
                             <div class="row container">
                             <div class="col-md-6">
                                 <div class="form-group row">
-                                    <label for=""
-                                        class="col-sm-4 col-form-label-sm text-right">สถานะ <span class="text-danger">*</span></label>
+                                    <label for="" class="col-sm-4 col-form-label-sm text-right">สถานะ <span class="text-danger">*</span></label>
                                     <div class="col-sm-8">
                                         <select name="labour_status" class="form-control form-control-sm" required>
                                             <option value="">--Select--</option>
@@ -435,6 +434,14 @@
                                             @endforeach
                                         @endif
                                         </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group row">
+                                    <label for="" class="col-sm-4 col-form-label-sm text-right">บันทึกเพิ่มเติม </label>
+                                    <div class="col-sm-8">
+                                        <textarea name="labour_note" class="form-control" cols="30" rows="2" placeholder="Note.."></textarea>
                                     </div>
                                 </div>
                             </div>

@@ -351,7 +351,8 @@
 						</li> --}}
 					</ul>
 					<ul class="navbar-nav ml-auto">
-						<li>
+						
+						{{-- <li>
 							<div class="dropdown">
 								<a class="dropdown-toggle" href="#" data-toggle="dropdown">
 									<i class="icon feather icon-bell"></i>
@@ -435,7 +436,7 @@
 									</ul>
 								</div>
 							</div>
-						</li>
+						</li> --}}
 					</ul>
 				</div>
 				

@@ -28,13 +28,13 @@ use App\Http\Controllers\labours\labourUploadImageProfileController;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
-});
+// Route::get('/', function () {
+//     return view('welcome');
+// });
 
 Auth::routes();
 
-Route::get('/home', [HomeController::class, 'index'])->name('home');
+// Route::get('/home', [HomeController::class, 'index'])->name('home');
 
 
 Route::resources([
@@ -44,6 +44,7 @@ Route::resources([
 ]);
 
 //labour
+Route::get('/', [labourController::class, 'index'])->name('home');
 Route::resource('labours', labourController::class);
 Route::prefix('labours/api')->group(function () {
     Route::get('/data',        [labourController::class, 'data'])->name('labours.data');   

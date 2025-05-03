@@ -150,6 +150,14 @@
                   </div></div>
                 @endforeach
               </div>
+              <h6 class="fw-semibold mt-4">บันทึกเพิ่มเติม</h6><hr class="mt-1 mb-3">
+              <div class="row gy-3">
+               <div class="col-md-6"> <div class="d-flex">
+                {{$labour->labour_note}}
+                </div>
+                </div>
+              </div>
+
             </div><!-- /tab all -->
 
             {{-- TAB : ไฟล์เอกสาร ---------------------------------------- --}}
