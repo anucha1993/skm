@@ -10,6 +10,7 @@
                     <div class="col-6">
                         <h3 class="text-success">{{ $totalLabours }}</h3>
                         <h6 class="text-muted m-b-0">คนงานทั้งหมด</h6>
+                        
                     </div>
                     <div class="col-6">
                         <div id="seo-chart1" class="d-flex align-items-end"></div>
@@ -46,6 +47,7 @@
             <div class="card shadow-sm">
                 <div class="card-header">
                     <h5 class="mb-0">ข้อมูลคนงาน</h5>
+                    <a href="{{route('labours.create')}}">เพิ่มข้อมูล</a>
                 </div>
 
                 <div class="card-body">

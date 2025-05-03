@@ -157,7 +157,7 @@ class labourController extends Controller
         $exists = labourModel::where('labour_idcard_number', $request->labour_idcard_number)->exists();
     
         if ($exists) {
-            return redirect()->back()->withInput()->withErrors(['labour_idcard_number' => 'เลขบัตรประชาชนนี้มีอยู่ในระบบแล้ว']);
+            return 'เลขบัตรประชาชนนี้มีอยู่ในระบบแล้ว';
         }
     
         // หากไม่ซ้ำ ให้ทำการเพิ่มข้อมูลใหม่
@@ -167,5 +167,9 @@ class labourController extends Controller
         return redirect()->route('home')->with('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
     }
 
+    public function destroy(labourModel $labour)
+    {
+        
+    }
     
 }
