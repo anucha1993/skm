@@ -21,7 +21,7 @@ class labourModel extends Model
 
     public function listFiles()
     {
-        return $this->hasMany(ListFilesModel::class, 'labour_id', 'labour_id');
+        return $this->hasMany(listfilesModel::class, 'labour_id', 'labour_id');
     }
 
     public function labourStatus()

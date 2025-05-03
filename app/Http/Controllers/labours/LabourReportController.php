@@ -31,7 +31,7 @@ class LabourReportController extends Controller
          ->limit(20)
          ->get();
 
-         $allSteps = ListFilesModel::distinct()
+         $allSteps = listfilesModel::distinct()
          ->orderBy('managefile_step')
          ->pluck('managefile_step');   // ใช้เติม dropdown
  
