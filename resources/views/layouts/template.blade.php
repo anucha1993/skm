@@ -351,13 +351,29 @@
 						</li> --}}
 					</ul>
 					<ul class="navbar-nav ml-auto">
-						
-						{{-- <li>
+						<li>
+							<a id="navbarDropdown" class="nav-link dropdown-toggle text-white" href="#" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
+								{{ Auth::user()->name }}
+							</a>
+
+							<div class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+								<a class="dropdown-item" href="{{ route('logout') }}"
+								   onclick="event.preventDefault();
+												 document.getElementById('logout-form').submit();">
+									{{ __('Logout') }}
+								</a>
+
+								<form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+									@csrf
+								</form>
+							</div>
+						</li>
+						<li>
 							<div class="dropdown">
-								<a class="dropdown-toggle" href="#" data-toggle="dropdown">
+								{{-- <a class="dropdown-toggle" href="#" data-toggle="dropdown">
 									<i class="icon feather icon-bell"></i>
 									<span class="badge badge-pill badge-danger">5</span>
-								</a>
+								</a> --}}
 								<div class="dropdown-menu dropdown-menu-right notification">
 									<div class="noti-head">
 										<h6 class="d-inline-block m-b-0">Notifications</h6>
@@ -418,9 +434,9 @@
 						</li>
 						<li>
 							<div class="dropdown drp-user">
-								<a href="#" class="dropdown-toggle" data-toggle="dropdown">
+								{{-- <a href="#" class="dropdown-toggle" data-toggle="dropdown">
 									<i class="feather icon-user"></i>
-								</a>
+								</a> --}}
 								<div class="dropdown-menu dropdown-menu-right profile-notification">
 									<div class="pro-head">
 										<img src="{{URL::asset('/template/dist/assets/images/user/avatar-1.jpg')}}" class="img-radius" alt="User-Profile-Image">
@@ -436,7 +452,7 @@
 									</ul>
 								</div>
 							</div>
-						</li> --}}
+						</li>
 					</ul>
 				</div>
 				

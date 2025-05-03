@@ -147,12 +147,25 @@ class labourController extends Controller
         }
 
         $labour->update($request->all());
-    }
 
+        return redirect()->back();
+    }
+    
     public function store(Request $request)
     {
-        //dd($request);
+        // ตรวจสอบเลขบัตรประชาชนว่าซ้ำหรือไม่
+        $exists = labourModel::where('labour_idcard_number', $request->labour_idcard_number)->exists();
+    
+        if ($exists) {
+            return redirect()->back()->withInput()->withErrors(['labour_idcard_number' => 'เลขบัตรประชาชนนี้มีอยู่ในระบบแล้ว']);
+        }
+    
+        // หากไม่ซ้ำ ให้ทำการเพิ่มข้อมูลใหม่
         $request->merge(['created_by' => Auth::user()->name]);
         $labours = labourModel::create($request->all());
+    
+        return redirect()->route('home')->with('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
     }
+
+    
 }
