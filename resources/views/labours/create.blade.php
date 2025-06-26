@@ -172,9 +172,116 @@
                                             </div>
                                         </div>
                                     </div>
+
+                                    <!-- ฟิลด์ข้อมูลการติดต่อเพิ่มเติม -->
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="" class="col-sm-4 col-form-label-sm text-right">อีเมล</label>
+                                            <div class="col-sm-8">
+                                                <input type="email" name="labour_email"
+                                                    class="form-control form-control-sm" placeholder="example@email.com">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="" class="col-sm-4 col-form-label-sm text-right">Line ID</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="labour_line_id"
+                                                    class="form-control form-control-sm" placeholder="Line ID">
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="form-group row">
+                                            <label for="" class="col-sm-4 col-form-label-sm text-right">ชื่อผู้ติดต่อฉุกเฉิน</label>
+                                            <div class="col-sm-8">
+                                                <input type="text" name="labour_emergency_contact_name"
+                                                    class="form-control form-control-sm" placeholder="ชื่อผู้ติดต่อฉุกเฉิน">
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
+                                <!-- ข้อมูลที่อยู่ -->
+                                <div class="col-md-12">
+                                    <b class="">ข้อมูลที่อยู่</b>
+                                    <hr>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-4 col-form-label-sm text-right">ประเภทที่อยู่</label>
+                                        <div class="col-sm-8">
+                                            <select name="labour_address_type" class="form-control form-control-sm">
+                                                <option value="">---เลือก---</option>
+                                                <option value="ตามบัตรประชาชน">ตามบัตรประชาชน</option>
+                                                <option value="ปัจจุบัน">ที่อยู่ปัจจุบัน</option>
+                                                <option value="อื่นๆ">อื่นๆ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-2 col-form-label-sm text-right">ที่อยู่</label>
+                                        <div class="col-sm-10">
+                                            <textarea name="labour_address" class="form-control form-control-sm" 
+                                                rows="2" placeholder="บ้านเลขที่ หมู่ ซอย ถนน"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-4 col-form-label-sm text-right">จังหวัด</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="labour_province"
+                                                class="form-control form-control-sm" placeholder="จังหวัด">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-4 col-form-label-sm text-right">เขต/อำเภอ</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="labour_district"
+                                                class="form-control form-control-sm" placeholder="เขต/อำเภอ">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-4 col-form-label-sm text-right">แขวง/ตำบล</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="labour_sub_district"
+                                                class="form-control form-control-sm" placeholder="แขวง/ตำบล">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-4 col-form-label-sm text-right">รหัสไปรษณีย์</label>
+                                        <div class="col-sm-8">
+                                            <input type="text" name="labour_postcode"
+                                                class="form-control form-control-sm" placeholder="รหัสไปรษณีย์" maxlength="10">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- เพิ่มฟิลด์ Note -->
+                                <div class="col-md-12">
+                                    <div class="form-group row">
+                                        <label for="" class="col-sm-2 col-form-label-sm text-right">หมายเหตุ</label>
+                                        <div class="col-sm-10">
+                                            <textarea name="labour_note" class="form-control form-control-sm" 
+                                                rows="3" placeholder="หมายเหตุเพิ่มเติม"></textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
+
                             <div class="col-md-12 ">
                                 <b class="">ข้อมูลหนังสือเดินทาง</b>
                                 <hr>

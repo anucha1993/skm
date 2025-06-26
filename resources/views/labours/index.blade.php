@@ -19,7 +19,7 @@
             </div>
         </div>
     </div>
-
+   
     @foreach ($statusCounts as $label => $count)
     <div class="col">
         <div class="card">
@@ -71,6 +71,7 @@
             </div>
         </div>
     </div>
+  
     <script>
         $('#labours-table').DataTable({
             processing: true,
@@ -122,19 +123,22 @@
                     orderable: false,
                     searchable: false,
                     render: id => `
+                <form  action="{{ url('labours/${id}') }}" method="post">
+                      @csrf
+                      @method('DELETE')
                 <a href="{{ url('labours') }}/${id}" class="btn btn-sm btn-info me-1">ดู</a>
                 @can('edit-labour')
                 <a href="{{ url('labours') }}/${id}/edit" class="btn btn-sm btn-warning me-1">แก้ไข</a>
                  @endcan
                    @can('delete-labour')
-                <a href="{{ url('labours') }}/${id}/delete" class="btn btn-sm btn-danger me-1" onclick="return confirm('คุณต้องการลบข้อมูลนี้ใช่หรือไม่?');">ลบ</a>
+               <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Do you want to delete this Data?');"><i class="bi bi-trash"></i> ลบ</button>
                  @endcan
             `
                 },
             ],
-            language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/th.json'
-            }
+            // language: {
+            //     url: '//cdn.datatables.net/plug-ins/1.13.8/i18n/th.json'
+            // }
         });
     </script>
 @endsection

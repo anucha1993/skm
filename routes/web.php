@@ -6,14 +6,17 @@ use App\Http\Controllers\HomeController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\LabourApiController;
 use App\Http\Controllers\labours\labourController;
 use App\Http\Controllers\employee\employeeController;
 use App\Http\Controllers\customers\CustomerController;
 use App\Http\Controllers\assets\AssetAccountController;
 use App\Http\Controllers\globalsets\GlobalSetController;
+use App\Http\Controllers\labours\LabourImportController;
 use App\Http\Controllers\labours\LabourReportController;
 use App\Http\Controllers\managedocs\manageDocsController;
 use App\Http\Controllers\customers\CustomerFileController;
+use App\Http\Controllers\labours\ImportLabourController;
 use App\Http\Controllers\labours\labourUploadfilesController;
 use App\Http\Controllers\labours\labourUploadImageProfileController;
 
@@ -76,5 +79,21 @@ Route::delete('/global-sets/{globalSet}', [GlobalSetController::class, 'destroy'
 //customer
 Route::resource('customers', CustomerController::class);
 Route::get('/customer-files/{id}', [CustomerFileController::class, 'show'])->name('customer_files.show');
+
+
+//import
+// Import Labour Routes
+Route::prefix('import-labours')->name('import-labours.')->group(function () {
+    Route::get('/', [ImportLabourController::class, 'index'])->name('index');
+    Route::post('/convert/{id}', [ImportLabourController::class, 'convert'])->name('convert');
+    Route::post('/test-convert/{id?}', [ImportLabourController::class, 'testConvert'])->name('test-convert');
+    Route::post('/debug-convert/{id}', [ImportLabourController::class, 'debugConvert'])->name('debug-convert');
+});
+
+// Legacy route (keep for backward compatibility)
+Route::get('/labour-import', [LabourImportController::class, 'index']);
+
+Route::get('mock-labours', [LabourApiController::class, 'getMockData']);
+
 
 

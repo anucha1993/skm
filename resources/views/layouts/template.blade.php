@@ -113,6 +113,10 @@
 					    <a href="{{route('labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">ข้อมูลคนงาน</span></a>
 					</li>
 
+					<li class="nav-item">
+					    <a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext">Import ข้อมูล API</span></a>
+					</li>
+
 					{{-- <li class="nav-item">
 					    <a href="{{route('asset.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-monitor"></i></span><span class="pcoded-mtext">ข้อมูลทรัพย์สิน</span></a>
 					</li> --}}

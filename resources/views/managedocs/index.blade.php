@@ -32,7 +32,7 @@
                                 <td>{{ ++$key }}</td>
                                 <td>{{ $item->managedoc_name }}</td>
                                 <td>{{ $item->country->country_job_name }}</td>
-                                <td> <span class="badge badge-pill badge-primary">{{ $item->managefile->count() }}
+                                <td> <span class="badge badge-pill badge-primary">{{ $item->managefiles->count() }}
                                         รายการ</span></td>
                                 <td>{!! $item->managedoc_status === 'Y'
                                     ? '<span class="badge badge-pill badge-success">เปิดใช้งาน</span>'

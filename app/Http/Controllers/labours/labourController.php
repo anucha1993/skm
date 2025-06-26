@@ -169,7 +169,8 @@ class labourController extends Controller
 
     public function destroy(labourModel $labour)
     {
-        
+        $labour->delete();
+        return redirect()->route('labours.index')->with('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
     }
     
 }

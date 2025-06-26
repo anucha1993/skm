@@ -19,5 +19,6 @@ class listfilesModel extends Model
         'managefile_name',
         'managefile_step',
         'file_path',
+        'thumbnail_path'
     ];
 }
