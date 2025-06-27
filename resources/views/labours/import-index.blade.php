@@ -65,6 +65,58 @@
                 @endif
 
                 @if(isset($candidates) && count($candidates) > 0)
+                <!-- Search Section -->
+                <div class="row mb-3">
+                    <div class="col-md-8">
+                        <div class="input-group">
+                            <span class="input-group-text bg-light">
+                                <i class="fas fa-search"></i>
+                            </span>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="searchInput" 
+                                   placeholder="ค้นหาจากชื่อ, เบอร์โทร, อีเมล, จังหวัด, ทักษะ, ประเทศที่สนใจ..."
+                                   autocomplete="off">
+                            <button class="btn btn-outline-secondary" type="button" onclick="clearSearch()">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="mt-1">
+                            <small class="text-muted">
+                                <span id="search-result-count">แสดงทั้งหมด {{ count($candidates) }} รายการ</span>
+                                <span id="search-filters" class="ms-2"></span>
+                            </small>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="dropdown">
+                            <button class="btn btn-outline-primary dropdown-toggle w-100" type="button" 
+                                    id="filterDropdown" data-bs-toggle="dropdown">
+                                <i class="fas fa-filter me-2"></i>ตัวกรอง
+                            </button>
+                            <ul class="dropdown-menu w-100">
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="all">
+                                    <i class="fas fa-list me-2"></i>แสดงทั้งหมด
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="pending">
+                                    <i class="fas fa-clock me-2"></i>รอการแปลง
+                                </a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="converted">
+                                    <i class="fas fa-check me-2"></i>แปลงแล้ว
+                                </a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="male">
+                                    <i class="fas fa-mars me-2"></i>เพศชาย
+                                </a></li>
+                                <li><a class="dropdown-item filter-option" href="#" data-filter="female">
+                                    <i class="fas fa-venus me-2"></i>เพศหญิง
+                                </a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="alert alert-info">
                     <i class="fas fa-info-circle me-2"></i>
                     <strong>คำแนะนำ:</strong> กดปุ่ม "Convert" เพื่อแปลงข้อมูลจาก API และบันทึกลงในระบบ
@@ -303,6 +355,79 @@
 .card.bg-info:hover, .card.bg-success:hover, .card.bg-warning:hover {
     transform: translateY(-2px);
 }
+
+/* Search Section */
+#searchInput {
+    border-radius: 0.375rem 0 0 0.375rem;
+    font-size: 0.95rem;
+}
+
+#searchInput:focus {
+    border-color: #0d6efd;
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.input-group-text {
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.search-highlight {
+    background-color: #fff3cd;
+    padding: 1px 3px;
+    border-radius: 2px;
+    font-weight: 500;
+}
+
+/* Filter dropdown */
+.dropdown-menu {
+    border-radius: 0.5rem;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+
+.dropdown-item:hover {
+    background-color: #f8f9fa;
+}
+
+.dropdown-item.active {
+    background-color: #0d6efd;
+    color: white;
+}
+
+/* Hide/Show rows */
+.candidate-row.search-hidden {
+    display: none !important;
+}
+
+.no-results-row {
+    background-color: #f8f9fa;
+    font-style: italic;
+    color: #6c757d;
+}
+
+/* Loading animation */
+.search-loading {
+    opacity: 0.6;
+    pointer-events: none;
+}
+
+.search-loading .input-group::after {
+    content: '';
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 16px;
+    height: 16px;
+    border: 2px solid #0d6efd;
+    border-top: 2px solid transparent;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: translateY(-50%) rotate(0deg); }
+    100% { transform: translateY(-50%) rotate(360deg); }
+}
 </style>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -417,6 +542,10 @@ function debugConvert() {
 function refreshData() {
     console.log('Refreshing data...');
     
+    // เก็บค่าการค้นหาปัจจุบัน
+    const currentSearch = $('#searchInput').val();
+    const currentFilterValue = currentFilter;
+    
     // แสดง loading
     const $refreshBtn = $('.btn-outline-primary');
     const originalText = $refreshBtn.html();
@@ -443,14 +572,14 @@ function refreshData() {
 
 // ฟังก์ชันนับจำนวน candidate ที่ convert แล้วและยังไม่ได้ convert
 function updateCounts() {
-    // นับจากแถวที่ไม่ใช่แถว "ไม่มีข้อมูล"
-    const totalRows = $('#candidates-table tbody tr.candidate-row').length;
+    // นับจากแถวที่ไม่ใช่แถว "ไม่มีข้อมูล" และไม่ถูกซ่อนด้วยการค้นหา
+    const totalRows = $('#candidates-table tbody tr.candidate-row:not(.search-hidden)').length;
     
-    // นับจากแถวที่มี class table-success (convert แล้ว)
-    const convertedRows = $('#candidates-table tbody tr.table-success').length;
+    // นับจากแถวที่มี class table-success (convert แล้ว) และไม่ถูกซ่อน
+    const convertedRows = $('#candidates-table tbody tr.table-success:not(.search-hidden)').length;
     
-    // หรือนับจากปุ่มที่เปลี่ยนเป็น "สำเร็จ" แล้ว
-    const convertedButtons = $('#candidates-table tbody .btn-success').length;
+    // หรือนับจากปุ่มที่เปลี่ยนเป็น "สำเร็จ" แล้ว และไม่ถูกซ่อน
+    const convertedButtons = $('#candidates-table tbody tr:not(.search-hidden) .btn-success').length;
     
     // ใช้วิธีที่ให้ผลลัพธ์มากกว่าเพื่อความแม่นยำ
     const actualConverted = Math.max(convertedRows, convertedButtons);
@@ -467,6 +596,195 @@ function updateCounts() {
     } else {
         console.warn('Count elements not found');
     }
+}
+
+// ตัวแปรสำหรับจัดเก็บข้อมูลการค้นหา
+let searchTimeout = null;
+let currentFilter = 'all';
+
+// ฟังก์ชันค้นหาข้อมูล
+function performSearch() {
+    const searchTerm = $('#searchInput').val().toLowerCase().trim();
+    const $rows = $('#candidates-table tbody tr.candidate-row');
+    const $noResultsRow = $('#no-results-row');
+    
+    let visibleCount = 0;
+    let totalCount = $rows.length;
+    
+    // ลบแถว "ไม่พบข้อมูล" ถ้ามี
+    $noResultsRow.remove();
+    
+    console.log('Searching for:', searchTerm, 'with filter:', currentFilter);
+    
+    $rows.each(function() {
+        const $row = $(this);
+        const rowText = $row.text().toLowerCase();
+        const isConverted = $row.hasClass('table-success') || $row.find('.btn-success').length > 0;
+        const isPending = !isConverted;
+        
+        // ตรวจสอบเพศ
+        const genderText = $row.find('td:nth-child(2)').text().toLowerCase();
+        const isMale = genderText.includes('ชาย');
+        const isFemale = genderText.includes('หญิง');
+        
+        let matchesSearch = true;
+        let matchesFilter = true;
+        
+        // ตรวจสอบการค้นหา
+        if (searchTerm) {
+            matchesSearch = rowText.includes(searchTerm);
+        }
+        
+        // ตรวจสอบตัวกรอง
+        switch(currentFilter) {
+            case 'pending':
+                matchesFilter = isPending;
+                break;
+            case 'converted':
+                matchesFilter = isConverted;
+                break;
+            case 'male':
+                matchesFilter = isMale;
+                break;
+            case 'female':
+                matchesFilter = isFemale;
+                break;
+            case 'all':
+            default:
+                matchesFilter = true;
+                break;
+        }
+        
+        // แสดง/ซ่อนแถว
+        if (matchesSearch && matchesFilter) {
+            $row.removeClass('search-hidden');
+            visibleCount++;
+            
+            // Highlight search term
+            if (searchTerm && searchTerm.length > 1) {
+                highlightSearchTerm($row, searchTerm);
+            } else {
+                removeHighlight($row);
+            }
+        } else {
+            $row.addClass('search-hidden');
+            removeHighlight($row);
+        }
+    });
+    
+    // แสดงข้อความถ้าไม่พบข้อมูล
+    if (visibleCount === 0 && (searchTerm || currentFilter !== 'all')) {
+        const noResultsHtml = `
+            <tr id="no-results-row" class="no-results-row">
+                <td colspan="10" class="text-center py-4">
+                    <div class="text-muted">
+                        <i class="fas fa-search fa-2x mb-2"></i>
+                        <br>
+                        ไม่พบข้อมูลที่ตรงกับการค้นหา
+                        ${searchTerm ? `"<strong>${searchTerm}</strong>"` : ''}
+                        ${currentFilter !== 'all' ? `และตัวกรอง "<strong>${getFilterName(currentFilter)}</strong>"` : ''}
+                        <br>
+                        <button class="btn btn-sm btn-outline-primary mt-2" onclick="clearSearch()">
+                            <i class="fas fa-times me-1"></i>ล้างการค้นหา
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+        $('#candidates-table tbody').append(noResultsHtml);
+    }
+    
+    // อัปเดตข้อความแสดงผลการค้นหา
+    updateSearchResultText(visibleCount, totalCount, searchTerm);
+    
+    // อัปเดตตัวนับ
+    updateCounts();
+    
+    console.log(`Search results: ${visibleCount}/${totalCount} rows visible`);
+}
+
+// ฟังก์ชัน highlight คำที่ค้นหา
+function highlightSearchTerm($row, searchTerm) {
+    const $cells = $row.find('td');
+    
+    $cells.each(function() {
+        const $cell = $(this);
+        let html = $cell.html();
+        
+        // ลบ highlight เก่าก่อน
+        html = html.replace(/<span class="search-highlight">(.*?)<\/span>/gi, '$1');
+        
+        // เพิ่ม highlight ใหม่
+        const regex = new RegExp(`(${escapeRegExp(searchTerm)})`, 'gi');
+        html = html.replace(regex, '<span class="search-highlight">$1</span>');
+        
+        $cell.html(html);
+    });
+}
+
+// ฟังก์ชันลบ highlight
+function removeHighlight($row) {
+    const $cells = $row.find('td');
+    $cells.each(function() {
+        const $cell = $(this);
+        let html = $cell.html();
+        html = html.replace(/<span class="search-highlight">(.*?)<\/span>/gi, '$1');
+        $cell.html(html);
+    });
+}
+
+// ฟังก์ชัน escape special characters ใน regex
+function escapeRegExp(string) {
+    return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// ฟังก์ชันอัปเดตข้อความแสดงผลการค้นหา
+function updateSearchResultText(visible, total, searchTerm) {
+    const $resultCount = $('#search-result-count');
+    const $filters = $('#search-filters');
+    
+    if (visible === total) {
+        $resultCount.text(`แสดงทั้งหมด ${total} รายการ`);
+    } else {
+        $resultCount.text(`พบ ${visible} จาก ${total} รายการ`);
+    }
+    
+    // แสดงตัวกรองที่ใช้
+    let filterText = '';
+    if (searchTerm) {
+        filterText += `ค้นหา: "${searchTerm}"`;
+    }
+    if (currentFilter !== 'all') {
+        if (filterText) filterText += ' | ';
+        filterText += `กรอง: ${getFilterName(currentFilter)}`;
+    }
+    
+    $filters.text(filterText);
+}
+
+// ฟังก์ชันแปลงชื่อตัวกรอง
+function getFilterName(filter) {
+    switch(filter) {
+        case 'pending': return 'รอการแปลง';
+        case 'converted': return 'แปลงแล้ว';
+        case 'male': return 'เพศชาย';
+        case 'female': return 'เพศหญิง';
+        default: return 'ทั้งหมด';
+    }
+}
+
+// ฟังก์ชันล้างการค้นหา
+function clearSearch() {
+    $('#searchInput').val('');
+    currentFilter = 'all';
+    
+    // รีเซ็ตปุ่มตัวกรอง
+    $('.filter-option').removeClass('active');
+    $('.filter-option[data-filter="all"]').addClass('active');
+    $('#filterDropdown').html('<i class="fas fa-filter me-2"></i>ตัวกรอง');
+    
+    performSearch();
+    $('#searchInput').focus();
 }
 
 // รอให้ DOM พร้อมแล้วค่อยรัน
@@ -487,6 +805,59 @@ document.addEventListener('DOMContentLoaded', function() {
         console.log('- Success buttons:', $('#candidates-table tbody .btn-success').length);
         console.log('- Primary buttons:', $('#candidates-table tbody .btn-primary').length);
         
+        // Event listeners สำหรับการค้นหา
+        $('#searchInput').on('input', function() {
+            clearTimeout(searchTimeout);
+            const $input = $(this);
+            
+            // แสดง loading effect
+            $input.closest('.input-group').addClass('search-loading');
+            
+            searchTimeout = setTimeout(function() {
+                $input.closest('.input-group').removeClass('search-loading');
+                performSearch();
+            }, 300); // ดีเลย์ 300ms เพื่อลด load
+        });
+        
+        // Event listener สำหรับ Enter key
+        $('#searchInput').on('keypress', function(e) {
+            if (e.which === 13) { // Enter key
+                clearTimeout(searchTimeout);
+                $(this).closest('.input-group').removeClass('search-loading');
+                performSearch();
+            }
+        });
+        
+        // Event listeners สำหรับตัวกรอง
+        $('.filter-option').on('click', function(e) {
+            e.preventDefault();
+            
+            const $this = $(this);
+            const filter = $this.data('filter');
+            const filterText = $this.text().trim();
+            
+            // อัปเดต active state
+            $('.filter-option').removeClass('active');
+            $this.addClass('active');
+            
+            // อัปเดตปุ่ม dropdown
+            $('#filterDropdown').html($this.html());
+            
+            // อัปเดตตัวกรองปัจจุบัน
+            currentFilter = filter;
+            
+            // ทำการค้นหาใหม่
+            performSearch();
+            
+            console.log('Filter changed to:', filter);
+        });
+        
+        // Event listener สำหรับปุ่มล้างการค้นหา
+        $(document).on('click', '[onclick="clearSearch()"]', function(e) {
+            e.preventDefault();
+            clearSearch();
+        });
+
         // Event listener สำหรับปุ่ม Convert
         $(document).on('click', '.btn-convert', function () {
             const $btn = $(this);
@@ -617,6 +988,13 @@ document.addEventListener('DOMContentLoaded', function() {
         } else {
             console.log('DataTable skipped - not needed for small dataset');
         }
+        
+        // เริ่มต้นการค้นหา
+        console.log('Initializing search functionality');
+        performSearch(); // ทำการค้นหาครั้งแรกเพื่อ setup ข้อความ
+        
+        // Focus ที่ช่องค้นหา (ถ้าต้องการ)
+        // $('#searchInput').focus();
         
     } else {
         document.getElementById('jquery-status').textContent = 'Missing';
