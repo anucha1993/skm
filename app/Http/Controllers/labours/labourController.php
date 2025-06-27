@@ -52,7 +52,19 @@ class labourController extends Controller
         $fallback = asset('images/user_icon.png');
 
         $labours = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value')
-            ->select(['labour_id', 'labour_prefix', 'labour_firstname', 'labour_lastname', 'labour_phone_one', 'labour_image_thumbnail_path AS thumbnail', 'country_id', 'job_group_id'])
+            ->select([
+                'labour_id', 
+                'labour_prefix', 
+                'labour_firstname', 
+                'labour_lastname', 
+                'labour_phone_one', 
+                'labour_image_thumbnail_path AS thumbnail', 
+                'country_id', 
+                'job_group_id',
+                'api_candidate_id', // เพิ่มฟิลด์นี้
+                'api_imported_at',  // เพิ่มฟิลด์นี้
+                'created_at'
+            ])
             ->orderByDesc('labour_id')
             ->get()
             ->map(function ($row) use ($fallback) {
@@ -69,6 +81,11 @@ class labourController extends Controller
                     ->implode(' ');
 
                 $row->steps_badge = $badges;
+                
+                // เพิ่มข้อมูลแหล่งที่มา
+                $row->is_from_api = !empty($row->api_candidate_id) || !empty($row->api_imported_at);
+                $row->source_type = $row->is_from_api ? 'api' : 'manual';
+                
                 return $row;
             });
 
