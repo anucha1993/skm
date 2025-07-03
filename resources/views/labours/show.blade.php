@@ -45,6 +45,11 @@
                   <span class="badge bg-warning text-dark">{{ $labour->company->name }}</span>
                 @endif
               </div>
+              <div class="mt-3">
+                <a href="{{ route('labours.print-cv', $labour->labour_id) }}" class="btn btn-sm btn-primary" target="_blank">
+                  <i class="fa fa-print me-1"></i> พิมพ์ประวัติ CV
+                </a>
+              </div>
             </div>
           </div>
 

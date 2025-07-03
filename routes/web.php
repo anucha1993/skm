@@ -50,6 +50,7 @@ Route::resources([
 Route::get('/', [labourController::class, 'index'])->name('home');
 Route::get('/home', [labourController::class, 'index'])->name('home');
 Route::resource('labours', labourController::class);
+Route::get('/labours/{labour_id}/print-cv', [labourController::class, 'printCV'])->name('labours.print-cv');
 Route::prefix('labours/api')->group(function () {
     Route::get('/data',        [labourController::class, 'data'])->name('labours.data');   
 });

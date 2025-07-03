@@ -125,6 +125,26 @@ class labourController extends Controller
 
         return view('labours.show', compact('listFiles', 'labour', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet'));
     }
+    
+    public function printCV($labour_id)
+    {
+        // Find the labour by ID
+        $labour = labourModel::findOrFail($labour_id);
+        
+        // Load the same data as in the show method
+        $hospitalGlobalSet = GlobalSetModel::with('values')->where('id', 1)->first();
+        $countryGlobalSet = GlobalSetModel::with('values')->where('id', 3)->first();
+        $jobGroupGlobalSet = GlobalSetModel::with('values')->where('id', 4)->first();
+        $positionGlobalSet = GlobalSetModel::with('values')->where('id', 5)->first();
+        $statusGlobalSet = GlobalSetModel::with('values')->where('id', 6)->first();
+        $ExaminationCenterGlobalSet = GlobalSetModel::with('values')->where('id', 2)->first();
+        $StaffGlobalSet = GlobalSetModel::with('values')->where('id', 7)->first();
+        $StaffsubGlobalSet = GlobalSetModel::with('values')->where('id', 8)->first();
+        $listFiles = listfilesModel::where('labour_id', $labour->labour_id)->get();
+
+        // Return the print_cv view with the necessary data
+        return view('labours.print_cv', compact('listFiles', 'labour'));
+    }
 
     public function create(): View
     {
