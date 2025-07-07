@@ -200,8 +200,30 @@ class labourController extends Controller
         // หากไม่ซ้ำ ให้ทำการเพิ่มข้อมูลใหม่
         $request->merge(['created_by' => Auth::user()->name]);
         $labours = labourModel::create($request->all());
+
+        // ส่งข้อมูลไปยัง API ภายนอก พร้อมแนบ Bearer Token
+        $apiSuccess = false;
+        try {
+            $payload = [
+                'name' => trim(($labours->labour_firstname ?? '') . ' ' . ($labours->labour_lastname ?? '')),
+                'email' => $labours->labour_email ?? '',
+                'mobile' => $labours->labour_phone_one ?? '',
+            ];
+            $token = config('thailabor.api_token', '');
+            $response = \Illuminate\Support\Facades\Http::withToken($token)
+                ->post('https://thailaborland.com/api/createaccount', $payload);
+            if ($response->status() === 200) {
+                $apiSuccess = true;
+            }
+        } catch (\Exception $e) {
+            // สามารถ log error ได้ถ้าต้องการ
+        }
     
-        return redirect()->route('home')->with('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
+        $msg = 'เพิ่มข้อมูลเรียบร้อยแล้ว';
+        if ($apiSuccess) {
+            $msg .= ' (ส่งข้อมูลไปยัง thailaborland.com สำเร็จ)';
+        }
+        return redirect()->route('home')->with('success', $msg);
     }
 
     public function destroy(labourModel $labour)

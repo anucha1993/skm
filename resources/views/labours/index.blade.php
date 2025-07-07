@@ -2,6 +2,14 @@
 
 @section('content')
 
+@if(session('success'))
+    <script>
+        window.addEventListener('DOMContentLoaded', function() {
+            alert(@json(session('success')));
+        });
+    </script>
+@endif
+
 <!-- DataTables CDN - โหลดที่หน้านี้เลย -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 
@@ -660,6 +668,7 @@
                                     <td class="text-center">
                                         <a href="{{ url('labours') }}/${row.labour_id}" class="btn btn-sm btn-info me-1">ดู</a>
                                         <a href="{{ url('labours') }}/${row.labour_id}/edit" class="btn btn-sm btn-warning me-1">แก้ไข</a>
+                                        <button type="button" class="btn btn-danger btn-sm btn-delete-labour" data-id="${row.labour_id}"><i class="bi bi-trash"></i> ลบ</button>
                                     </td>
                                 </tr>
                             `;
@@ -780,6 +789,31 @@
             if ($('#labours-table tbody tr').length === 0) {
                 console.log('Table empty, trying fallback initialization...');
                 setTimeout(createSimpleTable, 1000);
+            }
+        });
+        
+        // เพิ่ม event delegation สำหรับปุ่มลบ
+        $('#labours-table').off('click', '.btn-delete-labour').on('click', '.btn-delete-labour', function() {
+            const labourId = $(this).data('id');
+            if (confirm('ต้องการลบข้อมูลนี้ใช่หรือไม่?')) {
+                $.ajax({
+                    url: `{{ url('labours') }}/${labourId}`,
+                    type: 'POST',
+                    data: {
+                        _method: 'DELETE',
+                        _token: '{{ csrf_token() }}'
+                    },
+                    success: function(res) {
+                        // ลบแถวออกจากตารางทันที
+                        $(`#labours-table tbody tr`).filter(function() {
+                            return $(this).find('td:first').text() == labourId;
+                        }).remove();
+                        alert('ลบข้อมูลเรียบร้อยแล้ว');
+                    },
+                    error: function(xhr) {
+                        alert('เกิดข้อผิดพลาดในการลบข้อมูล');
+                    }
+                });
             }
         });
     </script>

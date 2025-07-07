@@ -24,8 +24,14 @@ class LabourImportController extends Controller
 
     $all = $response->json();
 
-    // ดูว่า labour จริงอยู่ตรงไหน
-    $labours = is_array($all) && isset($all[0]) ? $all : ($all['data'] ?? []);
+    // ป้องกัน error กรณี response ไม่ใช่ array หรือไม่มี key ที่ต้องการ
+    if (is_array($all) && isset($all[0])) {
+        $labours = $all;
+    } elseif (is_array($all) && isset($all['data']) && is_array($all['data'])) {
+        $labours = $all['data'];
+    } else {
+        $labours = [];
+    }
 
     return view('labourImport.index', compact('labours'));
 }
