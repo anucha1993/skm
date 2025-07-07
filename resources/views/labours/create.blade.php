@@ -177,7 +177,7 @@
                                     <div class="col-md-6">
                                         <div class="form-group row">
                                             
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">อีเมล  <span class="text-danger">*</span></label></label>
+                                            <label for="" class="col-sm-4 col-form-label-sm text-right">อีเมล  <span class="text-danger"> *</span></label></label>
                                             <div class="col-sm-8">
                                                 <input type="email" name="labour_email"
                                                     class="form-control form-control-sm" placeholder="example@email.com" required>
