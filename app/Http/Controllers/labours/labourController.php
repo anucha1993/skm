@@ -15,6 +15,7 @@ use App\Models\labours\listfilesModel;
 use App\Models\globalsets\GlobalSetModel;
 use App\Models\managedocs\managedocsModel;
 use App\Models\managedocs\managefilesModel;
+use Psy\Readline\Hoa\Console;
 
 class labourController extends Controller
 {
@@ -217,6 +218,7 @@ class labourController extends Controller
             }
         } catch (\Exception $e) {
             // สามารถ log error ได้ถ้าต้องการ
+            // Console::$response->status();
         }
     
         $msg = 'เพิ่มข้อมูลเรียบร้อยแล้ว';

@@ -29,7 +29,7 @@ Route::prefix('labour-status')->group(function () {
     Route::post('/receive', [LabourStatusController::class, 'receiveStatus'])->name('api.labour-status.receive');
     Route::get('/send/{labourId}', [LabourStatusController::class, 'sendStatus'])->name('api.labour-status.send');
 });
-
+Route::post('labours-full', [LabourFullController::class, 'searchByEmail']);
 // ⬇︎ POST สำหรับอัปโหลดไฟล์
 Route::post('labours/{labour}/list-files/{listFile}', [LabourUploadfilesController::class, 'upload'])->name('labours.list-files.upload'); // <- ชื่อ route
 
