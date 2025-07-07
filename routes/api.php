@@ -5,6 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\LabourApiController;
 use App\Http\Controllers\Api\LabourStatusController;
 use App\Http\Controllers\labours\labourUploadfilesController;
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\LabourController;
+use App\Http\Controllers\Api\LabourFullController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +44,10 @@ Route::get('list-files/{listFile}/view-pdf', [LabourUploadfilesController::class
 
 // route สำหรับ PDF viewer พร้อม PDF.js
 Route::get('list-files/{listFile}/pdf-viewer', [LabourUploadfilesController::class, 'pdfViewer'])->name('labours.list-files.pdf-viewer');
+
+Route::post('/token', [AuthController::class, 'getToken']);
+Route::middleware(['check.api.token'])->get('/labours', [LabourController::class, 'index']);
+Route::middleware(['check.api.token'])->get('/labours-full', [LabourFullController::class, 'index']);
 
 
 
