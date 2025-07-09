@@ -84,7 +84,7 @@
 				
 				<div class="">
 					<div class="main-menu-header">
-						<img class="img-radius" src="{{URL::asset('/template/dist/assets/images/user/avatar-2.jpg')}}" alt="User-Profile-Image">
+						<img class="img-radius" src="{{URL::asset('/images/user_icon.png')}}" alt="User-Profile-Image">
 						<div class="user-details">
 							<span>{{Auth::user()->name}}</span>
 							{{-- <div id="more-details">Thefirst<i class="fa fa-chevron-down m-l-5"></i></div> --}}
@@ -443,8 +443,8 @@
 								</a> --}}
 								<div class="dropdown-menu dropdown-menu-right profile-notification">
 									<div class="pro-head">
-										<img src="{{URL::asset('/template/dist/assets/images/user/avatar-1.jpg')}}" class="img-radius" alt="User-Profile-Image">
-										<span>John Doe</span>
+										<img src="{{URL::asset('/images/user_icon.png')}}" class="img-radius" alt="User-Profile-Image">
+										<span>{{ Auth::user()->name }}</span>
 										<a href="auth-signin.html" class="dud-logout" title="Logout">
 											<i class="feather icon-log-out"></i>
 										</a>
