@@ -9,6 +9,12 @@ use App\Services\TokenService;
 
 class LabourImportController extends Controller
 {
+
+     public function __construct()
+    {
+        $this->middleware('auth');
+         $this->middleware('permission:create-labour', ['only' => ['index']]);
+    }
    public function index()
 {
     $token = env('LABOUR_API_TOKEN') ?: TokenService::fetchAndStoreToken();

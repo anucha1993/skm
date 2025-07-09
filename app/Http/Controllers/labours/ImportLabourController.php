@@ -15,6 +15,14 @@ use Illuminate\Support\Facades\Log;
 
 class ImportLabourController extends Controller
 {
+
+        public function __construct()
+    {
+        $this->middleware('auth');
+         $this->middleware('permission:create-labour', ['only' => ['index']]);
+    }
+
+    
     public function index()
     {
         // ดึงข้อมูลจาก API
