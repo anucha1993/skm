@@ -274,6 +274,7 @@
                             <tr>
                                 <th>รหัส</th>
                                 <th>รูปภาพ</th>
+                                <th>เลขบัตรประชาชน</th>
                                 <th>ชื่อ-สกุล</th>
                                 <th>แหล่งข้อมูล</th>
                                 <th>ประเทศ</th>
@@ -335,6 +336,18 @@
                     ajax: '{{ route('labours.data') }}',
                     columns: [{
                             data: 'labour_id'
+                        },
+                        { // idcard formatted
+                            data: 'labour_idcard_number',
+                            orderable: false,
+                            searchable: false,
+                            render: function(d) {
+                                if (!d) return '-';
+                                d = d.toString().padStart(13, '0');
+                                if (d.length !== 13) return '-';
+                                // Format: X-XXXX-XXXXX-XX-X
+                                return `${d[0]}-${d.substr(1,4)}-${d.substr(5,5)}-${d.substr(10,2)}-${d[12]}`;
+                            }
                         },
                         { // thumbnail
                             data: 'thumbnail',
@@ -635,8 +648,9 @@
                     
                     if (data && data.length > 0) {
                         data.forEach(function(row) {
+                            // DEBUG: log id and idcard
+                            console.log('row.labour_id:', row.labour_id, 'row.labour_idcard_number:', row.labour_idcard_number, typeof row.labour_idcard_number);
                             const isFromAPI = row.is_from_api || row.api_candidate_id || row.source_type === 'api';
-                            
                             let sourceHtml = '';
                             if (isFromAPI) {
                                 sourceHtml = `<span class="badge bg-primary"><i class="fas fa-cloud-download-alt me-1"></i>API Import</span>`;
@@ -646,19 +660,32 @@
                             } else {
                                 sourceHtml = `<span class="badge bg-success"><i class="fas fa-user-plus me-1"></i>Manual Entry</span>`;
                             }
-                            
                             const fullName = `${row.labour_prefix}. ${row.labour_firstname} ${row.labour_lastname}`;
                             const country = row.country?.value || '-';
                             const jobGroup = row.job_group?.value || '-';
                             const phone = row.labour_phone_one || '-';
-                            
+                            // Format 13-digit ID card
+                            let idcardDisplay = '-';
+                            let d = row.labour_idcard_number;
+                            if (d !== undefined && d !== null && d !== '') {
+                                d = d.toString();
+                                // Remove all non-digit characters just in case
+                                d = d.replace(/\D/g, '');
+                                if (d.length === 13) {
+                                    idcardDisplay = `${d[0]}-${d.substr(1,4)}-${d.substr(5,5)}-${d.substr(10,2)}-${d[12]}`;
+                                } else {
+                                    idcardDisplay = d; // Show raw if not 13 digits for debug
+                                }
+                            }
                             const tableRow = `
                                 <tr data-source="${isFromAPI ? 'api' : 'manual'}" 
                                     data-search="${row.labour_id} ${fullName} ${phone} ${country} ${jobGroup} ${row.api_candidate_id || ''}">
                                     <td>${row.labour_id}</td>
+                                  
                                     <td class="text-center">
                                         <img src="${row.thumbnail}" class="rounded-circle" style="width:30px;height:30px;object-fit:cover;">
                                     </td>
+                                      <td>${idcardDisplay}</td>
                                     <td>${fullName}</td>
                                     <td class="text-center">${sourceHtml}</td>
                                     <td>${country}</td>

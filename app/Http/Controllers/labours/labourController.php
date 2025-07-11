@@ -60,6 +60,7 @@ class labourController extends Controller
                 'labour_lastname', 
                 'labour_phone_one', 
                 'labour_image_thumbnail_path AS thumbnail', 
+                'labour_idcard_number', 
                 'country_id', 
                 'job_group_id',
                 'api_candidate_id', // เพิ่มฟิลด์นี้
