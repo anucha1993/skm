@@ -164,7 +164,70 @@ class ImportLabourController extends Controller
         // สร้าง Labour
         $labour = labourModel::create($mappedData);
 
+        // === ดาวน์โหลดและอัปโหลดภาพโปรไฟล์ ถ้ามี ===
+        if (!empty($candidate['image']) && filter_var($candidate['image'], FILTER_VALIDATE_URL)) {
+            try {
+                $this->downloadAndUploadProfileImage($candidate['image'], $labour);
+            } catch (\Exception $e) {
+                Log::warning('Profile image import failed: ' . $e->getMessage());
+            }
+        }
+
         return $labour;
+    }
+
+    /**
+     * ดาวน์โหลดไฟล์ภาพจาก URL แล้วอัปโหลดเข้า storage และอัปเดต labour
+     */
+    private function downloadAndUploadProfileImage($imageUrl, $labour)
+    {
+        // ดาวน์โหลดไฟล์
+        $tmpPath = storage_path('app/tmp_profile_' . uniqid());
+        $client = new \GuzzleHttp\Client(['verify' => false]);
+        $res = $client->get($imageUrl, ['sink' => $tmpPath, 'timeout' => 30]);
+        if ($res->getStatusCode() !== 200) {
+            throw new \Exception('Download failed: ' . $imageUrl);
+        }
+
+        // ตรวจสอบ mime-type และตั้ง extension ให้ถูกต้อง
+        $mime = null;
+        $ext = null;
+        if (function_exists('mime_content_type')) {
+            $mime = mime_content_type($tmpPath);
+        }
+        if (!$mime) {
+            $mime = $res->getHeaderLine('Content-Type');
+        }
+        // รองรับเฉพาะ jpg/png/webp/gif
+        switch ($mime) {
+            case 'image/jpeg': $ext = 'jpg'; break;
+            case 'image/png': $ext = 'png'; break;
+            case 'image/webp': $ext = 'webp'; break;
+            case 'image/gif': $ext = 'gif'; break;
+            default: $ext = 'jpg'; break;
+        }
+        $finalPath = $tmpPath . '.' . $ext;
+        rename($tmpPath, $finalPath);
+
+        // สร้าง UploadedFile จำลอง
+        $uploadedFile = new \Illuminate\Http\UploadedFile(
+            $finalPath,
+            basename($finalPath),
+            $mime ?: 'image/jpeg',
+            null,
+            true // $test mode
+        );
+
+        // เรียกใช้ controller uploadImage (จำลอง request)
+        $request = new \Illuminate\Http\Request();
+        $request->files->set('image_profile', $uploadedFile);
+
+        // ต้องใช้ controller โดยตรง (หรือ service ถ้ามี)
+        $uploader = app(\App\Http\Controllers\labours\labourUploadImageProfileController::class);
+        $uploader->uploadImage($request, $labour);
+
+        // ลบไฟล์ temp
+        @unlink($finalPath);
     }
 
     private function mapCandidateData($candidate)
@@ -178,6 +241,11 @@ class ImportLabourController extends Controller
                 $nameParts = explode(' ', trim($fullName), 2);
                 $mappedData['labour_firstname'] = $nameParts[0] ?? '';
                 $mappedData['labour_lastname'] = $nameParts[1] ?? '';
+            }
+
+            // เพิ่มบัตรประชาชน (idcard) -> labour_idcard_number
+            if (!empty($candidate['idcard'])) {
+                $mappedData['labour_idcard_number'] = preg_replace('/[^0-9]/', '', $candidate['idcard']);
             }
 
             // ข้อมูลการติดต่อจาก contract

@@ -8,7 +8,7 @@
                 <div class="d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">
                         <i class="fas fa-cloud-download-alt me-2"></i>
-                        Import ข้อมูลคนงานจาก API
+                        Import ข้อมูลคนงานจาก APIs
                     </h5>
                     <div class="badge bg-light text-dark">
                         {{ count($candidates) }} รายการ
@@ -44,12 +44,73 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-3">
-                            <button class="btn btn-outline-primary btn-lg w-100" onclick="refreshData()">
+                        <div class="col-md-3 d-flex flex-column gap-2">
+                            <button class="btn btn-outline-primary btn-lg w-100 mb-2" onclick="refreshData()">
                                 <i class="fas fa-sync-alt me-2"></i>
                                 รีเฟรชข้อมูล
                             </button>
+                            <button class="btn btn-outline-danger btn-lg w-100" id="btn-mass-convert" onclick="massConvertCandidates()">
+                                <i class="fas fa-bolt me-2"></i>
+                                แปลงทั้งหมด (Mass Convert)
+                            </button>
                         </div>
+<script>
+// ฟังก์ชัน Mass Convert เฉพาะที่เลือก
+let isMassConverting = false;
+function massConvertCandidates() {
+    if (isMassConverting) return;
+    const $btn = $('#btn-mass-convert');
+    // หาเฉพาะปุ่ม convert ที่ checkbox ถูกติ๊ก (และยังไม่ disabled)
+    const checkedIds = $('.candidate-checkbox:checked:not(:disabled)').map(function(){ return $(this).val(); }).get();
+    if (checkedIds.length === 0) {
+        alert('กรุณาเลือกข้อมูลที่ต้องการแปลงอย่างน้อย 1 รายการ');
+        return;
+    }
+    isMassConverting = true;
+    $btn.prop('disabled', true).html('<i class="fas fa-spinner fa-spin me-2"></i>กำลังแปลงที่เลือก...');
+    // หาแต่ละปุ่ม convert ตาม id ที่เลือก
+    const $convertBtns = checkedIds.map(id => $(".btn-convert[data-id='"+id+"']")).filter(btn => btn.length && !btn.prop('disabled'));
+    let idx = 0;
+    function convertNext() {
+        if (idx >= $convertBtns.length) {
+            $btn.prop('disabled', false).html('<i class="fas fa-bolt me-2"></i>แปลงทั้งหมด (Mass Convert)');
+            isMassConverting = false;
+            updateCounts();
+            alert('แปลงข้อมูลที่เลือกเสร็จสิ้น!');
+            return;
+        }
+        const $currentBtn = $($convertBtns[idx]);
+        if ($currentBtn.is(':disabled')) {
+            idx++;
+            convertNext();
+            return;
+        }
+        $currentBtn.trigger('click');
+        idx++;
+        setTimeout(convertNext, 1200);
+    }
+    convertNext();
+}
+
+// Select all checkbox logic
+$(document).on('change', '#select-all-candidates', function() {
+    const checked = $(this).is(':checked');
+    $('.candidate-checkbox:not(:disabled)').prop('checked', checked);
+});
+// ถ้า uncheck รายการใด ต้อง uncheck select-all
+$(document).on('change', '.candidate-checkbox', function() {
+    if (!$(this).is(':checked')) {
+        $('#select-all-candidates').prop('checked', false);
+    } else {
+        // ถ้าติ๊กครบทุกอัน ให้ติ๊ก select-all ด้วย
+        const all = $('.candidate-checkbox:not(:disabled)').length;
+        const checked = $('.candidate-checkbox:checked:not(:disabled)').length;
+        if (all === checked) {
+            $('#select-all-candidates').prop('checked', true);
+        }
+    }
+});
+</script>
                         <div class="col-md-12 mt-2">
                             <div class="alert alert-light border">
                                 <small class="text-muted">
@@ -143,6 +204,9 @@
                     <table class="table table-bordered table-hover" id="candidates-table">
                         <thead class="table-light">
                             <tr>
+                                <th style="width:40px" class="text-center">
+                                    <input type="checkbox" id="select-all-candidates" title="เลือกทั้งหมด">
+                                </th>
                                 <th style="width:80px" class="text-center">#ID</th>
                                 <th><i class="fas fa-user me-1"></i>ชื่อ</th>
                                 <th><i class="fas fa-birthday-cake me-1"></i>อายุ</th>
@@ -162,6 +226,9 @@
                                 @endphp
                                 <tr id="row-{{ $row['id'] }}" class="candidate-row {{ $isConverted ? 'table-success' : '' }}">
                                     <td class="text-center">
+                                        <input type="checkbox" class="candidate-checkbox" value="{{ $row['id'] }}" @if($isConverted) disabled @endif>
+                                    </td>
+                                    <td class="text-center">
                                         <span class="badge bg-secondary">{{ $row['id'] }}</span>
                                         @if($isConverted)
                                             <br><small class="text-success mt-1">✓ แปลงแล้ว</small>
@@ -169,9 +236,13 @@
                                     </td>
                                     <td>
                                         <div class="d-flex align-items-center">
-                                            <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
-                                                <i class="fas fa-user text-muted"></i>
-                                            </div>
+                                            @if(isset($row['image']) && $row['image'])
+                                                <img src="{{ $row['image'] }}" alt="img" class="rounded-circle me-2" style="width:36px;height:36px;object-fit:cover;border:1px solid #eee;">
+                                            @else
+                                                <div class="avatar-sm bg-light rounded-circle d-flex align-items-center justify-content-center me-2">
+                                                    <i class="fas fa-user text-muted"></i>
+                                                </div>
+                                            @endif
                                             <div>
                                                 <strong>{{ $row['nameeng'] ?? 'N/A' }}</strong>
                                                 @if(isset($row['nameth']) && $row['nameth'])
