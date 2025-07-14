@@ -69,7 +69,7 @@ class labourController extends Controller
                   });
             });
         }
-        $labours = $query->orderByDesc('labour_id')->get();
+        $labours = $query->orderByDesc('labour_id')->paginate(50)->appends($request->except('page'));
         $totalLabours = LabourModel::count();
         $allStatus = [
             'รอดำเนินการ',
@@ -88,7 +88,7 @@ class labourController extends Controller
         $fallback = asset('images/user_icon.png');
         // รับ status id จาก filter (id="status-filter")
         $status = $request->input('status') ?? $request->get('status') ?? ($_GET['status'] ?? null);
-        \Log::info('DataTables filter status', ['status' => $status, '_GET' => $_GET, 'all' => $request->all()]);
+
 
         $query = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value','labourStatus:id,value')
             ->select([
@@ -114,31 +114,7 @@ class labourController extends Controller
 
         $labours = $query->orderByDesc('labour_id')
             ->paginate(50)
-            ->appends($request->except('page'))
-            ->get()
-            ->map(function ($row) use ($fallback) {
-                $row->thumbnail = $row->thumbnail ? asset('storage/' . ltrim($row->thumbnail, '/')) : $fallback;
-                $badges = collect(['A', 'B'])
-                    ->map(function ($s) use ($row) {
-                        $ok = in_array($s, $row->completed_steps);
-                        $cls = $ok ? 'success' : 'secondary';
-                        return "<span class='badge bg-{$cls}'>Step {$s}</span>";
-                    })
-                    ->implode(' ');
-                $row->steps_badge = $badges;
-                $row->is_from_api = !empty($row->api_candidate_id) || !empty($row->api_imported_at);
-                $row->source_type = $row->is_from_api ? 'api' : 'manual';
-                // --- แปลง model เป็น array พร้อม relationship ---
-                $arr = $row->toArray();
-                $arr['labourStatus'] = $row->labourStatus ? $row->labourStatus->toArray() : null;
-                $arr['country'] = $row->country ? $row->country->toArray() : null;
-                $arr['job_group'] = $row->jobGroup ? $row->jobGroup->toArray() : null;
-                $arr['steps_badge'] = $row->steps_badge;
-                $arr['is_from_api'] = $row->is_from_api;
-                $arr['source_type'] = $row->source_type;
-                $arr['thumbnail'] = $row->thumbnail;
-                return $arr;
-            });
+            ->appends($request->except('page'));
 
         return response()->json(['data' => $labours]);
     }
