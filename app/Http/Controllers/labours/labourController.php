@@ -33,27 +33,64 @@ class labourController extends Controller
 
     public function index(Request $request)
     {
-        // 1) จำนวนคนงานทั้งหมด
-        $totalLabours = LabourModel::count();
+        $status = $request->input('status');
+        $source = $request->input('source');
+        $search = $request->input('search');
 
+        $query = LabourModel::with(['labourStatus', 'country', 'jobGroup']);
+        if (!is_null($status) && $status !== '' && $status !== 'all') {
+            $query->where('labour_status', $status);
+        }
+        if (!is_null($source) && $source !== '' && $source !== 'all') {
+            if ($source === 'api') {
+                $query->where(function($q) {
+                    $q->whereNotNull('api_candidate_id')
+                      ->orWhereNotNull('api_imported_at');
+                });
+            } elseif ($source === 'manual') {
+                $query->where(function($q) {
+                    $q->whereNull('api_candidate_id')
+                      ->whereNull('api_imported_at');
+                });
+            }
+        }
+        if (!empty($search)) {
+            $query->where(function($q) use ($search) {
+                $q->where('labour_idcard_number', 'like', "%$search%")
+                  ->orWhere('labour_firstname', 'like', "%$search%")
+                  ->orWhere('labour_lastname', 'like', "%$search%")
+                  ->orWhereRaw("CONCAT(labour_prefix, '. ', labour_firstname, ' ', labour_lastname) like ?", ["%$search%"])
+                  ->orWhere('labour_phone_one', 'like', "%$search%")
+                  ->orWhereHas('country', function($q2) use ($search) {
+                      $q2->where('value', 'like', "%$search%");
+                  })
+                  ->orWhereHas('jobGroup', function($q2) use ($search) {
+                      $q2->where('value', 'like', "%$search%");
+                  });
+            });
+        }
+        $labours = $query->orderByDesc('labour_id')->get();
+        $totalLabours = LabourModel::count();
         $allStatus = [
-            'รอดำเนินการ', // pending
-            'กำลังดำเนินการ', // processing
-            'ดำเนินการเสร็จ', // completed
-            'ยกเลิก', // cancelled
+            'รอดำเนินการ',
+            'กำลังดำเนินการ',
+            'ดำเนินการเสร็จ',
+            'ยกเลิก',
         ];
         $statusCounts = LabourModel::with('labourStatus:value,id')->select('labour_status', DB::raw('COUNT(*) as total'))->groupBy('labour_status')->get()->mapWithKeys(fn($row) => [$row->labourStatus->value ?? 'ไม่ระบุ' => $row->total])->toArray();
-        /* เติม 0 ให้สถานะที่ไม่มี */
         $statusCounts = array_replace(array_fill_keys($allStatus, 0), $statusCounts);
-
-        return view('labours.index', compact('totalLabours', 'statusCounts'));
+        $statusGlobalSet = GlobalSetModel::with('values')->where('id', 6)->first();
+        return view('labours.index', compact('totalLabours', 'statusCounts', 'statusGlobalSet', 'labours'));
     }
 
-    public function data()
+    public function data(Request $request)
     {
         $fallback = asset('images/user_icon.png');
+        // รับ status id จาก filter (id="status-filter")
+        $status = $request->input('status') ?? $request->get('status') ?? ($_GET['status'] ?? null);
+        \Log::info('DataTables filter status', ['status' => $status, '_GET' => $_GET, 'all' => $request->all()]);
 
-        $labours = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value','labourStatus:id,value')
+        $query = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value','labourStatus:id,value')
             ->select([
                 'labour_id', 
                 'labour_prefix', 
@@ -65,11 +102,19 @@ class labourController extends Controller
                 'labour_idcard_number', 
                 'country_id', 
                 'job_group_id',
-                'api_candidate_id', // เพิ่มฟิลด์นี้
-                'api_imported_at',  // เพิ่มฟิลด์นี้
+                'api_candidate_id',
+                'api_imported_at',
                 'created_at'
-            ])
-            ->orderByDesc('labour_id')
+            ]);
+
+        // where labour_status = status id ที่เลือก
+        if (!is_null($status) && $status !== '' && $status !== 'all') {
+            $query->where('labour_status', $status);
+        }
+        \Log::info('Labour count after filter', ['count' => $query->count()]);
+        \Log::info('Labour SQL', ['sql' => $query->toSql()]);
+
+        $labours = $query->orderByDesc('labour_id')
             ->get()
             ->map(function ($row) use ($fallback) {
                 $row->thumbnail = $row->thumbnail ? asset('storage/' . ltrim($row->thumbnail, '/')) : $fallback;
