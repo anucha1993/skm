@@ -53,10 +53,11 @@ class labourController extends Controller
     {
         $fallback = asset('images/user_icon.png');
 
-        $labours = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value')
+        $labours = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value','labourStatus:id,value')
             ->select([
                 'labour_id', 
                 'labour_prefix', 
+                'labour_status', 
                 'labour_firstname', 
                 'labour_lastname', 
                 'labour_phone_one', 
@@ -71,25 +72,27 @@ class labourController extends Controller
             ->orderByDesc('labour_id')
             ->get()
             ->map(function ($row) use ($fallback) {
-                // รูป
                 $row->thumbnail = $row->thumbnail ? asset('storage/' . ltrim($row->thumbnail, '/')) : $fallback;
-
-                // ⇢ NEW ⇠  ทำ badge ของ Step
                 $badges = collect(['A', 'B'])
                     ->map(function ($s) use ($row) {
                         $ok = in_array($s, $row->completed_steps);
-                        $cls = $ok ? 'success' : 'secondary'; // เขียว=ครบ / เทา=ยังไม่ครบ
+                        $cls = $ok ? 'success' : 'secondary';
                         return "<span class='badge bg-{$cls}'>Step {$s}</span>";
                     })
                     ->implode(' ');
-
                 $row->steps_badge = $badges;
-                
-                // เพิ่มข้อมูลแหล่งที่มา
                 $row->is_from_api = !empty($row->api_candidate_id) || !empty($row->api_imported_at);
                 $row->source_type = $row->is_from_api ? 'api' : 'manual';
-                
-                return $row;
+                // --- แปลง model เป็น array พร้อม relationship ---
+                $arr = $row->toArray();
+                $arr['labourStatus'] = $row->labourStatus ? $row->labourStatus->toArray() : null;
+                $arr['country'] = $row->country ? $row->country->toArray() : null;
+                $arr['job_group'] = $row->jobGroup ? $row->jobGroup->toArray() : null;
+                $arr['steps_badge'] = $row->steps_badge;
+                $arr['is_from_api'] = $row->is_from_api;
+                $arr['source_type'] = $row->source_type;
+                $arr['thumbnail'] = $row->thumbnail;
+                return $arr;
             });
 
         return response()->json(['data' => $labours]);
@@ -199,6 +202,8 @@ class labourController extends Controller
 
         // === เพิ่มบันทึก skill test ===
         $skillTests = $request->input('skill_tests', []);
+        if (empty($skillTests)) {
+
         foreach ($skillTests as $test) {
             SkillTest::create([
                 'labour_id'         => $labours->labour_id,
@@ -210,6 +215,7 @@ class labourController extends Controller
                 'note'              => $test['note'] ?? null,
             ]);
         }
+         }
         // === จบ skill test ===
 
         // ส่งข้อมูลไปยัง API ภายนอก พร้อมแนบ Bearer Token
@@ -275,6 +281,7 @@ class labourController extends Controller
         SkillTest::where('labour_id', $labour->labour_id)->delete();
         // เพิ่ม skill test ใหม่
         $skillTests = $request->input('skill_tests', []);
+         if (empty($skillTests)) {
         foreach ($skillTests as $test) {
             SkillTest::create([
                 'labour_id'         => $labour->labour_id,
@@ -285,6 +292,7 @@ class labourController extends Controller
                 'test_result_id'    => $test['test_result_id'] ?? null,
                 'note'              => $test['note'] ?? null,
             ]);
+        }
         }
         // === จบ skill test ===
 

@@ -353,10 +353,16 @@
                             data: 'thumbnail',
                             orderable: false,
                             searchable: false,
-                            render: d => `
-                        <img src="${d}" class="rounded-circle mx-auto d-block"
-                             style="width:30px;height:30px;object-fit:cover;">
-                    `
+                            render: function(d, type, row) {
+                                const status = row.labourStatus?.value || '-';
+                                return `
+                                    <div class="text-center">
+                                        <img src="${d}" class="rounded-circle mx-auto d-block" style="width:30px;height:30px;object-fit:cover;">
+                                        <div style="font-size:0.85em;color:#888;">คนงาน</div>
+                                        <div style="font-size:0.85em;color:#198754;">${status}</div>
+                                    </div>
+                                `;
+                            }
                         },
                         { // >>> ชื่อ-สกุล
                             data: null, // รับทั้งแถว
@@ -529,7 +535,17 @@
                                 data: 'thumbnail',
                                 orderable: false,
                                 searchable: false,
-                                render: d => `<img src="${d}" class="rounded-circle mx-auto d-block" style="width:30px;height:30px;object-fit:cover;">`
+                                render: function(d, type, row) {
+                                    
+                                    const status = row.labourStatus.value || '-';
+                                    return `
+                                        <div class="text-center">
+                                            <img src="${d}" class="rounded-circle mx-auto d-block" style="width:30px;height:30px;object-fit:cover;">
+                                            <div style="font-size:0.85em;color:#888;">คนงาน</div>
+                                            <div style="font-size:0.85em;color:#198754;">${status}</div>
+                                        </div>
+                                    `;
+                                }
                             },
                             { 
                                 data: null,
@@ -664,6 +680,7 @@
                             const country = row.country?.value || '-';
                             const jobGroup = row.job_group?.value || '-';
                             const phone = row.labour_phone_one || '-';
+                            const status = row.labourStatus?.value || '-';
                             // Format 13-digit ID card
                             let idcardDisplay = '-';
                             let d = row.labour_idcard_number;
@@ -681,9 +698,10 @@
                                 <tr data-source="${isFromAPI ? 'api' : 'manual'}" 
                                     data-search="${row.labour_id} ${fullName} ${phone} ${country} ${jobGroup} ${row.api_candidate_id || ''}">
                                     <td>${row.labour_id}</td>
-                                  
+                                     
                                     <td class="text-center">
                                         <img src="${row.thumbnail}" class="rounded-circle" style="width:30px;height:30px;object-fit:cover;">
+                                    ${status ? `<div style="font-size:0.85em;color:#888;">${status}</div>` : ''}
                                     </td>
                                       <td>${idcardDisplay}</td>
                                     <td>${fullName}</td>
