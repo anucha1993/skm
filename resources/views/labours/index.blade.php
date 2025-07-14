@@ -216,6 +216,16 @@
                                                 class="btn btn-sm btn-info me-1">ดู</a>
                                             <a href="{{ url('labours/' . $row->labour_id . '/edit') }}"
                                                 class="btn btn-sm btn-warning me-1">แก้ไข</a>
+                                            @can('delete-labour')
+                                                 <form action="{{ url('labours/' . $row->labour_id) }}" method="POST"
+                                                style="display:inline-block;"
+                                                onsubmit="return confirm('ยืนยันการลบข้อมูลคนงานนี้?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
+                                            </form>
+                                            @endcan
+                                           
                                         </td>
                                     </tr>
                                 @empty
