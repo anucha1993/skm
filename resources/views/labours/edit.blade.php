@@ -1,1175 +1,1197 @@
 @extends('layouts.template')
 
-@section('styles')
-<!-- PDF.js CDN -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-}
-</script>
 
-<style>
-    /* File card styles */
-    .file-card {
-        transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-        border-radius: 12px;
-        overflow: hidden;
-    }
-    
-    .file-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
-    }
-    
-    .file-preview-container {
-        position: relative;
-        overflow: hidden;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        border: 1px solid #dee2e6;
-    }
-    
-    .file-upload-area {
-        cursor: pointer;
-        transition: all 0.3s ease;
-    }
-    
-    .file-upload-area:hover {
-        background: #e3f2fd !important;
-        border-color: #2196f3 !important;
-    }
-    
-    .file-upload-area:hover i {
-        color: #2196f3 !important;
-    }
-    
-    /* PDF preview button styles */
-    .pdf-preview-btn, .pdf-viewer-btn {
-        backdrop-filter: blur(10px);
-        background: rgba(255, 255, 255, 0.9);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .pdf-preview-btn:hover, .pdf-viewer-btn:hover {
-        background: rgba(255, 255, 255, 1);
-        transform: scale(1.1);
-    }
-    
-    /* PDF preview container */
-    .pdf-preview-container {
-        transition: all 0.3s ease;
-        cursor: pointer;
-        position: relative;
-        border: 1px solid #e0e0e0;
-    }
-    
-    .pdf-preview-container:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-        transform: scale(1.01);
-        border-color: #007bff;
-    }
 
-    .pdf-preview-container:hover .pdf-preview-overlay {
-        background: linear-gradient(transparent, rgba(0,123,255,0.8));
-    }
-
-    .pdf-preview-overlay {
-        transition: all 0.3s ease;
-        pointer-events: none;
-        border-radius: 0 0 8px 8px;
-    }
-
-    .pdf-iframe {
-        transition: opacity 0.3s ease;
-        box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
-    }
-    
-    .pdf-fallback {
-        transition: opacity 0.3s ease;
-        cursor: pointer;
-    }
-    
-    .pdf-canvas {
-        border-radius: 8px;
-        max-width: 100%;
-        max-height: 100%;
-        object-fit: contain;
-    }
-
-    /* File preview container */
-    .file-preview-container {
-        transition: all 0.3s ease;
-        border: 1px solid #e0e0e0;
-    }
-
-    .file-preview-container:hover {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        transform: scale(1.01);
-        border-color: #007bff;
-    }
-    
-    /* PDF modal styles */
-    .pdf-modal-content {
-        height: 90vh;
-        max-height: 90vh;
-    }
-    
-    .pdf-viewer-iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        border-radius: 0 0 8px 8px;
-    }
-
-    /* Modal close button styles */
-    .btn-close {
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #000;
-        opacity: 0.5;
-        cursor: pointer;
-        padding: 0.5rem;
-    }
-
-    .btn-close:hover {
-        opacity: 0.75;
-    }
-
-    .btn-close:before {
-        content: "×";
-    }
-
-    /* Ensure modal backdrop works */
-    .modal-backdrop {
-        position: fixed;
-        top: 0;
-        left: 0;
-        z-index: 1040;
-        width: 100vw;
-        height: 100vh;
-        background-color: #000;
-        opacity: 0.5;
-    }
-        border-radius: 8px;
-    }
-    
-    /* File type badges */
-    .badge-primary {
-        background: linear-gradient(45deg, #007bff, #0056b3);
-    }
-    
-    .badge-success {
-        background: linear-gradient(45deg, #28a745, #1e7e34);
-    }
-    
-    /* Action buttons */
-    .btn-sm {
-        border-radius: 6px;
-        font-size: 12px;
-        padding: 4px 8px;
-        margin: 0 2px;
-    }
-    
-    .d-flex.gap-2 > * {
-        margin: 0 2px;
-    }
-    
-    /* File info text */
-    .card-title {
-        font-weight: 600;
-        color: #2c3e50;
-    }
-    
-    .text-muted {
-        color: #6c757d !important;
-    }
-    
-    /* Loading animation */
-    .fa-spinner {
-        animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin {
-        0% { transform: rotate(0deg); }
-        100% { transform: rotate(360deg); }
-    }
-    
-    /* Modal styles for PDF preview */
-    .modal-xl {
-        max-width: 90%;
-    }
-    
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-        .col-md-4 {
-            margin-bottom: 1rem;
-        }
-        
-        .file-preview-container {
-            height: 100px !important;
-        }
-    }
-</style>
-@endsection
 
 @section('content')
-    {{-- <div class="col-md-12">
- <div class="card">
-    <div class="card-header">
-            <h4>เพิ่มข้อมูลคนงาน</h2>
-    </div>
-    <form action="{{route('labours.store')}}" method="post">
-        @csrf
-        @method('POST')
-    <div class="card-body">
-        <h5 class="text-success">ข้อมูลส่วนตัว</h5>
-        
-       <br>
-        <button type="submit" class="btn btn-primary pull-right"> <i class="fa fa-save"></i> ยืนยันการเพิ่ม</button>
-    </div>
-   
-    
-</form>
- </div>
-</div> --}}
-    <form action="{{ route('labours.update', $labour->labour_id) }}" method="POST">
-        @csrf
-        @method('PUT')
-        <div class="row">
-            <!-- [ tabs ] start -->
-            <div class="col-sm-12">
-                <div class="card">
-                    <div class="card-header">
-                        <h5>แก้ไขข้อมูลคนงาน</h5>
-                        <div class="">
-                            @foreach (['A', 'B'] as $step)
-                                @php $done = in_array($step, $labour->completed_steps); @endphp
-                                <span class="badge bg-{{ $done ? 'success' : 'secondary' }}">
-                                    Step {{ $step }} {{ $done ? 'ครบ' : 'ยังไม่ครบ' }}
-                                </span>
-                            @endforeach
-                        </div>
-                        
-                        
-                    </div>
+    <style>
+        body {
+            font-family: 'Prompt', 'Sarabun', 'Kanit', Arial, sans-serif;
+            background: #f4f6fb;
+            color: #232946;
+        }
 
-                    <div class="card-body">
+        .main-form-container {
+            background: none;
+            min-height: 100vh;
+            padding-top: 4px;
+            padding-bottom: 40px;
+        }
 
-                        <ul class="nav nav-tabs mb-3" id="myTab" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active text-uppercase" id="home-tab" data-toggle="tab" href="#home"
-                                    role="tab" aria-controls="home" aria-selected="true">ข้อมูลส่วนตัว</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-uppercase" id="profile-tab" data-toggle="tab" href="#profile"
-                                    role="tab" aria-controls="profile" aria-selected="false">ข้อมูลเจ้าหน้าที่สรรหา</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-uppercase" id="contact-tab" data-toggle="tab" href="#contact"
-                                    role="tab" aria-controls="contact" aria-selected="false">ไฟล์เอกสาร</a>
-                            </li>
-                        </ul>
-                        <div class="tab-content" id="myTabContent">
+        .main-form-card {
+            border-radius: 16px;
+            box-shadow: 0 4px 24px 0 rgba(60, 80, 120, 0.10);
+            border: none;
+            background: #fff;
+            overflow: hidden;
+        }
 
-                            {{-- ข้อมูลส่วนตัว --}}
-                            <div class="tab-pane fade show active" id="home" role="tabpanel"
-                                aria-labelledby="home-tab">
-                                <div class="col-md-12">
-                                    <div class="pro-head ">
-                                        <a target="_blink"
-                                            href="{{ $labour->labour_image_thumbnail_path
-                                                ? asset('storage/' . $labour->labour_image_path)
-                                                : asset('/template/dist/assets/images/user/avatar-1.jpg') }}">
-                                            <img id="thumb-preview"
-                                                src="{{ $labour->labour_image_thumbnail_path
-                                                    ? asset('storage/' . $labour->labour_image_thumbnail_path)
-                                                    : asset('/template/dist/assets/images/user/avatar-1.jpg') }}"
-                                                class="img-radius rounded-circle"
-                                                style="width:150px;height:150px;object-fit:cover;">
-                                        </a>
-                                        <br>
-                                        <input type="file" name="image_profile" id="image_profile" class="mt-2">
-                                    </div>
+        .main-form-card .card-header {
+            background: linear-gradient(90deg, #4fffb6 60%, #a7d8ff 100%);
+            color: #fff;
+            border-radius: 16px 16px 0 0;
+            padding: 1.3rem 2rem 1.1rem 2rem;
+            border: none;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.10);
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
 
+        .main-form-card .card-body {
+            background: #fff;
+            padding: 2rem 1.5rem 1.2rem 1.5rem;
+        }
+
+        .main-form-card .card-footer {
+            background: #f4f6fb;
+            border: none;
+            border-radius: 0 0 16px 16px;
+            padding: 1.1rem 2rem;
+        }
+
+        .nav-tabs {
+            border-bottom: 2px solid #e3e8ee;
+            margin-bottom: 1.2rem;
+            gap: 0.5rem;
+        }
+
+        .nav-tabs .nav-link {
+            color: #4f8cff;
+            font-weight: 600;
+            border: none;
+            border-radius: 14px 14px 0 0;
+            background: #eaf1fb;
+            transition: background 0.2s, color 0.2s;
+            font-size: 1.08rem;
+            padding: 0.8rem 2.1rem 0.8rem 2.1rem;
+            margin-right: 0.2rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-tabs .nav-link.active {
+            background: #4f8cff;
+            color: #fff !important;
+            font-weight: bold;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.10);
+        }
+
+        .tab-content {
+            background: #f8fafc;
+            border-radius: 0 0 14px 14px;
+            box-shadow: 0 1px 4px rgba(60, 80, 120, 0.04);
+            padding: 2rem 1.2rem 1.2rem 1.2rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-label {
+            font-size: 1.01rem;
+            font-weight: 500;
+            color: #2d3a5a;
+            margin-bottom: 0.18rem;
+            letter-spacing: 0.1px;
+        }
+
+        .form-control,
+        .form-select {
+            border-radius: 8px;
+            font-size: 1rem;
+            background: #fafdff;
+            border: 1px solid #c7d7ef;
+            transition: border 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px rgba(79, 140, 255, 0.04);
+            padding: 0.55rem 1rem;
+            min-height: 38px;
+            color: #232946;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #4f8cff;
+            box-shadow: 0 0 0 2px #e3f0ff;
+            background: #f0f6ff;
+        }
+
+        .btn-success,
+        .btn-primary {
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1.08rem;
+            padding: 0.55rem 2.1rem;
+            background: linear-gradient(90deg, #4f8cff 60%, #a7d8ff 100%);
+            border: none;
+            color: #fff;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.10);
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-success:hover,
+        .btn-primary:hover {
+            background: #357ae8;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(79, 140, 255, 0.13);
+        }
+
+        .btn-outline-primary,
+        .btn-outline-danger {
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+            padding: 0.45rem 1.2rem;
+        }
+
+        .btn-outline-danger {
+            border: 1.5px solid #ff6b6b;
+            color: #ff6b6b;
+            background: #fff;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .btn-outline-danger:hover {
+            background: #ff6b6b;
+            color: #fff;
+        }
+
+        .alert-info {
+            border-radius: 10px;
+            background: #eaf1fb;
+            color: #357ae8;
+            border: none;
+            font-size: 1rem;
+            box-shadow: 0 1px 4px #b6e0fe33;
+        }
+
+        .section-divider {
+            border-top: 2px solid #e3e8ee;
+            margin: 2rem 0 1.5rem 0;
+        }
+
+        /* Skill Test Section Modern */
+        .skill-test-section {
+            background: #fafdff;
+            border-radius: 14px;
+            box-shadow: 0 2px 12px rgba(79, 140, 255, 0.07);
+            padding: 1.3rem 1.1rem 1.1rem 1.1rem;
+            margin-bottom: 2rem;
+            border: 1.5px solid #c7d7ef;
+        }
+
+        .skill-test-section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #357ae8;
+            margin-bottom: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            letter-spacing: 0.1px;
+        }
+
+        .skill-test-badge {
+            background: linear-gradient(135deg, #4f8cff 60%, #a7d8ff 100%);
+            color: #fff;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+            box-shadow: 0 2px 8px #b6e0fe44;
+            border: 2px solid #fff;
+        }
+
+        .skill-test-item {
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.08);
+            border: 1.5px solid #e3e8ee;
+            background: #fff;
+            margin-bottom: 1.2rem;
+            position: relative;
+            padding: 1.2rem 1rem 0.7rem 1rem;
+            transition: box-shadow 0.2s;
+        }
+
+        .skill-test-item:hover {
+            box-shadow: 0 4px 16px rgba(79, 140, 255, 0.13);
+            border-color: #4f8cff;
+        }
+
+        .skill-test-item .remove-skill-test {
+            position: static;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1.5px solid #ff6b6b;
+            color: #ff6b6b;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            min-width: 36px;
+            min-height: 36px;
+            font-size: 1.15rem;
+            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+            box-shadow: 0 1px 4px #ff6b6b22;
+            padding: 0;
+        }
+
+        .skill-test-item .remove-skill-test i {
+            font-size: 1.15rem;
+            line-height: 1;
+            margin: 0;
+        }
+
+        .skill-test-item .remove-skill-test:hover {
+            background: #ff6b6b;
+            color: #fff;
+            box-shadow: 0 2px 8px #ff6b6b44;
+        }
+
+        @media (max-width: 768px) {
+            .skill-test-item .remove-skill-test {
+                width: 30px;
+                height: 30px;
+                min-width: 30px;
+                min-height: 30px;
+                font-size: 1rem;
+            }
+
+            .skill-test-item .remove-skill-test i {
+                font-size: 1rem;
+            }
+        }
+
+        .col-12.mt-4,
+        .col-12.mt-4>b {
+            margin-top: 2.2rem !important;
+            font-size: 1.08rem;
+            color: #232946;
+            letter-spacing: 0.2px;
+        }
+
+        hr {
+            border-top: 1.5px dashed #c7d7ef;
+            margin: 0.7rem 0 1.2rem 0;
+        }
+
+        .add-skill-test-btn {
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.5rem 1.5rem;
+            background: linear-gradient(90deg, #4f8cff 60%, #a7d8ff 100%);
+            color: #fff;
+            border: none;
+            box-shadow: 0 2px 8px rgba(79, 140, 255, 0.08);
+            transition: background 0.2s, box-shadow 0.2s, color 0.2s;
+            outline: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .add-skill-test-btn:hover,
+        .add-skill-test-btn:focus {
+            background: #357ae8;
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(79, 140, 255, 0.13);
+        }
+
+        .add-skill-test-btn i {
+            font-size: 1.1rem;
+            margin-right: 0.3rem;
+        }
+    </style>
+
+    <div class="main-form-container">
+         <form action="{{ route('labours.update',$labour->labour_id) }}" method="POST" class="needs-validation" novalidate>
+            @csrf
+            @method('put')
+            <div class="row justify-content-center" style="margin-left:0;margin-right:0;">
+                <div class="col-12 px-0">
+                    <div class="card main-form-card mb-4"
+                        style="border-radius:22px; box-shadow:0 4px 24px 0 rgba(80,180,255,0.10);">
+                        <div class="card-body p-2 p-md-3">
+                            <!-- รูปโปรไฟล์ -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-12 ">
+                                    <label class="form-label">รูปโปรไฟล์</label><br>
+                                    <a target="_blank"
+                                        href="{{ $labour->labour_image_thumbnail_path ? asset('storage/' . $labour->labour_image_path) : asset('/template/dist/assets/images/user/avatar-1.jpg') }}">
+                                        <img id="thumb-preview"
+                                            src="{{ $labour->labour_image_thumbnail_path ? asset('storage/' . $labour->labour_image_thumbnail_path) : asset('/template/dist/assets/images/user/avatar-1.jpg') }}"
+                                            class="img-radius rounded-circle"
+                                            style="width:150px;height:150px;object-fit:cover;">
+                                    </a>
                                     <br>
+                                    <input type="file" name="image_profile" id="image_profile" class="mt-2">
+                                </div>
+                            </div>
 
-                                    <div class="row container">
+                            <!-- Step เอกสาร -->
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-12">
+                                    <label class="form-label">Step เอกสาร</label>
+                                    <div class="d-flex gap-2">
+                                        @foreach (['A', 'B'] as $step)
+                                            @php $done = in_array($step, $labour->completed_steps ?? []); @endphp
+                                            <span class="badge bg-{{ $done ? 'success' : 'secondary' }}">
+                                                Step {{ $step }} {{ $done ? 'ครบ' : 'ยังไม่ครบ' }}
+                                            </span>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
 
+                            <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active text-uppercase fw-bold" id="home-tab" data-toggle="tab"
+                                        href="#home" role="tab" aria-controls="home" aria-selected="true">
+                                        <i class="fa fa-id-card me-1"></i>ข้อมูลส่วนตัว
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-uppercase fw-bold" id="profile-tab" data-toggle="tab"
+                                        href="#profile" role="tab" aria-controls="profile" aria-selected="false">
+                                        <i class="fa fa-user-tie me-1"></i>เจ้าหน้าที่สรรหา
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-uppercase fw-bold" id="skilltest-tab" data-toggle="tab"
+                                        href="#skilltest" role="tab" aria-controls="skilltest" aria-selected="false">
+                                        <i class="fa fa-certificate me-1"></i>ทดสอบฝีมือ
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-uppercase fw-bold" id="contact-tab" data-toggle="tab"
+                                        href="#contact" role="tab" aria-controls="contact" aria-selected="false">
+                                        <i class="fa fa-file-alt me-1"></i>ไฟล์เอกสาร
+                                    </a>
+                                </li>
+                            </ul>
+                            <div class="tab-content" id="myTabContent">
+                                <div class="tab-pane fade show active" id="home" role="tabpanel"
+                                    aria-labelledby="home-tab">
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">คำนำหน้า <span class="text-danger">*</span></label>
+                                            <select name="labour_prefix" class="form-select form-select-sm" required>
+                                                <option value="">---Select--</option>
+                                                <option value="Mr" @if ($labour->labour_prefix == 'Mr') selected @endif>Mr.
+                                                </option>
+                                                <option value="Ms" @if ($labour->labour_prefix == 'Ms') selected @endif>Ms.
+                                                </option>
+                                                <option value="Miss" @if ($labour->labour_prefix == 'Miss') selected @endif>
+                                                    Miss.</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">ชื่อ <span class="text-danger">*</span></label>
+                                            <input type="text" name="labour_firstname"
+                                                class="form-control form-control-sm" required placeholder="ชื่อจริง"
+                                                value="{{ $labour->labour_firstname }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">นามสกุล <span class="text-danger">*</span></label>
+                                            <input type="text" name="labour_lastname"
+                                                class="form-control form-control-sm" required placeholder="นามสกุล"
+                                                value="{{ $labour->labour_lastname }}">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">เลขบัตร 13 หลัก <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" name="labour_idcard_number"
+                                                class="form-control form-control-sm" required maxlength="13"
+                                                placeholder="เลขบัตรประชาชน" value="{{ $labour->labour_idcard_number }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันเกิด <span class="text-danger">*</span></label>
+                                            <input type="date" name="labour_birthday"
+                                                class="form-control form-control-sm" required
+                                                value="{{ $labour->labour_birthday }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">อายุ</label>
+                                            <input type="text" class="form-control form-control-sm bg-light"
+                                                id="total-birthday" placeholder="0 ปี" readonly
+                                                value="{{ $labour->total_birthday ?? '' }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">หนัก </label>
+                                            <input type="text" class="form-control form-control-sm bg-light" name="weight"
+                                                id="weight" placeholder="ซม." 
+                                                value="{{ $labour->weight ?? '' }}">
+                                        </div>
+
+                                          <div class="col-md-4">
+                                            <label class="form-label">ส่วนสูง</label>
+                                            <input type="text" class="form-control form-control-sm bg-light" name="height"
+                                                id="height" placeholder="กก." 
+                                                value="{{ $labour->height ?? '' }}">
+                                        </div>
+
+                                        <div class="col-md-4">
+                                            <label class="form-label">BMI</label>
+                                            <input type="text" class="form-control form-control-sm bg-light" 
+                                                id="height" placeholder="รอคำนวน..." readonly
+                                                value="{{ $labour->bmi ?? '' }}">
+                                        </div>
+
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">เบอร์ติดต่อ <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" name="labour_phone_one"
+                                                class="form-control form-control-sm" required placeholder="เบอร์หลัก"
+                                                value="{{ $labour->labour_phone_one }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">เบอร์ติดต่อฉุกเฉิน <span
+                                                    class="text-danger">*</span></label>
+                                            <input type="text" name="labour_phone_two"
+                                                class="form-control form-control-sm" required placeholder="เบอร์สำรอง"
+                                                value="{{ $labour->labour_phone_two }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">อีเมล <span class="text-danger">*</span></label>
+                                            <input type="email" name="labour_email"
+                                                class="form-control form-control-sm" required
+                                                placeholder="example@email.com" value="{{ $labour->labour_email }}">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">Line ID</label>
+                                            <input type="text" name="labour_line_id"
+                                                class="form-control form-control-sm" placeholder="Line ID"
+                                                value="{{ $labour->labour_line_id }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">ชื่อผู้ติดต่อฉุกเฉิน</label>
+                                            <input type="text" name="labour_emergency_contact_name"
+                                                class="form-control form-control-sm" placeholder="ชื่อผู้ติดต่อฉุกเฉิน"
+                                                value="{{ $labour->labour_emergency_contact_name }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">ประเภทที่อยู่</label>
+                                            <select name="labour_address_type" class="form-select form-select-sm">
+                                                <option value="">---เลือก---</option>
+                                                <option value="ตามบัตรประชาชน"
+                                                    @if ($labour->labour_address_type == 'ตามบัตรประชาชน') selected @endif>ตามบัตรประชาชน
+                                                </option>
+                                                <option value="ปัจจุบัน" @if ($labour->labour_address_type == 'ปัจจุบัน') selected @endif>
+                                                    ที่อยู่ปัจจุบัน</option>
+                                                <option value="อื่นๆ" @if ($labour->labour_address_type == 'อื่นๆ') selected @endif>
+                                                    อื่นๆ</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
                                         <div class="col-md-12">
-                                            <b class="">รายละเอียดที่วไป</b>
-                                            <hr>
+                                            <label class="form-label">ที่อยู่</label>
+                                            <textarea name="labour_address" class="form-control form-control-sm" rows="2"
+                                                placeholder="บ้านเลขที่ หมู่ ซอย ถนน">{{ $labour->labour_address }}</textarea>
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">คำนำหน้า
-                                                    <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <select name="labour_prefix" class="form-control form-control-sm"
-                                                        required>
-                                                        <option value="">---Select--</option>
-                                                        <option @if ($labour->labour_prefix === 'Mr') selected @endif
-                                                            value="Mr">Mr.</option>
-                                                        <option @if ($labour->labour_prefix === 'Ms') selected @endif
-                                                            value="Ms">Ms.</option>
-                                                        <option @if ($labour->labour_prefix === 'Miss') selected @endif
-                                                            value="Miss">Miss.</option>
-                                                    </select>
-                                                </div>
-                                            </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">จังหวัด</label>
+                                            <input type="text" name="labour_province"
+                                                class="form-control form-control-sm" placeholder="จังหวัด"
+                                                value="{{ $labour->labour_province }}">
                                         </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">เลขบัตร
-                                                    13
-                                                    หลัก <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_idcard_number"
-                                                        value="{{ $labour->labour_idcard_number }}"
-                                                        class="form-control form-control-sm" required
-                                                        placeholder="เลขบัตรประจำตัวประชาชน 13 หลัก">
-                                                </div>
-                                            </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">เขต/อำเภอ</label>
+                                            <input type="text" name="labour_district"
+                                                class="form-control form-control-sm" placeholder="เขต/อำเภอ"
+                                                value="{{ $labour->labour_district }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">แขวง/ตำบล</label>
+                                            <input type="text" name="labour_sub_district"
+                                                class="form-control form-control-sm" placeholder="แขวง/ตำบล"
+                                                value="{{ $labour->labour_sub_district }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">รหัสไปรษณีย์</label>
+                                            <input type="text" name="labour_postcode"
+                                                class="form-control form-control-sm" placeholder="รหัสไปรษณีย์"
+                                                maxlength="10" value="{{ $labour->labour_postcode }}">
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-12">
+                                            <label class="form-label">หมายเหตุ</label>
+                                            <textarea name="labour_note" class="form-control form-control-sm" rows="2" placeholder="หมายเหตุเพิ่มเติม">{{ $labour->labour_note }}</textarea>
                                         </div>
                                     </div>
 
-                                    <div class="row container">
-
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">ชื่อ
-                                                    <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_firstname"
-                                                        value="{{ $labour->labour_firstname }}"
-                                                        class="form-control form-control-sm" required
-                                                        placeholder="Firstname">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">นามสกุล
-                                                    <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_lastname"
-                                                        value="{{ $labour->labour_lastname }}"
-                                                        class="form-control form-control-sm" required
-                                                        placeholder="Firstname">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for=""
-                                                    class="col-sm-4 col-form-label-sm text-right">วันเกิด
-                                                    <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="date" name="labour_birthday"
-                                                        value="{{ $labour->labour_birthday }}"
-                                                        class="form-control form-control-sm" required placeholder="++66">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">อายุ
-                                                    <span class="text-success">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" class="form-control form-control-sm"
-                                                        id="total-birthday" placeholder="0 ปี" readonly>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for=""
-                                                    class="col-sm-4 col-form-label-sm text-right">เบอร์ติดต่อ
-                                                    <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_phone_one"
-                                                        value="{{ $labour->labour_phone_one }}"
-                                                        class="form-control form-control-sm" required placeholder="++66">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for=""
-                                                    class="col-sm-4 col-form-label-sm text-right">เบอร์ติดต่อบุคคลฉุกเฉิน
-                                                    <span class="text-danger">*</span></label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_phone_two"
-                                                        value="{{ $labour->labour_phone_two }}"
-                                                        class="form-control form-control-sm" required placeholder="++66">
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- ฟิลด์ข้อมูลการติดต่อเพิ่มเติม -->
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">อีเมล</label>
-                                                <div class="col-sm-8">
-                                                    <input type="email" name="labour_email"
-                                                        value="{{ $labour->labour_email }}"
-                                                        class="form-control form-control-sm" placeholder="example@email.com">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">Line ID</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_line_id"
-                                                        value="{{ $labour->labour_line_id }}"
-                                                        class="form-control form-control-sm" placeholder="Line ID">
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <div class="form-group row">
-                                                <label for="" class="col-sm-4 col-form-label-sm text-right">ชื่อผู้ติดต่อฉุกเฉิน</label>
-                                                <div class="col-sm-8">
-                                                    <input type="text" name="labour_emergency_contact_name"
-                                                        value="{{ $labour->labour_emergency_contact_name }}"
-                                                        class="form-control form-control-sm" placeholder="ชื่อผู้ติดต่อฉุกเฉิน">
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <!-- ข้อมูลที่อยู่ -->
-                                    <div class="col-md-12">
-                                        <b class="">ข้อมูลที่อยู่</b>
+                                    <div class="col-12 mt-4">
+                                        <b class="">ข้อมูลหนังสือเดินทาง</b>
                                         <hr>
                                     </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">ประเภทที่อยู่</label>
-                                            <div class="col-sm-8">
-                                                <select name="labour_address_type" class="form-control form-control-sm">
-                                                    <option value="">---เลือก---</option>
-                                                    <option value="ตามบัตรประชาชน" {{ $labour->labour_address_type == 'ตามบัตรประชาชน' ? 'selected' : '' }}>ตามบัตรประชาชน</option>
-                                                    <option value="ปัจจุบัน" {{ $labour->labour_address_type == 'ปัจจุบัน' ? 'selected' : '' }}>ที่อยู่ปัจจุบัน</option>
-                                                    <option value="อื่นๆ" {{ $labour->labour_address_type == 'อื่นๆ' ? 'selected' : '' }}>อื่นๆ</option>
-                                                </select>
-                                            </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">เลขที่หนังสือเดินทาง</label>
+                                            <input type="text" name="labour_passport_number"
+                                                class="form-control form-control-sm" placeholder="เลขที่หนังสือเดินทาง"
+                                                value="{{ $labour->labour_passport_number }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่ออกหนังสือเดินทาง</label>
+                                            <input type="date" name="labour_passport_issue_date"
+                                                class="form-control form-control-sm"
+                                                value="{{ $labour->labour_passport_issue_date }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่หมดอายุหนังสือเดินทาง</label>
+                                            <input type="date" name="labour_passport_expiry_date"
+                                                class="form-control form-control-sm"
+                                                value="{{ $labour->labour_passport_expiry_date }}">
                                         </div>
                                     </div>
-
-                                    <div class="col-md-12">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-2 col-form-label-sm text-right">ที่อยู่</label>
-                                            <div class="col-sm-10">
-                                                <textarea name="labour_address" class="form-control form-control-sm" 
-                                                    rows="2" placeholder="บ้านเลขที่ หมู่ ซอย ถนน">{{ $labour->labour_address }}</textarea>
-                                            </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">จำนวนวันที่จะหมดอายุ</label>
+                                            <input type="text" id="total-days-expiry"
+                                                class="form-control form-control-sm bg-light" placeholder="0" readonly
+                                                value="{{ old('total_days_expiry', isset($labour->total_days_expiry) ? $labour->total_days_expiry : '') }}">
                                         </div>
                                     </div>
-                                    <div class="row">
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">จังหวัด</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="labour_province"
-                                                    value="{{ $labour->labour_province }}"
-                                                    class="form-control form-control-sm" placeholder="จังหวัด">
-                                            </div>
+                                    <div class="col-12 mt-4">
+                                        <b class="">ข้อมูลผลตรวจโรค & CID</b>
+                                        <hr>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">โรงพยาบาลที่ตรวจโรค</label>
+                                            <select name="labour_hospital" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @if (!empty($hospitalGlobalSet))
+                                                    @php $values = $hospitalGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            @if ($item->id == $labour->labour_hospital) selected @endif>
+                                                            {{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันรับผลโรค</label>
+                                            <input type="date" name="labour_disease_receive_date"
+                                                class="form-control form-control-sm"
+                                                value="{{ $labour->labour_disease_receive_date }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันออกผลโรค</label>
+                                            <input type="date" name="labour_disease_issue_date"
+                                                class="form-control form-control-sm"
+                                                value="{{ $labour->labour_disease_issue_date }}">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">เขต/อำเภอ</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="labour_district"
-                                                    value="{{ $labour->labour_district }}"
-                                                    class="form-control form-control-sm" placeholder="เขต/อำเภอ">
-                                            </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">ผลโรคอายุ (คำนวน 30 วัน)</label>
+                                            <input type="text" id="total-disease-expiry" readonly
+                                                class="form-control form-control-sm bg-light" placeholder="0"
+                                                value="{{ old('total_disease_expiry', isset($labour->total_disease_expiry) ? $labour->total_disease_expiry : '') }}">
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">แขวง/ตำบล</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="labour_sub_district"
-                                                    value="{{ $labour->labour_sub_district }}"
-                                                    class="form-control form-control-sm" placeholder="แขวง/ตำบล">
-                                            </div>
+                                    <div class="col-12 mt-4">
+                                        <b class="">ข้อมูลรายละเอียดงาน & จัดเก็บเอกสาร</b>
+                                        <hr>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">บริษัทนายจ้าง</label>
+                                            <select name="company_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @forelse ($customers as $item)
+                                                    <option value="{{ $item->id }}"
+                                                        @if ($item->id == $labour->company_id) selected @endif>
+                                                        {{ $item->name }}</option>
+                                                @empty
+                                                @endforelse
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">เลขที่ใบสมัคร</label>
+                                            <input type="text" name="labour_register_number"
+                                                class="form-control form-control-sm" placeholder="Register Number."
+                                                value="{{ $labour->labour_register_number }}">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">การจัดเก็บเอกสาร</label>
+                                            <select name="managedoc_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @forelse ($manageDocs as $item)
+                                                    <option value="{{ $item->managedoc_id }}"
+                                                        @if ($item->managedoc_id == $labour->managedoc_id) selected @endif>
+                                                        {{ $item->managedoc_name }}</option>
+                                                @empty
+                                                @endforelse
+                                            </select>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">รหัสไปรษณีย์</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="labour_postcode"
-                                                    value="{{ $labour->labour_postcode }}"
-                                                    class="form-control form-control-sm" placeholder="รหัสไปรษณีย์" maxlength="10">
-                                            </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">ประเทศสมัครงาน</label>
+                                            <select name="country_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @if (!empty($countryGlobalSet))
+                                                    @php $values = $countryGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            @if ($item->id == $labour->country_id) selected @endif>
+                                                            {{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">กลุ่มงาน</label>
+                                            <select name="job_group_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @if (!empty($jobGroupGlobalSet))
+                                                    @php $values = $jobGroupGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            @if ($item->id == $labour->job_group_id) selected @endif>
+                                                            {{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">ตำแหน่ง</label>
+                                            <select name="position_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @if (!empty($positionGlobalSet))
+                                                    @php $values = $positionGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            @if ($item->id == $labour->position_id) selected @endif>
+                                                            {{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
                                     </div>
-
-                                    <!-- เพิ่มฟิลด์ Note -->
-                                    <div class="col-md-12">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-2 col-form-label-sm text-right">หมายเหตุ</label>
-                                            <div class="col-sm-10">
-                                                <textarea name="labour_note" class="form-control form-control-sm" 
-                                                    rows="3" placeholder="หมายเหตุเพิ่มเติม">{{ $labour->labour_note }}</textarea>
-                                            </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">สถานะ <span class="text-danger">*</span></label>
+                                            <select name="labour_status" class="form-select form-select-sm" required>
+                                                <option value="">--Select--</option>
+                                                @if (!empty($statusGlobalSet))
+                                                    @php $values = $statusGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}"
+                                                            @if ($item->id == $labour->labour_status) selected @endif>
+                                                            {{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
-                                    </div>
-                                    </div>
-                                </div>
-                                <div class="col-md-12 ">
-                                    <b class="">ข้อมูลหนังสือเดินทาง</b>
-                                    <hr>
-                                </div>
-
-                                <div class="row container">
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">เลขที่หนังสือเดินทาง </label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="labour_passport_number"
-                                                    value="{{ $labour->labour_passport_number }}"
-                                                    class="form-control form-control-sm"
-                                                    placeholder="เลขที่หนังสือเดินทาง">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">วันที่ออกหนังสือเดินทาง
-                                            </label>
-                                            <div class="col-sm-8">
-                                                <input type="date" name="labour_passport_issue_date"
-                                                    value="{{ $labour->labour_passport_issue_date }}"
-                                                    class="form-control form-control-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">วันที่หมดอายุหนังสือเดินทาง
-                                            </label>
-                                            <div class="col-sm-8">
-                                                <input type="date" name="labour_passport_expiry_date"
-                                                    value="{{ $labour->labour_passport_expiry_date }}"
-                                                    class="form-control form-control-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">จำนวนวันที่จะหมดอายุ </label>
-                                            <div class="col-sm-8">
-                                                <input type="text" id="total-days-expiry"
-                                                    class="form-control form-control-sm" placeholder="0" readonly>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="col-md-12 ">
-                                    <b class="">ข้อมูลผลตรวจโรค & CID</b>
-                                    <hr>
-                                </div>
-
-                                <div class="row container">
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">โรงพยาบาลที่ตรวจโรค</label>
-                                            <div class="col-sm-8">
-                                                <select name="labour_hospital" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($hospitalGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $hospitalGlobalSet->values;
-                                                            if (
-                                                                $hospitalGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->labour_hospital) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">วันรับผลโรค</label>
-                                            <div class="col-sm-8">
-                                                <input type="date" name="labour_disease_receive_date"
-                                                    value="{{ $labour->labour_disease_receivedate }}"
-                                                    class="form-control form-control-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">วันออกผลโรค</label>
-                                            <div class="col-sm-8">
-                                                <input type="date" name="labour_disease_issue_date"
-                                                    value="{{ $labour->labour_disease_issue_date }}"
-                                                    class="form-control form-control-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">ผลโรคอายุ
-                                                คำนวน 30 วัน</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" id="total-disease-expiry" readonly
-                                                    class="form-control form-control-sm" placeholder="0">
-                                            </div>
+                                        <div class="col-md-8">
+                                            <label class="form-label">บันทึกเพิ่มเติม</label>
+                                            <textarea name="labour_note" class="form-control form-control-sm" rows="2" placeholder="Note..">{{ $labour->labour_note }}</textarea>
                                         </div>
                                     </div>
                                 </div>
+                                {{-- /// --}}
+                                <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby=คำนำหน้า
+                                    *"profile-tab">
 
-                                <div class="col-md-12 ">
-                                    <b class="">ข้อมูลรายละเอียดงาน & จัดเก็บเอกสาร</b>
-                                    <hr>
-                                </div>
-                                <div class="row container">
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">บริษัทนายจ้าง</label>
-                                            <div class="col-sm-8">
-                                                <select name="company_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @forelse ($customers as $item)
-                                                        <option @if ($item->id === $labour->company_id) selected @endif
-                                                            value="{{ $item->id }}">{{ $item->name }}
-                                                        </option>
-                                                    @empty
-                                                    @endforelse
-                                                </select>
-                                            </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-6">
+                                            <label class="form-label">เจ้าหน้าที่สรรหา</label>
+                                            <select name="staff_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @if (!empty($StaffGlobalSet))
+                                                    @php $values = $StaffGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">เลขที่ใบสมัคร</label>
-                                            <div class="col-sm-8">
-                                                <input type="text" name="labour_register_number"
-                                                    class="form-control form-control-sm" placeholder="Register Number."
-                                                    value="{{ $labour->labour_register_number }}">
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">การจัดเก็บเอกสาร</label>
-                                            <div class="col-sm-8">
-                                                <select name="managedoc_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @forelse ($manageDocs as $item)
-                                                        <option @if ($item->managedoc_id === $labour->managedoc_id) selected @endif
-                                                            value="{{ $item->managedoc_id }}">
-                                                            {{ $item->managedoc_name }}</option>
-                                                    @empty
-                                                    @endforelse
-
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">ประเทศสมัครงาน</label>
-                                            <div class="col-sm-8">
-                                                <select name="country_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($countryGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $countryGlobalSet->values;
-                                                            if (
-                                                                $countryGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->country_id) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}
-                                                            </option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">กลุ่มงาน</label>
-                                            <div class="col-sm-8">
-                                                <select name="job_group_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($jobGroupGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $jobGroupGlobalSet->values;
-                                                            if (
-                                                                $jobGroupGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->job_group_id) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}
-                                                            </option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">ตำแหน่ง</label>
-                                            <div class="col-sm-8">
-                                                <select name="position_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($positionGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $positionGlobalSet->values;
-                                                            if (
-                                                                $positionGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->position_id) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}
-                                                            </option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
+                                        <div class="col-md-6">
+                                            <label class="form-label">ชื่อสาย</label>
+                                            <select name="staff_sub_id" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                @if (!empty($StaffsubGlobalSet))
+                                                    @php $values = $StaffsubGlobalSet->values; @endphp
+                                                    @foreach ($values as $item)
+                                                        <option value="{{ $item->id }}">{{ $item->value }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
                                         </div>
                                     </div>
                                 </div>
+                                <div class="tab-pane fade" id="skilltest" role="tabpanel"
+                                    aria-labelledby="skilltest-tab">
+                                    <div class="col-12 mt-4">
 
-                                <div class="col-md-12 ">
-                                    <b class="">สถานะคนงาน</b>
-                                    <hr>
-                                </div>
-                                <div class="row container">
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">สถานะ
-                                                <span class="text-danger">*</span></label>
-                                            <div class="col-sm-8">
-                                                <select name="labour_status" class="form-control form-control-sm"
-                                                    required>
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($statusGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $statusGlobalSet->values;
-                                                            if (
-                                                                $statusGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->labour_status) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}
-                                                            </option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
+                                        <div
+                                            class="d-flex justify-content-between align-items-center mb-3 skill-test-section-title">
+                                            <span><i class="fa fa-certificate me-1 text-primary"></i> ข้อมูลการทดสอบฝีมือ
+                                                (Skill Test)</span>
+                                            <button type="button" class="add-skill-test-btn" id="add-skill-test">
+                                                <i class="fa fa-plus"></i> เพิ่มรายการทดสอบฝีมือ
+                                            </button>
                                         </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">บันทึกเพิ่มเติม </label>
-                                            <div class="col-sm-8">
-                                                <textarea name="labour_note" class="form-control" cols="30" rows="2" placeholder="Note..">{{$labour->labour_note}}</textarea>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                                        <hr class="mb-3 mt-0" style="border-top:1.5px dashed #b6e0fe;">
+                                        <div id="skill-test-list">
+                                            @if (!empty($skillTests) && count($skillTests) > 0)
+                                           
+                                                @foreach ($skillTests as $i => $test)
+                                               
+                                                    <div class="skill-test-item skill-test-modern mb-3 p-3"
+                                                        style="background:rgba(255,255,255,0.95); border-radius:18px; box-shadow:0 2px 8px 0 rgba(80,180,255,0.07); border:1.5px solid #e3f0fa;">
+                                                        <div class="row align-items-end g-2">
+                                                            <div class="col-md-1 col-2 text-center">
+                                                                <span class="skill-test-badge bg-success text-white">{{ $i + 1 }}</span>
+                                                            </div>
+                                                            <div class="col-md-2 col-6 mb-2">
+                                                                <label class="form-label mb-1 text-success">วันที่สอบ</label>
+                                                                <input type="date"
+                                                                    name="skill_tests[{{ $i }}][test_date]"
+                                                                    class="form-control form-control-sm border-success"
+                                                                    value="{{ $test->test_date ?? '' }}" />
+                                                            </div>
+                                                            <div class="col-md-3 col-6 mb-2">
+                                                                <label class="form-label mb-1 text-success">นายจ้าง</label>
+                                                                <select
+                                                                    name="skill_tests[{{ $i }}][customer_id]"
+                                                                    class="form-select form-select-sm border-success">
+                                                                    <option value="">--Select--</option>
+                                                                    @forelse ($customers as $item)
+                                                                        <option value="{{ $item->id }}"
+                                                                            @if ($item->id == $test->customer_id) selected @endif>
+                                                                            {{ $item->name }}</option>
+                                                                    @empty
+                                                                    @endforelse
+                                                                </select>
+                                                            </div>
 
-
-
-
-
-                                {{-- <a class="btn btn-success text-white float-right" data-toggle="tab" href="#profile"
-                                role="tab" aria-controls="profile" aria-selected="false">Next Step</a> --}}
-                            </div>
-
-
-                            {{-- /// --}}
-
-
-                            <div class="tab-pane fade" id="profile" role="tabpanel" aria-labelledby="profile-tab">
-
-                                <div class="col-md-12 ">
-                                    <b class="">ข้อมูลเจ้าหน้าที่สรรหา</b>
-                                    <hr>
-                                </div>
-
-                                <div class="row container">
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for="" class="col-sm-4 col-form-label-sm text-right">ศูนย์สอบ
-                                            </label>
-                                            <div class="col-sm-8">
-                                                <select name="lacation_test_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($ExaminationCenterGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $ExaminationCenterGlobalSet->values;
-                                                            if (
-                                                                $ExaminationCenterGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->lacation_test_id) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-
-
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">รอบสอบวันที่ </label>
-                                            <div class="col-sm-8">
-                                                <input type="date" name="lacation_test_date" value="{{$labour->lacation_test_date}}" class="form-control form-control-sm">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <div class="col-md-12 ">
-                                    <b class="">ข้อมูลสถานะ</b>
-                                    <hr>
-                                </div>
-
-                                <div class="row container">
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">เจ้าหน้าที่สรรหา</label>
-                                            <div class="col-sm-8">
-                                                <select name="staff_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($StaffGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $StaffGlobalSet->values;
-                                                            if (
-                                                                $StaffGlobalSet->sort_order_preference == 'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->staff_id) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group row">
-                                            <label for=""
-                                                class="col-sm-4 col-form-label-sm text-right">ชื่อสาย</label>
-                                            <div class="col-sm-8">
-                                                <select name="staff_sub_id" class="form-control form-control-sm">
-                                                    <option value="">--Select--</option>
-                                                    @if (!empty($StaffsubGlobalSet))
-                                                        @php
-                                                            // ถ้าต้องการเรียงลำดับแบบ alphabetical
-                                                            $values = $StaffsubGlobalSet->values;
-                                                            if (
-                                                                $StaffsubGlobalSet->sort_order_preference ==
-                                                                'alphabetical'
-                                                            ) {
-                                                                $values = $values->sortBy('value');
-                                                            }
-                                                        @endphp
-                                                        @foreach ($values as $item)
-                                                            <option @if ($item->id === $labour->staff_sub_id) selected @endif
-                                                                value="{{ $item->id }}">{{ $item->value }}</option>
-                                                        @endforeach
-                                                    @endif
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-
-
-                            </div>
-
-                            <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
-                                <br>
-                                <div class="row">
-                                    @foreach ($listFiles as $i => $item)
-                                        <div class="col-md-6 col-lg-4 mb-4">
-                                            <div class="card h-100 shadow-sm border file-card" data-id="{{ $item->list_file_id }}">
-                                                <div class="card-body p-3">
-                                                    <!-- File Preview/Thumbnail -->
-                                                    <div class="text-center mb-3">
-                                                        @if ($item->file_path)
-                                                            @php
-                                                                $fileExtension = pathinfo($item->file_path, PATHINFO_EXTENSION);
-                                                                $fileName = pathinfo($item->file_path, PATHINFO_FILENAME);
-                                                                $thumbnailPath = dirname($item->file_path) . '/thumbnails/' . $fileName . '_thumb.jpg';
-                                                                $isImage = in_array(strtolower($fileExtension), ['jpg', 'jpeg', 'png', 'gif', 'webp']);
-                                                                $isPdf = strtolower($fileExtension) === 'pdf';
-                                                            @endphp
-                                                            
-                                                            <div class="file-preview-container" style="height: 200px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px; position: relative;">
-                                                                @if ($isImage)
-                                                                    <!-- แสดงภาพจริง -->
-                                                                    <img src="{{ asset('storage/' . $item->file_path) }}" 
-                                                                         alt="Preview" 
-                                                                         class="img-fluid rounded"
-                                                                         style="max-height: 190px; max-width: 100%; object-fit: cover;">                                                @elseif ($isPdf)
-                                                    <!-- แสดง PDF preview หน้าแรกเท่านั้น -->
-                                                    <div class="pdf-preview-container" style="width: 100%; height: 190px; border-radius: 8px; overflow: hidden; background: #f8f9fa; position: relative;"
-                                                         data-pdf-url="{{ asset('storage/' . $item->file_path) }}">
-                                                        <!-- PDF Viewer with iframe - แสดงแค่หน้าที่ 1 -->
-                                                        <iframe src="{{ asset('storage/' . $item->file_path) }}#page=1&toolbar=0&navpanes=0&scrollbar=0&view=Fit&zoom=85" 
-                                                                width="100%" 
-                                                                height="110%"
-                                                                style="border: none; pointer-events: none; margin-top: -5px;"
-                                                                class="pdf-iframe"
-                                                                onload="handlePdfLoad(this)"
-                                                                onerror="handlePdfError(this)">
-                                                        </iframe>
-                                                        
-                                                        <!-- Preview overlay -->
-                                                        <div class="pdf-preview-overlay" style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; text-align: center; padding: 10px 5px; font-size: 12px;">
-                                                            <i class="fas fa-file-pdf"></i> หน้าแรก - คลิกเพื่อดูทั้งหมด
-                                                        </div>
-                                                        
-                                                        <!-- Canvas fallback for PDF.js -->
-                                                        <canvas class="pdf-canvas d-none" 
-                                                                style="width: 100%; height: 100%; object-fit: cover;">
-                                                        </canvas>
-                                                        
-                                                        <!-- Ultimate fallback -->
-                                                        <div class="pdf-fallback" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center; background: #f8f9fa; cursor: pointer;">
-                                                            <div class="text-center">
-                                                                <i class="fas fa-file-pdf text-danger" style="font-size: 48px;"></i>
-                                                                <div class="small text-muted mt-2">PDF Document</div>
-                                                                <div class="small text-primary mt-1">{{ basename($item->file_path) }}</div>
-                                                                <div class="small text-warning"><i class="fas fa-eye"></i> คลิกเพื่อดูทั้งหมด</div>
+                                                            <div class="col-md-3 col-6 mb-2">
+                                                                <label class="form-label mb-1 text-success">สถานที่สอบ</label>
+                                                                <select
+                                                                    name="skill_tests[{{ $i }}][test_location_id]"
+                                                                    class="form-select form-select-sm border-success">
+                                                                    <option value="">--Select--</option>
+                                                                    @if (!empty($ExaminationCenterGlobalSet))
+                                                                        @php $values = $ExaminationCenterGlobalSet->values; @endphp
+                                                                        @foreach ($values as $item)
+                                                                            <option value="{{ $item->id }}"
+                                                                                @if ($item->id == $test->test_location_id) selected @endif>
+                                                                                {{ $item->value }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-3 col-6 mb-2">
+                                                                <label class="form-label mb-1 text-success">ตำแหน่งที่สอบ</label>
+                                                                <select
+                                                                    name="skill_tests[{{ $i }}][test_position_id]"
+                                                                    class="form-select form-select-sm border-success">
+                                                                    <option value="">--Select--</option>
+                                                                    @if (!empty($positionGlobalSet))
+                                                                        @php $values = $positionGlobalSet->values; @endphp
+                                                                        @foreach ($values as $item)
+                                                                            <option value="{{ $item->id }}"
+                                                                                @if ($item->id == $test->test_position_id) selected @endif>
+                                                                                {{ $item->value }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
+                                                            </div>
+                                                             <div class="col-md-1 col-2 text-center">
+                                                             
+                                                            </div>
+                                                            <div class="col-md-2 col-6 mb-2">
+                                                                <label class="form-label mb-1 text-success">ผลการสอบ</label>
+                                                                <select
+                                                                    name="skill_tests[{{ $i }}][test_result_id]"
+                                                                    class="form-select form-select-sm border-success">
+                                                                    <option value="">--Select--</option>
+                                                                    @if (!empty($statusTestGlobalSet))
+                                                                        @php $values = $statusTestGlobalSet->values; @endphp
+                                                                        @foreach ($values as $item)
+                                                                            <option value="{{ $item->id }}"
+                                                                                @if ($item->id == $test->test_result_id) selected @endif>
+                                                                                {{ $item->value }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
+                                                            </div>
+                                                            <div class="col-md-2 col-6 mb-2">
+                                                                <label class="form-label mb-1 text-success">หมายเหตุ</label>
+                                                                <input type="text"
+                                                                    name="skill_tests[{{ $i }}][note]"
+                                                                    class="form-control form-control-sm border-success"
+                                                                    placeholder="หมายเหตุ"
+                                                                    value="{{ $test->note ?? '' }}" />
+                                                            </div>
+                                                            <div
+                                                                class="col-md-1 col-2 d-flex align-items-center justify-content-center mb-2">
+                                                                <button type="button"
+                                                                    class="btn btn-outline-success btn-sm remove-skill-test"
+                                                                    @if (count($skillTests) == 1) style="display:none;" @endif>
+                                                                    <i class="fa fa-trash"></i>
+                                                                </button>
                                                             </div>
                                                         </div>
                                                     </div>
-                                                    <!-- PDF Action Buttons -->
-                                                    <div class="position-absolute" style="top: 8px; right: 8px;">
-                                                        <div class="btn-group">
-                                                            <button type="button" class="btn btn-sm btn-primary pdf-preview-btn"
-                                                                    data-pdf-url="{{ asset('storage/' . $item->file_path) }}"
-                                                                    data-file-name="{{ $item->managefile_name }}"
-                                                                    title="ดู PDF ทั้งหมด">
-                                                                <i class="fas fa-expand"></i>
-                                                            </button>
-                                                            <button type="button" class="btn btn-sm btn-success" 
-                                                                    onclick="window.open('{{ asset('storage/' . $item->file_path) }}', '_blank')"
-                                                                    title="เปิดในแท็บใหม่">
-                                                                <i class="fas fa-external-link-alt"></i>
-                                                            </button>
+                                                @endforeach
+                                            @else
+                                                <div class="skill-test-item skill-test-modern mb-3 p-3"
+                                                    style="background:rgba(255,255,255,0.95); border-radius:18px; box-shadow:0 2px 8px 0 rgba(80,180,255,0.07); border:1.5px solid #e3f0fa;">
+                                                    <div class="row align-items-end g-2">
+                                                        <div class="col-md-1 col-2 text-center">
+                                                            <span class="skill-test-badge bg-success text-white">1</span>
                                                         </div>
-                                                    </div>
-                                                                @else
-                                                                    <!-- แสดงไอคอนสำหรับไฟล์อื่นๆ -->
-                                                                    @php
-                                                                        $iconClass = 'fas fa-file';
-                                                                        $iconColor = 'text-secondary';
-                                                                        $fileType = 'Document';
-                                                                        
-                                                                        switch(strtolower($fileExtension)) {
-                                                                            case 'doc':
-                                                                            case 'docx':
-                                                                                $iconClass = 'fas fa-file-word';
-                                                                                $iconColor = 'text-primary';
-                                                                                $fileType = 'Word Document';
-                                                                                break;
-                                                                            case 'xls':
-                                                                            case 'xlsx':
-                                                                                $iconClass = 'fas fa-file-excel';
-                                                                                $iconColor = 'text-success';
-                                                                                $fileType = 'Excel Spreadsheet';
-                                                                                break;
-                                                                            case 'ppt':
-                                                                            case 'pptx':
-                                                                                $iconClass = 'fas fa-file-powerpoint';
-                                                                                $iconColor = 'text-warning';
-                                                                                $fileType = 'PowerPoint';
-                                                                                break;
-                                                                            case 'txt':
-                                                                                $iconClass = 'fas fa-file-alt';
-                                                                                $iconColor = 'text-info';
-                                                                                $fileType = 'Text File';
-                                                                                break;
-                                                                        }
-                                                                    @endphp
-                                                                    <div class="text-center">
-                                                                        <i class="{{ $iconClass }} {{ $iconColor }}" style="font-size: 64px;"></i>
-                                                                        <div class="small text-muted mt-2">{{ $fileType }}</div>
-                                                                    </div>
+                                                        <div class="col-md-2 col-6 mb-2">
+                                                            <label class="form-label mb-1 text-success">วันที่สอบ</label>
+                                                            <input type="date" name="skill_tests[0][test_date]"
+                                                                class="form-control form-control-sm border-success" />
+                                                        </div>
+                                                        <div class="col-md-3 col-6 mb-2">
+                                                            <label class="form-label mb-1 text-success">สถานที่สอบ</label>
+                                                            <select name="skill_tests[0][test_location_id]"
+                                                                class="form-select form-select-sm border-success">
+                                                                <option value="">--Select--</option>
+                                                                @if (!empty($ExaminationCenterGlobalSet))
+                                                                    @php $values = $ExaminationCenterGlobalSet->values; @endphp
+                                                                    @foreach ($values as $item)
+                                                                        <option value="{{ $item->id }}">
+                                                                            {{ $item->value }}</option>
+                                                                    @endforeach
                                                                 @endif
-                                                            </div>
-                                                        @else
-                                                            <!-- ยังไม่มีไฟล์ - แสดงพื้นที่อัปโหลด -->
-                                                            <div class="file-upload-area text-center p-4" 
-                                                                 style="height: 200px; border: 2px dashed #dee2e6; border-radius: 8px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                                                                <i class="fas fa-cloud-upload-alt text-muted" style="font-size: 48px;"></i>
-                                                                <div class="small text-muted mt-3">คลิกเพื่อเลือกไฟล์</div>
-                                                                <div class="small text-muted">หรือลากไฟล์มาวางที่นี่</div>
-                                                                <input type="file" 
-                                                                       class="form-control file-input position-absolute w-100 h-100 opacity-0"
-                                                                       style="top: 0; left: 0; cursor: pointer;"
-                                                                       data-upload="{{ route('labours.list-files.upload', [$labour->labour_id, $item->list_file_id]) }}"
-                                                                       accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif">
-                                                            </div>
-                                                        @endif
-                                                    </div>
-
-                                                    <!-- File Info -->
-                                                    <div class="card-text">
-                                                        <h6 class="card-title mb-2 text-truncate" title="{{ $item->managefile_name }}">
-                                                            {{ $item->managefile_name }}
-                                                        </h6>
-                                                        <div class="d-flex justify-content-between align-items-center mb-2">
-                                                            <small class="text-muted">{{ $item->managefile_code }}</small>
-                                                            <span class="badge {{ $item->managefile_step == 'A' ? 'badge-primary' : 'badge-success' }}">
-                                                                Step {{ $item->managefile_step }}
-                                                            </span>
+                                                            </select>
                                                         </div>
-                                                        
-                                                        @if ($item->file_path)
-                                                            <div class="small text-muted mb-2">
-                                                                <i class="fas fa-calendar-alt me-1"></i>
-                                                                {{ date('d/m/Y', strtotime($item->updated_at)) }}
-                                                            </div>
-                                                            
-                                                            @php
-                                                                $fileSizeBytes = file_exists(storage_path('app/public/' . $item->file_path)) 
-                                                                    ? filesize(storage_path('app/public/' . $item->file_path)) 
-                                                                    : 0;
-                                                                $fileSize = $fileSizeBytes > 0 ? number_format($fileSizeBytes / 1024, 1) . ' KB' : 'ไม่ทราบขนาด';
-                                                            @endphp
-                                                            <div class="small text-muted mb-3">
-                                                                <i class="fas fa-file me-1"></i>
-                                                                {{ strtoupper($fileExtension ?? '') }} • {{ $fileSize }}
-                                                            </div>
-                                                        @endif
+                                                        <div class="col-md-2 col-6 mb-2">
+                                                            <label class="form-label mb-1 text-success">ตำแหน่งที่สอบ</label>
+                                                            <select name="skill_tests[0][test_position_id]"
+                                                                class="form-select form-select-sm border-success">
+                                                                <option value="">--Select--</option>
+                                                                @if (!empty($positionGlobalSet))
+                                                                    @php $values = $positionGlobalSet->values; @endphp
+                                                                    @foreach ($values as $item)
+                                                                        <option value="{{ $item->id }}">
+                                                                            {{ $item->value }}</option>
+                                                                    @endforeach
+                                                                @endif
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2 col-6 mb-2">
+                                                            <label class="form-label mb-1 text-success">ผลการสอบ</label>
+                                                            <select name="skill_tests[0][test_result_id]"
+                                                                class="form-select form-select-sm border-success">
+                                                                <option value="">--Select--</option>
+                                                                @if (!empty($statusTestGlobalSet))
+                                                                    @php $values = $statusTestGlobalSet->values; @endphp
+                                                                    @foreach ($values as $item)
+                                                                        <option value="{{ $item->id }}">
+                                                                            {{ $item->value }}</option>
+                                                                    @endforeach
+                                                                @endif
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-2 col-6 mb-2">
+                                                            <label class="form-label mb-1 text-success">หมายเหตุ</label>
+                                                            <input type="text" name="skill_tests[0][note]"
+                                                                class="form-control form-control-sm border-success"
+                                                                placeholder="หมายเหตุ" />
+                                                        </div>
+                                                        <div
+                                                            class="col-md-1 col-2 d-flex align-items-center justify-content-center mb-2">
+                                                            <button type="button"
+                                                                class="btn btn-outline-danger btn-sm remove-skill-test"
+                                                                style="display:none;">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                        </div>
                                                     </div>
+                                                </div>
+                                            @endif
+                                        </div>
 
-                                                    <!-- Action Buttons -->
-                                                    @if ($item->file_path)
-                                                        <div class="d-flex gap-2 justify-content-center">
-                                                            @if ($isPdf)
-                                                                {{-- <button type="button" class="btn btn-info btn-sm pdf-viewer-btn"
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
+                                    <br>
+                                    <div class="row">
+                                        @foreach ($listFiles as $i => $item)
+                                            <div class="col-md-6 col-lg-4 mb-4">
+                                                <div class="card h-100 shadow-sm border file-card"
+                                                    data-id="{{ $item->list_file_id }}">
+                                                    <div class="card-body p-3">
+                                                        <!-- File Preview/Thumbnail -->
+                                                        <div class="text-center mb-3">
+                                                            @if ($item->file_path)
+                                                                @php
+                                                                    $fileExtension = pathinfo(
+                                                                        $item->file_path,
+                                                                        PATHINFO_EXTENSION,
+                                                                    );
+                                                                    $fileName = pathinfo(
+                                                                        $item->file_path,
+                                                                        PATHINFO_FILENAME,
+                                                                    );
+                                                                    $thumbnailPath =
+                                                                        dirname($item->file_path) .
+                                                                        '/thumbnails/' .
+                                                                        $fileName .
+                                                                        '_thumb.jpg';
+                                                                    $isImage = in_array(strtolower($fileExtension), [
+                                                                        'jpg',
+                                                                        'jpeg',
+                                                                        'png',
+                                                                        'gif',
+                                                                        'webp',
+                                                                    ]);
+                                                                    $isPdf = strtolower($fileExtension) === 'pdf';
+                                                                @endphp
+
+                                                                <div class="file-preview-container"
+                                                                    style="height: 200px; display: flex; align-items: center; justify-content: center; background: #f8f9fa; border-radius: 8px; position: relative;">
+                                                                    @if ($isImage)
+                                                                        <!-- แสดงภาพจริง -->
+                                                                        <img src="{{ asset('storage/' . $item->file_path) }}"
+                                                                            alt="Preview" class="img-fluid rounded"
+                                                                            style="max-height: 190px; max-width: 100%; object-fit: cover;">
+                                                                    @elseif ($isPdf)
+                                                                        <!-- แสดง PDF preview หน้าแรกเท่านั้น -->
+                                                                        <div class="pdf-preview-container"
+                                                                            style="width: 100%; height: 190px; border-radius: 8px; overflow: hidden; background: #f8f9fa; position: relative;"
+                                                                            data-pdf-url="{{ asset('storage/' . $item->file_path) }}">
+                                                                            <!-- PDF Viewer with iframe - แสดงแค่หน้าที่ 1 -->
+                                                                            <iframe
+                                                                                src="{{ asset('storage/' . $item->file_path) }}#page=1&toolbar=0&navpanes=0&scrollbar=0&view=Fit&zoom=85"
+                                                                                width="100%" height="110%"
+                                                                                style="border: none; pointer-events: none; margin-top: -5px;"
+                                                                                class="pdf-iframe"
+                                                                                onload="handlePdfLoad(this)"
+                                                                                onerror="handlePdfError(this)">
+                                                                            </iframe>
+
+                                                                            <!-- Preview overlay -->
+                                                                            <div class="pdf-preview-overlay"
+                                                                                style="position: absolute; bottom: 0; left: 0; right: 0; background: linear-gradient(transparent, rgba(0,0,0,0.7)); color: white; text-align: center; padding: 10px 5px; font-size: 12px;">
+                                                                                <i class="fas fa-file-pdf"></i> หน้าแรก -
+                                                                                คลิกเพื่อดูทั้งหมด
+                                                                            </div>
+
+                                                                            <!-- Canvas fallback for PDF.js -->
+                                                                            <canvas class="pdf-canvas d-none"
+                                                                                style="width: 100%; height: 100%; object-fit: cover;">
+                                                                            </canvas>
+
+                                                                            <!-- Ultimate fallback -->
+                                                                            <div class="pdf-fallback"
+                                                                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: none; align-items: center; justify-content: center; background: #f8f9fa; cursor: pointer;">
+                                                                                <div class="text-center">
+                                                                                    <i class="fas fa-file-pdf text-danger"
+                                                                                        style="font-size: 48px;"></i>
+                                                                                    <div class="small text-muted mt-2">PDF
+                                                                                        Document</div>
+                                                                                    <div class="small text-primary mt-1">
+                                                                                        {{ basename($item->file_path) }}
+                                                                                    </div>
+                                                                                    <div class="small text-warning"><i
+                                                                                            class="fas fa-eye"></i>
+                                                                                        คลิกเพื่อดูทั้งหมด</div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                        <!-- PDF Action Buttons -->
+                                                                        <div class="position-absolute"
+                                                                            style="top: 8px; right: 8px;">
+                                                                            <div class="btn-group">
+                                                                                <button type="button"
+                                                                                    class="btn btn-sm btn-primary pdf-preview-btn"
+                                                                                    data-pdf-url="{{ asset('storage/' . $item->file_path) }}"
+                                                                                    data-file-name="{{ $item->managefile_name }}"
+                                                                                    title="ดู PDF ทั้งหมด">
+                                                                                    <i class="fas fa-expand"></i>
+                                                                                </button>
+                                                                                <button type="button"
+                                                                                    class="btn btn-sm btn-success"
+                                                                                    onclick="window.open('{{ asset('storage/' . $item->file_path) }}', '_blank')"
+                                                                                    title="เปิดในแท็บใหม่">
+                                                                                    <i
+                                                                                        class="fas fa-external-link-alt"></i>
+                                                                                </button>
+                                                                            </div>
+                                                                        </div>
+                                                                    @else
+                                                                        <!-- แสดงไอคอนสำหรับไฟล์อื่นๆ -->
+                                                                        @php
+                                                                            $iconClass = 'fas fa-file';
+                                                                            $iconColor = 'text-secondary';
+                                                                            $fileType = 'Document';
+
+                                                                            switch (strtolower($fileExtension)) {
+                                                                                case 'doc':
+                                                                                case 'docx':
+                                                                                    $iconClass = 'fas fa-file-word';
+                                                                                    $iconColor = 'text-primary';
+                                                                                    $fileType = 'Word Document';
+                                                                                    break;
+                                                                                case 'xls':
+                                                                                case 'xlsx':
+                                                                                    $iconClass = 'fas fa-file-excel';
+                                                                                    $iconColor = 'text-success';
+                                                                                    $fileType = 'Excel Spreadsheet';
+                                                                                    break;
+                                                                                case 'ppt':
+                                                                                case 'pptx':
+                                                                                    $iconClass =
+                                                                                        'fas fa-file-powerpoint';
+                                                                                    $iconColor = 'text-warning';
+                                                                                    $fileType = 'PowerPoint';
+                                                                                    break;
+                                                                                case 'txt':
+                                                                                    $iconClass = 'fas fa-file-alt';
+                                                                                    $iconColor = 'text-info';
+                                                                                    $fileType = 'Text File';
+                                                                                    break;
+                                                                            }
+                                                                        @endphp
+                                                                        <div class="text-center">
+                                                                            <i class="{{ $iconClass }} {{ $iconColor }}"
+                                                                                style="font-size: 64px;"></i>
+                                                                            <div class="small text-muted mt-2">
+                                                                                {{ $fileType }}</div>
+                                                                        </div>
+                                                                    @endif
+                                                                </div>
+                                                            @else
+                                                                <!-- ยังไม่มีไฟล์ - แสดงพื้นที่อัปโหลด -->
+                                                                <div class="file-upload-area text-center p-4"
+                                                                    style="height: 200px; border: 2px dashed #dee2e6; border-radius: 8px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                                                                    <i class="fas fa-cloud-upload-alt text-muted"
+                                                                        style="font-size: 48px;"></i>
+                                                                    <div class="small text-muted mt-3">คลิกเพื่อเลือกไฟล์
+                                                                    </div>
+                                                                    <div class="small text-muted">หรือลากไฟล์มาวางที่นี่
+                                                                    </div>
+                                                                    <input type="file"
+                                                                        class="form-control file-input position-absolute w-100 h-100 opacity-0"
+                                                                        style="top: 0; left: 0; cursor: pointer;"
+                                                                        data-upload="{{ route('labours.list-files.upload', [$labour->labour_id, $item->list_file_id]) }}"
+                                                                        accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.jpg,.jpeg,.png,.gif">
+                                                                </div>
+                                                            @endif
+                                                        </div>
+
+                                                        <!-- File Info -->
+                                                        <div class="card-text">
+                                                            <h6 class="card-title mb-2 text-truncate"
+                                                                title="{{ $item->managefile_name }}">
+                                                                {{ $item->managefile_name }}
+                                                            </h6>
+                                                            <div
+                                                                class="d-flex justify-content-between align-items-center mb-2">
+                                                                <small
+                                                                    class="text-muted">{{ $item->managefile_code }}</small>
+                                                                <span
+                                                                    class="badge {{ $item->managefile_step == 'A' ? 'badge-primary' : 'badge-success' }}">
+                                                                    Step {{ $item->managefile_step }}
+                                                                </span>
+                                                            </div>
+
+                                                            @if ($item->file_path)
+                                                                <div class="small text-muted mb-2">
+                                                                    <i class="fas fa-calendar-alt me-1"></i>
+                                                                    {{ date('d/m/Y', strtotime($item->updated_at)) }}
+                                                                </div>
+
+                                                                @php
+                                                                    $fileSizeBytes = file_exists(
+                                                                        storage_path('app/public/' . $item->file_path),
+                                                                    )
+                                                                        ? filesize(
+                                                                            storage_path(
+                                                                                'app/public/' . $item->file_path,
+                                                                            ),
+                                                                        )
+                                                                        : 0;
+                                                                    $fileSize =
+                                                                        $fileSizeBytes > 0
+                                                                            ? number_format($fileSizeBytes / 1024, 1) .
+                                                                                ' KB'
+                                                                            : 'ไม่ทราบขนาด';
+                                                                @endphp
+                                                                <div class="small text-muted mb-3">
+                                                                    <i class="fas fa-file me-1"></i>
+                                                                    {{ strtoupper($fileExtension ?? '') }} •
+                                                                    {{ $fileSize }}
+                                                                </div>
+                                                            @endif
+                                                        </div>
+
+                                                        <!-- Action Buttons -->
+                                                        @if ($item->file_path)
+                                                            <div class="d-flex gap-2 justify-content-center">
+                                                                @if ($isPdf)
+                                                                    {{-- <button type="button" class="btn btn-info btn-sm pdf-viewer-btn"
                                                                         data-pdf-url="{{ asset('storage/' . $item->file_path) }}"
                                                                         data-file-name="{{ $item->managefile_name }}"
                                                                         title="เปิดใน PDF Reader">
                                                                     <i class="fas fa-book-open"></i>
                                                                 </button> --}}
-                                                            @else
-                                                                <a href="{{ asset('storage/' . $item->file_path) }}" 
-                                                                   target="_blank" 
-                                                                   class="btn btn-info btn-sm"
-                                                                   title="ดูไฟล์">
-                                                                    <i class="fas fa-eye"></i>
+                                                                @else
+                                                                    <a href="{{ asset('storage/' . $item->file_path) }}"
+                                                                        target="_blank" class="btn btn-info btn-sm"
+                                                                        title="ดูไฟล์">
+                                                                        <i class="fas fa-eye"></i>
+                                                                    </a>
+                                                                @endif
+
+                                                                <a href="{{ route('labours.list-files.download', $item) }}"
+                                                                    class="btn btn-success btn-sm" title="ดาวน์โหลด">
+                                                                    <i class="fas fa-download"></i>
                                                                 </a>
-                                                            @endif
-                                                            
-                                                            <a href="{{ route('labours.list-files.download', $item) }}" 
-                                                               class="btn btn-success btn-sm"
-                                                               title="ดาวน์โหลด">
-                                                                <i class="fas fa-download"></i>
-                                                            </a>
-                                                            
-                                                            <button type="button" 
+
+                                                                <button type="button"
                                                                     class="btn btn-danger btn-sm btn-delete"
                                                                     data-url="{{ route('labours.list-files.destroy', $item) }}"
                                                                     title="ลบไฟล์">
-                                                                <i class="fas fa-trash"></i>
-                                                            </button>
-                                                        </div>
-                                                    @endif
+                                                                    <i class="fas fa-trash"></i>
+                                                                </button>
+                                                            </div>
+                                                        @endif
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    @endforeach
+                                        @endforeach
+                                    </div>
                                 </div>
                             </div>
                         </div>
+                        <div class="card-footer text-end">
+                            <button type="submit" class="btn btn-success px-4 py-2 fw-bold">
+                                <i class="fa fa-save me-1"></i> บันทึกข้อมูล
+                            </button>
+                        </div>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-success text-white float-right"> บันทึกข้อมูล</button>
             </div>
-    </form>
+        </form>
+    </div>
 
     <script>
         $(function() {
@@ -1222,7 +1244,7 @@ if (typeof pdfjsLib !== 'undefined') {
                     type: 'DELETE',
                     success() {
                         // ไอคอนไฟล์
-                       // $row.find('td').eq(3).html('<i class="fa fa-file-earmark-slash fs-3 text-muted"></i>');
+                        // $row.find('td').eq(3).html('<i class="fa fa-file-earmark-slash fs-3 text-muted"></i>');
                         // คืน input
                         const id = $row.data('id');
                         const inp =
@@ -1394,7 +1416,7 @@ if (typeof pdfjsLib !== 'undefined') {
                     if (ageDays > 0) {
                         ageString += ' ' + ageDays + ' วัน';
                     }
-                    
+
 
                     $('#total-birthday').val(ageString); // เลือก Element ด้วย ID โดยตรง
 
@@ -1417,16 +1439,18 @@ if (typeof pdfjsLib !== 'undefined') {
                 var fileInput = this;
                 var uploadUrl = $(this).data('upload');
                 var formData = new FormData();
-                
+
                 if (fileInput.files.length > 0) {
                     formData.append('file', fileInput.files[0]);
-                    
+
                     // Show loading state
                     var card = $(this).closest('.card');
                     var previewContainer = card.find('.file-preview-container');
-                    
-                    previewContainer.html('<div class="text-center"><i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i><div class="small text-muted mt-2">กำลังอัปโหลด...</div></div>');
-                    
+
+                    previewContainer.html(
+                        '<div class="text-center"><i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i><div class="small text-muted mt-2">กำลังอัปโหลด...</div></div>'
+                        );
+
                     $.ajax({
                         url: uploadUrl,
                         type: 'POST',
@@ -1438,29 +1462,39 @@ if (typeof pdfjsLib !== 'undefined') {
                         },
                         success: function(response) {
                             console.log('Upload response:', response);
-                            
+
                             // Check multiple response formats
-                            if (response.success === true || response.status === 'success' || response.error === false || (response.data && response.data.success)) {
+                            if (response.success === true || response.status === 'success' ||
+                                response.error === false || (response.data && response.data
+                                    .success)) {
                                 // Success - show success message and reload
                                 var successMessage = response.message || 'อัปโหลดไฟล์สำเร็จ';
-                                
+
                                 // Show success notification
-                                previewContainer.html('<div class="text-center text-success"><i class="fas fa-check-circle" style="font-size: 24px;"></i><div class="small mt-2">' + successMessage + '</div></div>');
-                                
+                                previewContainer.html(
+                                    '<div class="text-center text-success"><i class="fas fa-check-circle" style="font-size: 24px;"></i><div class="small mt-2">' +
+                                    successMessage + '</div></div>');
+
                                 setTimeout(function() {
                                     location.reload();
                                 }, 1000);
-                            } else if (response.success === false || response.status === 'error' || response.error === true) {
+                            } else if (response.success === false || response.status ===
+                                'error' || response.error === true) {
                                 // Explicit error response
-                                var errorMessage = response.message || response.error_message || response.msg || 'ไม่ทราบสาเหตุ';
+                                var errorMessage = response.message || response.error_message ||
+                                    response.msg || 'ไม่ทราบสาเหตุ';
                                 alert('เกิดข้อผิดพลาดในการอัปโหลดไฟล์: ' + errorMessage);
                                 // Reset upload area
-                                previewContainer.html('<div class="file-upload-area text-center p-3"><i class="fas fa-cloud-upload-alt text-muted" style="font-size: 36px;"></i><div class="small text-muted mt-2">คลิกเพื่ือเลือกไฟล์</div></div>');
+                                previewContainer.html(
+                                    '<div class="file-upload-area text-center p-3"><i class="fas fa-cloud-upload-alt text-muted" style="font-size: 36px;"></i><div class="small text-muted mt-2">คลิกเพื่ือเลือกไฟล์</div></div>'
+                                    );
                             } else {
                                 // Assume success if no explicit error (some servers return 200 with data)
                                 console.log('Assuming success due to 200 response');
-                                previewContainer.html('<div class="text-center text-success"><i class="fas fa-check-circle" style="font-size: 24px;"></i><div class="small mt-2">อัปโหลดไฟล์สำเร็จ</div></div>');
-                                
+                                previewContainer.html(
+                                    '<div class="text-center text-success"><i class="fas fa-check-circle" style="font-size: 24px;"></i><div class="small mt-2">อัปโหลดไฟล์สำเร็จ</div></div>'
+                                    );
+
                                 setTimeout(function() {
                                     location.reload();
                                 }, 1000);
@@ -1473,9 +1507,9 @@ if (typeof pdfjsLib !== 'undefined') {
                                 responseText: xhr.responseText,
                                 error: error
                             });
-                            
+
                             var errorMessage = 'เกิดข้อผิดพลาดในการอัปโหลดไฟล์';
-                            
+
                             // Try to parse error response
                             try {
                                 var errorResponse = JSON.parse(xhr.responseText);
@@ -1490,14 +1524,17 @@ if (typeof pdfjsLib !== 'undefined') {
                                     errorMessage += ' (HTTP ' + xhr.status + ')';
                                 }
                             }
-                            
+
                             // For debugging - check if it's actually successful but reported as error
                             if (xhr.status === 200 && xhr.responseText) {
-                                console.log('Got 200 status but jQuery treated as error, checking response:', xhr.responseText);
+                                console.log(
+                                    'Got 200 status but jQuery treated as error, checking response:',
+                                    xhr.responseText);
                                 try {
                                     var response = JSON.parse(xhr.responseText);
                                     if (response.success !== false && !response.error) {
-                                        console.log('Treating as success despite error callback');
+                                        console.log(
+                                            'Treating as success despite error callback');
                                         setTimeout(function() {
                                             location.reload();
                                         }, 500);
@@ -1512,10 +1549,12 @@ if (typeof pdfjsLib !== 'undefined') {
                                     return;
                                 }
                             }
-                            
+
                             alert(errorMessage);
                             // Reset upload area
-                            previewContainer.html('<div class="file-upload-area text-center p-3"><i class="fas fa-cloud-upload-alt text-muted" style="font-size: 36px;"></i><div class="small text-muted mt-2">คลิกเพื่ือเลือกไฟล์</div></div>');
+                            previewContainer.html(
+                                '<div class="file-upload-area text-center p-3"><i class="fas fa-cloud-upload-alt text-muted" style="font-size: 36px;"></i><div class="small text-muted mt-2">คลิกเพื่ือเลือกไฟล์</div></div>'
+                                );
                         }
                     });
                 }
@@ -1536,11 +1575,11 @@ if (typeof pdfjsLib !== 'undefined') {
                 iframe.style.display = 'none';
                 var container = iframe.parentNode;
                 var fallback = container.querySelector('.pdf-fallback');
-                
+
                 // Try PDF.js canvas rendering as fallback
                 var canvas = container.querySelector('.pdf-canvas');
                 var pdfUrl = container.dataset.pdfUrl;
-                
+
                 if (canvas && pdfUrl) {
                     // Try to render first page with PDF.js if available
                     tryRenderPdfCanvas(canvas, pdfUrl, function(success) {
@@ -1571,19 +1610,21 @@ if (typeof pdfjsLib !== 'undefined') {
                 }
 
                 pdfjsLib.getDocument(pdfUrl).promise.then(function(pdf) {
-                    return pdf.getPage(1);  // Get first page
+                    return pdf.getPage(1); // Get first page
                 }).then(function(page) {
                     var context = canvas.getContext('2d');
-                    var viewport = page.getViewport({ scale: 0.5 });
-                    
+                    var viewport = page.getViewport({
+                        scale: 0.5
+                    });
+
                     canvas.height = viewport.height;
                     canvas.width = viewport.width;
-                    
+
                     var renderContext = {
                         canvasContext: context,
                         viewport: viewport
                     };
-                    
+
                     return page.render(renderContext).promise;
                 }).then(function() {
                     console.log('PDF rendered successfully with PDF.js');
@@ -1599,16 +1640,17 @@ if (typeof pdfjsLib !== 'undefined') {
                 e.stopPropagation(); // ป้องกันไม่ให้ event bubble ขึ้นไป
                 var pdfUrl = $(this).data('pdf-url');
                 var fileName = $(this).data('file-name');
-                
+
                 openPdfModal(pdfUrl, fileName);
             });
 
             // PDF Container click (เปิด modal เมื่อคลิกที่ PDF preview)
             $(document).on('click', '.pdf-preview-container, .pdf-fallback', function(e) {
                 e.stopPropagation();
-                var pdfUrl = $(this).data('pdf-url') || $(this).closest('.pdf-preview-container').data('pdf-url');
+                var pdfUrl = $(this).data('pdf-url') || $(this).closest('.pdf-preview-container').data(
+                    'pdf-url');
                 var fileName = $(this).closest('.card').find('.card-title').text().trim();
-                
+
                 if (pdfUrl) {
                     openPdfModal(pdfUrl, fileName);
                 }
@@ -1620,7 +1662,7 @@ if (typeof pdfjsLib !== 'undefined') {
                 $('#pdfViewer').attr('src', pdfUrl);
                 $('#pdfPreviewModalLabel').text('ดู PDF ทั้งหมด: ' + fileName);
                 $('#downloadPdfBtn').attr('href', pdfUrl);
-                
+
                 // Show modal (support both Bootstrap 4 and 5)
                 if (typeof bootstrap !== 'undefined') {
                     // Bootstrap 5
@@ -1663,13 +1705,13 @@ if (typeof pdfjsLib !== 'undefined') {
             });
 
             // Clean up modal when hidden
-            $('#pdfPreviewModal').on('hidden.bs.modal hidden', function () {
+            $('#pdfPreviewModal').on('hidden.bs.modal hidden', function() {
                 $('#pdfViewer').attr('src', ''); // Clear iframe source
                 $('.modal-backdrop').remove(); // Remove any leftover backdrop
             });
 
             // Ensure modal shows properly
-            $('#pdfPreviewModal').on('show.bs.modal show', function () {
+            $('#pdfPreviewModal').on('show.bs.modal show', function() {
                 $(this).find('.modal-dialog').css({
                     'margin-top': '20px',
                     'margin-bottom': '20px'
@@ -1690,7 +1732,7 @@ if (typeof pdfjsLib !== 'undefined') {
                 var pdfUrl = $(this).data('pdf-url');
                 var fileName = $(this).data('file-name');
                 var listFileId = $(this).closest('.card').data('id');
-                
+
                 // Open PDF.js viewer in new tab
                 var viewerUrl = '/api/list-files/' + listFileId + '/pdf-viewer';
                 window.open(viewerUrl, '_blank');
@@ -1701,7 +1743,7 @@ if (typeof pdfjsLib !== 'undefined') {
                 if (confirm('คุณต้องการลบไฟล์นี้หรือไม่?')) {
                     var deleteUrl = $(this).data('url');
                     var card = $(this).closest('.card');
-                    
+
                     $.ajax({
                         url: deleteUrl,
                         type: 'DELETE',
@@ -1710,25 +1752,28 @@ if (typeof pdfjsLib !== 'undefined') {
                         },
                         success: function(response) {
                             console.log('Delete response:', response);
-                            
+
                             // Check multiple response formats
-                            if (response.success === true || response.status === 'success' || response.error === false) {
+                            if (response.success === true || response.status === 'success' ||
+                                response.error === false) {
                                 // Success - show success message and reload
                                 var successMessage = response.message || 'ลบไฟล์สำเร็จ';
                                 alert(successMessage);
-                                
+
                                 setTimeout(function() {
                                     location.reload();
                                 }, 500);
-                            } else if (response.success === false || response.status === 'error' || response.error === true) {
+                            } else if (response.success === false || response.status ===
+                                'error' || response.error === true) {
                                 // Explicit error response
-                                var errorMessage = response.message || response.error_message || response.msg || 'ไม่ทราบสาเหตุ';
+                                var errorMessage = response.message || response.error_message ||
+                                    response.msg || 'ไม่ทราบสาเหตุ';
                                 alert('เกิดข้อผิดพลาดในการลบไฟล์: ' + errorMessage);
                             } else {
                                 // Assume success if no explicit error (some servers return 200 with data)
                                 console.log('Assuming delete success due to 200 response');
                                 alert('ลบไฟล์สำเร็จ');
-                                
+
                                 setTimeout(function() {
                                     location.reload();
                                 }, 500);
@@ -1741,9 +1786,9 @@ if (typeof pdfjsLib !== 'undefined') {
                                 responseText: xhr.responseText,
                                 error: error
                             });
-                            
+
                             var errorMessage = 'เกิดข้อผิดพลาดในการลบไฟล์';
-                            
+
                             // Try to parse error response
                             try {
                                 var errorResponse = JSON.parse(xhr.responseText);
@@ -1758,7 +1803,7 @@ if (typeof pdfjsLib !== 'undefined') {
                                     errorMessage += ' (HTTP ' + xhr.status + ')';
                                 }
                             }
-                            
+
                             alert(errorMessage);
                         }
                     });
@@ -1766,31 +1811,33 @@ if (typeof pdfjsLib !== 'undefined') {
             });
 
             // Check PDF support and show fallback if needed
-            $(document).ready(function() {            // Initialize existing PDF previews after page load
-            setTimeout(function() {
-                // Check Bootstrap version and show appropriate close button
-                if (typeof bootstrap !== 'undefined') {
-                    // Bootstrap 5 - show btn-close
-                    $('.btn-close').removeClass('d-none');
-                    $('.close').addClass('d-none');
-                } else {
-                    // Bootstrap 4 - show close
-                    $('.btn-close').addClass('d-none');
-                    $('.close').removeClass('d-none');
-                }
+            $(document).ready(function() { // Initialize existing PDF previews after page load
+                setTimeout(function() {
+                    // Check Bootstrap version and show appropriate close button
+                    if (typeof bootstrap !== 'undefined') {
+                        // Bootstrap 5 - show btn-close
+                        $('.btn-close').removeClass('d-none');
+                        $('.close').addClass('d-none');
+                    } else {
+                        // Bootstrap 4 - show close
+                        $('.btn-close').addClass('d-none');
+                        $('.close').removeClass('d-none');
+                    }
 
-                $('.pdf-preview-container').each(function() {
+                    $('.pdf-preview-container').each(function() {
                         var container = $(this);
                         var iframe = container.find('.pdf-iframe');
                         var pdfUrl = container.data('pdf-url');
-                        
+
                         if (iframe.length && pdfUrl) {
                             // Check if iframe loaded successfully
                             var iframeLoaded = false;
                             try {
                                 // For same-origin PDFs, we can check content
-                                var iframeDoc = iframe[0].contentDocument || iframe[0].contentWindow.document;
-                                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML.trim() !== '') {
+                                var iframeDoc = iframe[0].contentDocument || iframe[0]
+                                    .contentWindow.document;
+                                if (iframeDoc && iframeDoc.body && iframeDoc.body.innerHTML
+                                    .trim() !== '') {
                                     iframeLoaded = true;
                                 }
                             } catch (e) {
@@ -1799,9 +1846,11 @@ if (typeof pdfjsLib !== 'undefined') {
                                     iframeLoaded = true;
                                 }
                             }
-                            
+
                             if (!iframeLoaded) {
-                                console.log('PDF iframe may not have loaded, checking fallback for:', pdfUrl);
+                                console.log(
+                                    'PDF iframe may not have loaded, checking fallback for:',
+                                    pdfUrl);
                                 // Let the existing error handler manage fallback
                                 handlePdfError(iframe[0]);
                             }
@@ -1812,25 +1861,25 @@ if (typeof pdfjsLib !== 'undefined') {
                 // Check if browser supports PDF viewing
                 function checkPDFSupport() {
                     var hasPDFSupport = false;
-                    
+
                     // Check for PDF.js
                     if (typeof window.pdfjsLib !== 'undefined') {
                         hasPDFSupport = true;
                     }
-                    
+
                     // Check for native PDF support
                     var testEmbed = document.createElement('embed');
                     testEmbed.setAttribute('type', 'application/pdf');
                     testEmbed.setAttribute('src', 'data:application/pdf,');
                     testEmbed.style.display = 'none';
                     document.body.appendChild(testEmbed);
-                    
+
                     setTimeout(function() {
                         if (testEmbed.offsetHeight > 0) {
                             hasPDFSupport = true;
                         }
                         document.body.removeChild(testEmbed);
-                        
+
                         // If no PDF support, show fallback
                         if (!hasPDFSupport) {
                             $('.pdf-preview-container embed').addClass('d-none');
@@ -1838,15 +1887,81 @@ if (typeof pdfjsLib !== 'undefined') {
                         }
                     }, 100);
                 }
-                
+
                 // Check PDF support on page load
                 checkPDFSupport();
             });
         });
+
+
+        // Dynamic Skill Test Form (UI modern)
+        $(document).ready(function() {
+            let skillTestIndex = 1;
+            $('#add-skill-test').click(function() {
+                let html = $('.skill-test-item:first').clone();
+                html.find('input, select').each(function() {
+                    let name = $(this).attr('name');
+                    if (name) {
+                        name = name.replace(/\[\d+\]/, '[' + skillTestIndex + ']');
+                        $(this).attr('name', name);
+                        $(this).val('');
+                    }
+                });
+                html.find('.remove-skill-test').show();
+                $('#skill-test-list').append(html);
+                skillTestIndex++;
+            });
+            $(document).on('click', '.remove-skill-test', function() {
+                if ($('.skill-test-item').length > 1) {
+                    $(this).closest('.skill-test-item').remove();
+                }
+            });
+        });
+
+        // Dynamic Skill Test Form (UI modern, index update)
+        $(document).ready(function() {
+            let skillTestIndex = 1;
+            $('#add-skill-test').off('click').on('click', function() {
+                let html = $('.skill-test-item:first').clone();
+                html.find('input, select').each(function() {
+                    let name = $(this).attr('name');
+                    if (name) {
+                        name = name.replace(/\[\d+\]/, '[' + skillTestIndex + ']');
+                        $(this).attr('name', name);
+                        $(this).val('');
+                    }
+                });
+                html.find('.remove-skill-test').show();
+                $('#skill-test-list').append(html);
+                updateSkillTestIndexes();
+                skillTestIndex++;
+            });
+            $(document).on('click', '.remove-skill-test', function() {
+                if ($('.skill-test-item').length > 1) {
+                    $(this).closest('.skill-test-item').remove();
+                    updateSkillTestIndexes();
+                }
+            });
+
+            function updateSkillTestIndexes() {
+                $('#skill-test-list .skill-test-item').each(function(i) {
+                    $(this).find('.skill-test-badge').text(i + 1);
+                    $(this).find('input, select').each(function() {
+                        let name = $(this).attr('name');
+                        if (name) {
+                            name = name.replace(/skill_tests\[\d+\]/, 'skill_tests[' + i + ']');
+                            $(this).attr('name', name);
+                        }
+                    });
+                });
+            }
+            updateSkillTestIndexes();
+        });
     </script>
 
     <!-- PDF Preview Modal -->
-    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" role="dialog" aria-labelledby="pdfPreviewModalLabel" aria-hidden="true">
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" role="dialog" aria-labelledby="pdfPreviewModalLabel"
+        aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content pdf-modal-content">
                 <div class="modal-header bg-primary text-white">
@@ -1858,7 +1973,8 @@ if (typeof pdfjsLib !== 'undefined') {
                             <i class="fas fa-info-circle"></i> สามารถเลื่อนดูหน้าต่างๆ ได้
                         </small>
                         <!-- Bootstrap 5 close button -->
-                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
                         <!-- Bootstrap 4 fallback close button -->
                         <button type="button" class="close text-white d-none" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
@@ -1866,16 +1982,18 @@ if (typeof pdfjsLib !== 'undefined') {
                     </div>
                 </div>
                 <div class="modal-body p-0" style="height: calc(90vh - 120px);">
-                    <iframe id="pdfViewer" class="pdf-viewer-iframe" src="" style="width: 100%; height: 100%; border: none;"></iframe>
+                    <iframe id="pdfViewer" class="pdf-viewer-iframe" src=""
+                        style="width: 100%; height: 100%; border: none;"></iframe>
                 </div>
                 <div class="modal-footer bg-light">
                     <div class="d-flex justify-content-between w-100">
                         <div class="text-muted small">
-                            <i class="fas fa-lightbulb"></i> 
+                            <i class="fas fa-lightbulb"></i>
                             เคล็ดลับ: ใช้ Ctrl + Mouse Wheel เพื่อซูมเข้า-ออก
                         </div>
                         <div>
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-dismiss="modal">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"
+                                data-dismiss="modal">
                                 <i class="fas fa-times"></i> ปิด
                             </button>
                             <a href="" class="btn btn-success" id="downloadPdfBtn" target="_blank">

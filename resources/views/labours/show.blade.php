@@ -163,6 +163,37 @@
                 </div>
               </div>
 
+              {{-- ───────── Skill Test ───────── --}}
+              <h6 class="fw-semibold mt-4">ข้อมูลการทดสอบฝีมือ (Skill Test)</h6><hr class="mt-1 mb-3">
+              <div class="table-responsive mb-4">
+                <table class="table table-bordered table-sm align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th style="width: 40px;">#</th>
+                      <th>วันที่สอบ</th>
+                      <th>สถานที่สอบ</th>
+                      <th>ตำแหน่งที่สอบ</th>
+                      <th>ผลการสอบ</th>
+                      <th>หมายเหตุ</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @forelse($skillTests as $i => $test)
+                      <tr>
+                        <td>{{ $i+1 }}</td>
+                        <td>{{ $thai($test->test_date) }}</td>
+                        <td>{{ optional($ExaminationCenterGlobalSet->values->firstWhere('id', $test->test_location_id))->value ?? '-' }}</td>
+                        <td>{{ optional($positionGlobalSet->values->firstWhere('id', $test->test_position_id))->value ?? '-' }}</td>
+                        <td>{{ optional($statusGlobalSet->values->firstWhere('id', $test->test_result_id))->value ?? '-' }}</td>
+                        <td>{{ $test->note }}</td>
+                      </tr>
+                    @empty
+                      <tr><td colspan="6" class="text-center text-muted">ไม่มีข้อมูลการทดสอบฝีมือ</td></tr>
+                    @endforelse
+                  </tbody>
+                </table>
+              </div>
+
             </div><!-- /tab all -->
 
             {{-- TAB : ไฟล์เอกสาร ---------------------------------------- --}}

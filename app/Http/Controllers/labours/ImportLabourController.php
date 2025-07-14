@@ -338,20 +338,15 @@ class ImportLabourController extends Controller
                 $mappedData['labour_status'] = 1; // Fallback status
             }
 
-            // ข้อมูลเพิ่มเติม
-            if (isset($candidate['age'])) {
-                // อาจจะคำนวณวันเกิดจากอายุ ถ้าไม่มี birthdate
-                $mappedData['labour_note'] = ($mappedData['labour_note'] ?? '') . ' | อายุ: ' . $candidate['age'] . ' ปี';
-            }
-
+           
             if (isset($candidate['w'])) {
                 // น้ำหนัก - อาจเก็บใน note
-                $mappedData['labour_note'] = ($mappedData['labour_note'] ?? '') . ' | น้ำหนัก: ' . $candidate['w'] . ' กก.';
+                $mappedData['weight'] = ($mappedData['weight'] ?? NULL);
             }
 
             if (isset($candidate['h']) && !empty($candidate['h'])) {
                 // ส่วนสูง - อาจเก็บใน note
-                $mappedData['labour_note'] = ($mappedData['labour_note'] ?? '') . ' | ส่วนสูง: ' . $candidate['h'] . ' ซม.';
+                $mappedData['height'] = ($mappedData['height'] ?? NULL);
             }
 
             // เพิ่มค่าเริ่มต้นที่จำเป็น
@@ -367,24 +362,28 @@ class ImportLabourController extends Controller
     }
 
     /**
-     * แปลงวันที่ไทย (dd-mm-yyyy พ.ศ.) เป็น Y-m-d
+     * แปลงวันที่ไทย (dd-mm-yyyy พ.ศ.) หรือ yyyy-mm-dd (ค.ศ.) เป็น Y-m-d
      */
     private function convertThaiDate($thaiDate)
     {
         try {
-            // Format: 12-01-2525 (dd-mm-yyyy พ.ศ.)
             $parts = explode('-', $thaiDate);
             if (count($parts) === 3) {
-                $day = $parts[0];
-                $month = $parts[1];
-                $year = (int) $parts[2] - 543; // แปลง พ.ศ. เป็น ค.ศ.
-
-                return sprintf('%04d-%02d-%02d', $year, $month, $day);
+                // ถ้า format เป็น dd-mm-yyyy และปี > 2400 ให้ลบ 543
+                if (strlen($parts[2]) === 4 && (int)$parts[2] > 2400) {
+                    $day = $parts[0];
+                    $month = $parts[1];
+                    $year = (int)$parts[2] - 543;
+                    return sprintf('%04d-%02d-%02d', $year, $month, $day);
+                }
+                // ถ้า format เป็น yyyy-mm-dd (ค.ศ.) ให้ return เดิม
+                if (strlen($parts[0]) === 4 && (int)$parts[0] > 1900 && (int)$parts[0] < 2500) {
+                    return $thaiDate;
+                }
             }
         } catch (\Exception $e) {
             Log::warning('Date conversion error: ' . $e->getMessage(), ['date' => $thaiDate]);
         }
-
         return null;
     }
 

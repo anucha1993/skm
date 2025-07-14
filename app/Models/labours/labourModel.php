@@ -17,11 +17,19 @@ class labourModel extends Model
     protected $fillable = ['labour_prefix',
      'labour_idcard_number','labour_note',
     'labour_firstname',
-    'labour_lastname', 'labour_birthday', 'labour_phone_one', 'labour_phone_two', 'labour_passport_number', 'labour_passport_issue_date', 'labour_passport_expiry_date', 'labour_hospital', 'labour_disease_receive_date', 'labour_disease_issue_date', 'company_id', 'labour_register_number', 'country_id', 'job_group_id', 'position_id', 'labour_status', 'lacation_test_id', 'lacation_test_date', 'staff_id', 'staff_sub_id', 'labour_image_path', 'labour_image_thumbnail_path', 'managedoc_id', 'created_by', 'updated_by', 'api_imported_at', 'api_candidate_id', 'labour_address', 'labour_address_type', 'labour_province', 'labour_district', 'labour_sub_district', 'labour_postcode', 'labour_emergency_contact_name', 'labour_line_id', 'labour_email'];
+    'labour_lastname', 'labour_birthday', 'labour_phone_one', 'labour_phone_two', 'labour_passport_number', 'labour_passport_issue_date', 'labour_passport_expiry_date', 'labour_hospital', 'labour_disease_receive_date', 'labour_disease_issue_date', 'company_id', 'labour_register_number', 'country_id', 'job_group_id', 'position_id', 'labour_status', 'lacation_test_id', 'lacation_test_date', 'staff_id', 'staff_sub_id', 'labour_image_path', 'labour_image_thumbnail_path', 'managedoc_id', 'created_by', 'updated_by', 'api_imported_at', 'api_candidate_id', 'labour_address', 'labour_address_type', 'labour_province', 'labour_district', 'labour_sub_district', 'labour_postcode', 'labour_emergency_contact_name', 'labour_line_id', 'labour_email',
+    'weight',
+    'height',
+    'bmi'];
 
     public function listFiles()
     {
         return $this->hasMany(listfilesModel::class, 'labour_id', 'labour_id');
+    }
+
+    public function SkillTest()
+    {
+        return $this->hasMany(SkillTest::class, 'labour_id', 'labour_id');
     }
 
     public function labourStatus()
@@ -124,5 +132,24 @@ class labourModel extends Model
         return $q->whereIn('labour_id', function ($sub) use ($steps) {
             $sub->from('list_files')->select('labour_id')->whereIn('managefile_step', $steps)->groupBy('labour_id', 'managefile_step')->havingRaw('COUNT(*) = SUM(file_path IS NOT NULL)');
         });
+    }
+    public function setWeightAttribute($value)
+    {
+        $this->attributes['weight'] = $value;
+        $this->calculateBmi();
+    }
+    public function setHeightAttribute($value)
+    {
+        $this->attributes['height'] = $value;
+        $this->calculateBmi();
+    }
+    protected function calculateBmi()
+    {
+        $weight = $this->attributes['weight'] ?? null;
+        $height = $this->attributes['height'] ?? null;
+        if ($weight && $height && $height > 0) {
+            $bmi = $weight / pow($height / 100, 2);
+            $this->attributes['bmi'] = round($bmi, 2);
+        }
     }
 }

@@ -11,7 +11,7 @@ class LabourFullController extends Controller
     public function index(Request $request)
     {
         $data = collect();
-        if ($request->filled('email')) {
+        if ($request->filled('apiid')) {
             $query = labourModel::with([
                 'company:id,name',
                 'labourStatus:id,value',
@@ -23,7 +23,7 @@ class LabourFullController extends Controller
                 'staffSub:id,value',
                 'manageDoc:managedoc_id,managedoc_name',
                 'listFiles:list_file_id,labour_id,managefile_code,managefile_name,managefile_step,file_path,updated_at',
-            ])->where('labour_email', $request->input('email'));
+            ])->where('api_candidate_id', $request->input('apiid'));
 
             $labours = $query->get();
 
@@ -68,7 +68,7 @@ class LabourFullController extends Controller
     public function searchByEmail(Request $request)
     {
         $data = collect();
-        if ($request->filled('email')) {
+        if ($request->filled('apiid')) {
             $query = labourModel::with([
                 'company:id,name',
                 'labourStatus:id,value',
@@ -79,8 +79,12 @@ class LabourFullController extends Controller
                 'staff:id,value',
                 'staffSub:id,value',
                 'manageDoc:managedoc_id,managedoc_name',
+                'SkillTest.customer:id,name',
+                'SkillTest.testLocation:id,value',
+                'SkillTest.testPosition:id,value',
+                'SkillTest.testResult:id,value',
                 'listFiles:list_file_id,labour_id,managefile_code,managefile_name,managefile_step,file_path,updated_at',
-            ])->where('labour_email', $request->input('email'));
+            ])->where('api_candidate_id', $request->input('apiid'));
 
             $labours = $query->get();
 
@@ -115,6 +119,10 @@ class LabourFullController extends Controller
                 if (isset($arr['listFiles'])) {
                     $arr['list_files'] = $arr['listFiles'];
                     unset($arr['listFiles']);
+                }
+                if (isset($arr['SkillTest'])) {
+                    $arr['skill_tests'] = $arr['SkillTest'];
+                    unset($arr['SkillTest']);
                 }
                 return $arr;
             });
