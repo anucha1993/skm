@@ -341,12 +341,12 @@ class ImportLabourController extends Controller
            
             if (isset($candidate['w'])) {
                 // น้ำหนัก - อาจเก็บใน note
-                $mappedData['weight'] = ($mappedData['weight'] ?? NULL);
+                $mappedData['weight'] = ($candidate['w'] ?? NULL);
             }
 
             if (isset($candidate['h']) && !empty($candidate['h'])) {
                 // ส่วนสูง - อาจเก็บใน note
-                $mappedData['height'] = ($mappedData['height'] ?? NULL);
+                $mappedData['height'] = ($candidate['h'] ?? NULL);
             }
 
             // เพิ่มค่าเริ่มต้นที่จำเป็น
