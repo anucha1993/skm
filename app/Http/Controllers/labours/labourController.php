@@ -111,10 +111,10 @@ class labourController extends Controller
         if (!is_null($status) && $status !== '' && $status !== 'all') {
             $query->where('labour_status', $status);
         }
-        \Log::info('Labour count after filter', ['count' => $query->count()]);
-        \Log::info('Labour SQL', ['sql' => $query->toSql()]);
 
         $labours = $query->orderByDesc('labour_id')
+            ->paginate(50)
+            ->appends($request->except('page'))
             ->get()
             ->map(function ($row) use ($fallback) {
                 $row->thumbnail = $row->thumbnail ? asset('storage/' . ltrim($row->thumbnail, '/')) : $fallback;

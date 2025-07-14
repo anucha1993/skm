@@ -202,6 +202,11 @@
                             @endforelse
                         </tbody>
                     </table>
+                    @if($labours->hasPages())
+    <div class="d-flex justify-content-center">
+        {{ $labours->links() }}
+    </div>
+@endif
                 </div>
             </div>
         </div>
