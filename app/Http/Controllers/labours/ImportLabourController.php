@@ -74,6 +74,7 @@ class ImportLabourController extends Controller
                     'success' => true,
                     'message' => 'แปลงข้อมูลสำเร็จ',
                     'labour_id' => $labour->labour_id,
+                    'apiid' => $labour->api_candidate_id,
                     'redirect' => route('labours.edit', $labour->labour_id),
                 ],
                 200,
