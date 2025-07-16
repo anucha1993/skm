@@ -310,7 +310,8 @@
     </style>
 
     <div class="main-form-container">
-         <form action="{{ route('labours.update',$labour->labour_id) }}" method="POST" class="needs-validation" novalidate>
+        <form action="{{ route('labours.update', $labour->labour_id) }}" method="POST" class="needs-validation" novalidate
+            id="formUpdate">
             @csrf
             @method('put')
             <div class="row justify-content-center" style="margin-left:0;margin-right:0;">
@@ -426,21 +427,21 @@
                                         </div>
                                         <div class="col-md-4">
                                             <label class="form-label">หนัก </label>
-                                            <input type="text" class="form-control form-control-sm bg-light" name="weight"
-                                                id="weight" placeholder="ซม." 
+                                            <input type="text" class="form-control form-control-sm bg-light"
+                                                name="weight" id="weight" placeholder="ซม."
                                                 value="{{ $labour->weight ?? '' }}">
                                         </div>
 
-                                          <div class="col-md-4">
+                                        <div class="col-md-4">
                                             <label class="form-label">ส่วนสูง</label>
-                                            <input type="text" class="form-control form-control-sm bg-light" name="height"
-                                                id="height" placeholder="กก." 
+                                            <input type="text" class="form-control form-control-sm bg-light"
+                                                name="height" id="height" placeholder="กก."
                                                 value="{{ $labour->height ?? '' }}">
                                         </div>
 
                                         <div class="col-md-4">
                                             <label class="form-label">BMI</label>
-                                            <input type="text" class="form-control form-control-sm bg-light" 
+                                            <input type="text" class="form-control form-control-sm bg-light"
                                                 id="height" placeholder="รอคำนวน..." readonly
                                                 value="{{ $labour->bmi ?? '' }}">
                                         </div>
@@ -754,17 +755,18 @@
                                         <hr class="mb-3 mt-0" style="border-top:1.5px dashed #b6e0fe;">
                                         <div id="skill-test-list">
                                             @if (!empty($skillTests) && count($skillTests) > 0)
-                                           
+
                                                 @foreach ($skillTests as $i => $test)
-                                               
                                                     <div class="skill-test-item skill-test-modern mb-3 p-3"
                                                         style="background:rgba(255,255,255,0.95); border-radius:18px; box-shadow:0 2px 8px 0 rgba(80,180,255,0.07); border:1.5px solid #e3f0fa;">
                                                         <div class="row align-items-end g-2">
                                                             <div class="col-md-1 col-2 text-center">
-                                                                <span class="skill-test-badge bg-success text-white">{{ $i + 1 }}</span>
+                                                                <span
+                                                                    class="skill-test-badge bg-success text-white">{{ $i + 1 }}</span>
                                                             </div>
                                                             <div class="col-md-2 col-6 mb-2">
-                                                                <label class="form-label mb-1 text-success">วันที่สอบ</label>
+                                                                <label
+                                                                    class="form-label mb-1 text-success">วันที่สอบ</label>
                                                                 <input type="date"
                                                                     name="skill_tests[{{ $i }}][test_date]"
                                                                     class="form-control form-control-sm border-success"
@@ -786,7 +788,8 @@
                                                             </div>
 
                                                             <div class="col-md-3 col-6 mb-2">
-                                                                <label class="form-label mb-1 text-success">สถานที่สอบ</label>
+                                                                <label
+                                                                    class="form-label mb-1 text-success">สถานที่สอบ</label>
                                                                 <select
                                                                     name="skill_tests[{{ $i }}][test_location_id]"
                                                                     class="form-select form-select-sm border-success">
@@ -802,7 +805,8 @@
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-3 col-6 mb-2">
-                                                                <label class="form-label mb-1 text-success">ตำแหน่งที่สอบ</label>
+                                                                <label
+                                                                    class="form-label mb-1 text-success">ตำแหน่งที่สอบ</label>
                                                                 <select
                                                                     name="skill_tests[{{ $i }}][test_position_id]"
                                                                     class="form-select form-select-sm border-success">
@@ -817,11 +821,12 @@
                                                                     @endif
                                                                 </select>
                                                             </div>
-                                                             <div class="col-md-1 col-2 text-center">
-                                                             
+                                                            <div class="col-md-1 col-2 text-center">
+
                                                             </div>
                                                             <div class="col-md-2 col-6 mb-2">
-                                                                <label class="form-label mb-1 text-success">ผลการสอบ</label>
+                                                                <label
+                                                                    class="form-label mb-1 text-success">ผลการสอบ</label>
                                                                 <select
                                                                     name="skill_tests[{{ $i }}][test_result_id]"
                                                                     class="form-select form-select-sm border-success">
@@ -837,7 +842,8 @@
                                                                 </select>
                                                             </div>
                                                             <div class="col-md-2 col-6 mb-2">
-                                                                <label class="form-label mb-1 text-success">หมายเหตุ</label>
+                                                                <label
+                                                                    class="form-label mb-1 text-success">หมายเหตุ</label>
                                                                 <input type="text"
                                                                     name="skill_tests[{{ $i }}][note]"
                                                                     class="form-control form-control-sm border-success"
@@ -882,7 +888,8 @@
                                                             </select>
                                                         </div>
                                                         <div class="col-md-2 col-6 mb-2">
-                                                            <label class="form-label mb-1 text-success">ตำแหน่งที่สอบ</label>
+                                                            <label
+                                                                class="form-label mb-1 text-success">ตำแหน่งที่สอบ</label>
                                                             <select name="skill_tests[0][test_position_id]"
                                                                 class="form-select form-select-sm border-success">
                                                                 <option value="">--Select--</option>
@@ -933,11 +940,34 @@
                                 <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                                     <br>
                                     <div class="row">
+                                        {{-- ปุ่มเพิ่มเอกสาร --}}
+                                        <div class="mb-3 text-end">
+                                            <button type="button" class="btn btn-primary" data-bs-toggle="modal"
+                                                data-bs-target="#addFileModal">
+                                                <i class="fa fa-plus"></i> เพิ่มรายการเอกสาร
+                                            </button>
+                                        </div>
                                         @foreach ($listFiles as $i => $item)
-                                            <div class="col-md-6 col-lg-4 mb-4">
+                                            <div class="col-md-6 col-lg-4 mb-4 mt-4">
+                                                @can('delete-labour')
+
+                                                 <a href="{{ route('labours.list-files.destroy', ['labour' => $labour->labour_id, 'list_file' => $item->list_file_id]) }}"
+                                                        onclick="event.preventDefault(); if(confirm('ยืนยันการลบรายการเอกสารนี้?'))"
+                                                        class="btn btn-danger btn-sm">
+                                                        <i class="fas fa-trash"></i> ลบรายการเอกสาร ({{ $item->managefile_name }})
+                                                    </a>
+                                                        
+                                                    @endcan
+                                                  
+                                              
+
+
+
+
                                                 <div class="card h-100 shadow-sm border file-card"
                                                     data-id="{{ $item->list_file_id }}">
                                                     <div class="card-body p-3">
+
                                                         <!-- File Preview/Thumbnail -->
                                                         <div class="text-center mb-3">
                                                             @if ($item->file_path)
@@ -1172,18 +1202,28 @@
                                                                     title="ลบไฟล์">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
+
+
                                                             </div>
                                                         @endif
+
                                                     </div>
+
                                                 </div>
+
                                             </div>
                                         @endforeach
+
                                     </div>
+
+
+
+
                                 </div>
                             </div>
                         </div>
                         <div class="card-footer text-end">
-                            <button type="submit" class="btn btn-success px-4 py-2 fw-bold">
+                            <button type="submit" form="formUpdate" class="btn btn-success px-4 py-2 fw-bold">
                                 <i class="fa fa-save me-1"></i> บันทึกข้อมูล
                             </button>
                         </div>
@@ -1191,6 +1231,53 @@
                 </div>
             </div>
         </form>
+
+        <!-- Modal เพิ่มรายการเอกสาร -->
+        <div class="modal fade" id="addFileModal" tabindex="-1" aria-labelledby="addFileModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog">
+                <form id="add-file-form" action="{{ route('labours.list-files.store', $labour->labour_id) }}"
+                    method="POST">
+                    @csrf
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addFileModalLabel">เพิ่มรายการเอกสาร</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="ปิด"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="mb-2">
+                                <label class="form-label">Code ย่อ</label>
+                                <input type="text" name="managefile_code" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">ชื่อเอกสาร</label>
+                                <input type="text" name="managefile_name" class="form-control" required>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Step</label>
+                                <select name="managefile_step" class="form-select" required>
+                                    <option value="A">Step A</option>
+                                    <option value="B">Step B</option>
+                                </select>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">Active</label>
+                                <select name="managefile_status" class="form-select">
+                                    <option value="Y">ใช้งาน</option>
+                                    <option value="N">ไม่ใช้งาน</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                            <button type="submit" form="add-file-form" class="btn btn-success">บันทึก</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
     </div>
 
     <script>
@@ -1449,7 +1536,7 @@
 
                     previewContainer.html(
                         '<div class="text-center"><i class="fas fa-spinner fa-spin" style="font-size: 24px;"></i><div class="small text-muted mt-2">กำลังอัปโหลด...</div></div>'
-                        );
+                    );
 
                     $.ajax({
                         url: uploadUrl,
@@ -1487,13 +1574,15 @@
                                 // Reset upload area
                                 previewContainer.html(
                                     '<div class="file-upload-area text-center p-3"><i class="fas fa-cloud-upload-alt text-muted" style="font-size: 36px;"></i><div class="small text-muted mt-2">คลิกเพื่ือเลือกไฟล์</div></div>'
-                                    );
+                                );
                             } else {
                                 // Assume success if no explicit error (some servers return 200 with data)
                                 console.log('Assuming success due to 200 response');
                                 previewContainer.html(
                                     '<div class="text-center text-success"><i class="fas fa-check-circle" style="font-size: 24px;"></i><div class="small mt-2">อัปโหลดไฟล์สำเร็จ</div></div>'
-                                    );
+
+
+                                );
 
                                 setTimeout(function() {
                                     location.reload();
@@ -1554,7 +1643,7 @@
                             // Reset upload area
                             previewContainer.html(
                                 '<div class="file-upload-area text-center p-3"><i class="fas fa-cloud-upload-alt text-muted" style="font-size: 36px;"></i><div class="small text-muted mt-2">คลิกเพื่ือเลือกไฟล์</div></div>'
-                                );
+                            );
                         }
                     });
                 }
@@ -1614,6 +1703,7 @@
                 }).then(function(page) {
                     var context = canvas.getContext('2d');
                     var viewport = page.getViewport({
+
                         scale: 0.5
                     });
 
@@ -1957,6 +2047,41 @@
             }
             updateSkillTestIndexes();
         });
+
+        // Document add form submission
+        // document.addEventListener('DOMContentLoaded', function() {
+        //     const addFileForm = document.getElementById('add-file-form');
+        //     if (addFileForm) {
+        //         addFileForm.addEventListener('submit', function(e) {
+        //             e.preventDefault();
+        //             const formData = new FormData(addFileForm);
+        //             const submitBtn = addFileForm.querySelector('button[type="submit"]');
+        //             submitBtn.disabled = true;
+        //             fetch(`{{ route('labours.list-files.store', $labour->labour_id) }}`, {
+        //                 method: 'POST',
+        //                 headers: {
+        //                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
+        //                 },
+        //                 body: formData
+        //             })
+        //             .then(response => response.json())
+        //             .then(res => {
+        //                 submitBtn.disabled = false;
+        //                 if(res.success) {
+        //                     var modal = bootstrap.Modal.getInstance(document.getElementById('addFileModal'));
+        //                     modal.hide();
+        //                     location.reload();
+        //                 } else {
+        //                     alert(res.message || 'เกิดข้อผิดพลาด');
+        //                 }
+        //             })
+        //             .catch(() => {
+        //                 submitBtn.disabled = false;
+        //                 alert('เกิดข้อผิดพลาด');
+        //             });
+        //         });
+        //     }
+        // });
     </script>
 
     <!-- PDF Preview Modal -->

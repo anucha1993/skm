@@ -70,7 +70,6 @@ Route::prefix('report/labours')->name('report.labours.')->group(function () {
 
 Route::resource('managedocs', manageDocsController::class);
 
-
 /// global
 Route::get('/global-sets', [GlobalSetController::class, 'index'])->name('global-sets.index');
 Route::post('/global-sets', [GlobalSetController::class, 'store'])->name('global-sets.store');
@@ -95,6 +94,8 @@ Route::prefix('import-labours')->name('import-labours.')->group(function () {
 Route::get('/labour-import', [LabourImportController::class, 'index']);
 
 Route::get('mock-labours', [LabourApiController::class, 'getMockData']);
+Route::post('labours/{labour}/list-files', [\App\Http\Controllers\labours\labourController::class, 'addListFile'])->name('labours.list-files.store');
+Route::get('labours/{labour}/list-files/{list_file}', [\App\Http\Controllers\labours\labourController::class, 'deleteListFile'])->name('labours.list-files.destroy');
 
 
 

@@ -5,18 +5,19 @@ namespace App\Http\Controllers\labours;
 use Illuminate\View\View;
 use Illuminate\Http\Request;
 
+use Psy\Readline\Hoa\Console;
+use App\Models\labours\SkillTest;
 use App\Models\customers\Customer;
 use Illuminate\Support\Facades\DB;
+
 use App\Models\labours\labourModel;
 use App\Http\Controllers\Controller;
-
 use Illuminate\Support\Facades\Auth;
 use App\Models\labours\listfilesModel;
 use App\Models\globalsets\GlobalSetModel;
 use App\Models\managedocs\managedocsModel;
 use App\Models\managedocs\managefilesModel;
-use Psy\Readline\Hoa\Console;
-use App\Models\labours\SkillTest;
+use Illuminate\Support\Facades\File;
 
 class labourController extends Controller
 {
@@ -318,4 +319,48 @@ class labourController extends Controller
         $labour->delete();
         return redirect()->route('labours.index')->with('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
     }
+
+    public function addListFile(Request $request, $labour_id)
+    {
+
+        $listFile = listfilesModel::where('labour_id', $labour_id)->first();
+        $request->validate([
+            'managefile_code' => 'required',
+            'managefile_name' => 'required',
+            'managefile_step' => 'required',
+        ]);
+        if (!$listFile) {
+            return redirect()->back()->with('success', 'ไม่พบรายการจัดเก็บเอกสาร');
+        }
+        $listFile = new listfilesModel();
+        $listFile->labour_id = $labour_id;
+        $listFile->managefile_id = $listFile->managefile_id;
+        $listFile->managedoc_id = $listFile->managedoc_id;
+        $listFile->managefile_code = $request->managefile_code;
+        $listFile->managefile_name = $request->managefile_name;
+        $listFile->managefile_step = $request->managefile_step;
+        $listFile->file_path = null;
+        $listFile->save();
+        return redirect()->back()->with('success', 'เพิ่มรายการเอกสารสำเร็จ');
+    }
+
+   public function deleteListFile($labour_id, $list_file)
+{
+    $file = listfilesModel::where('list_file_id', $list_file)
+        ->where('labour_id', $labour_id)
+        ->first();
+
+    if (!$file) {
+        return redirect()->back()->with('error', 'ไม่พบรายการเอกสาร');
+    }
+
+    if ($file->file_path) {
+        $oldAbs = storage_path("app/public/{$file->file_path}");
+        if (File::exists($oldAbs)) {
+            File::delete($oldAbs);
+        }
+    }
+    $file->delete();
+    return redirect()->back()->with('success', 'ลบรายการเอกสารสำเร็จ');
+}
 }
