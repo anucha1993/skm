@@ -201,12 +201,12 @@ class labourController extends Controller
         $labours = labourModel::create($requestData);
 
         // === เพิ่ม listfilesModel ===
-        if (!empty($requestData['managedoc_id'])) {
-            $managefiles = managefilesModel::where('managedoc_id', $requestData['managedoc_id'])->get();
+        if (!empty($labours->managedoc_id)) {
+            $managefiles = managefilesModel::where('managedoc_id', $labours->managedoc_id)->get();
             foreach ($managefiles as $item) {
                 listfilesModel::create([
                     'labour_id' => $labours->labour_id,
-                    'managedoc_id' => $requestData['managedoc_id'],
+                    'managedoc_id' => $labours->managedoc_id,
                     'managefile_id' => $item->managefile_id,
                     'managefile_no' => $item->managefile_no,
                     'managefile_code' => $item->managefile_code,

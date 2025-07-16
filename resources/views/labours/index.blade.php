@@ -211,13 +211,26 @@
                                         <td>{{ $row->jobGroup->value ?? '-' }}</td>
 
                                         <td>
+
+                                        <td>
                                             <div>
-                                                @foreach (['A', 'B'] as $s)
-                                                    <span
-                                                        class="badge bg-{{ in_array($s, $row->completed_steps) ? 'success' : 'secondary' }} rounded-pill me-1">
-                                                        Step {{ $s }}
-                                                    </span>
-                                                @endforeach
+                                                @if ($row->listFiles && $row->listFiles->count() > 0)
+                                                    @php $hasStep = false; @endphp
+                                                    @foreach (['A', 'B'] as $s)
+                                                        @if (in_array($s, $row->completed_steps))
+                                                            @php $hasStep = true; @endphp
+                                                        @endif
+                                                        <span
+                                                            class="badge bg-{{ in_array($s, $row->completed_steps) ? 'success' : 'secondary' }} rounded-pill me-1">
+                                                            Step {{ $s }}
+                                                        </span>
+                                                    @endforeach
+                                                  
+                                                @else
+                                                    <span class="text-muted">-</span>
+                                                @endif
+                                            </div>
+                                        </td>
                                         </td>
 
                                         <td>{{ $row->labour_phone_one }}</td>
