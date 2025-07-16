@@ -268,22 +268,25 @@ class labourController extends Controller
         $managedocNew = $request->managedoc_id;
         $managedocOld = $labour->managedoc_id;
 
-        if ($managedocNew !== $managedocOld) {
-            listfilesModel::where('managedoc_id', $managedocOld)->delete();
-            $managefiles = managefilesModel::where('managedoc_id', $managedocNew)->get();
-            foreach ($managefiles as $key => $item) {
-                listfilesModel::create([
-                    'labour_id' => $labour->labour_id,
-                    'managedoc_id' => $managedocNew,
-                    'managefile_id' => $item->managefile_id,
-                    'managefile_no' => $item->managefile_no,
-                    'managefile_code' => $item->managefile_code,
-                    'managefile_name' => $item->managefile_name,
-                    'managefile_step' => $item->managefile_step,
-                    'file_path' => null,
-                ]);
-            }
+         // เช็คเฉพาะตอนเปลี่ยน managedoc_id
+    if ($managedocNew !== $managedocOld) {
+        // ลบรายการเดิมทั้งหมดก่อนเพิ่มใหม่
+        listfilesModel::where('labour_id', $labour->labour_id)->delete();
+
+        $managefiles = managefilesModel::where('managedoc_id', $managedocNew)->get();
+        foreach ($managefiles as $item) {
+            listfilesModel::create([
+                'labour_id' => $labour->labour_id,
+                'managedoc_id' => $managedocNew,
+                'managefile_id' => $item->managefile_id,
+                'managefile_no' => $item->managefile_no,
+                'managefile_code' => $item->managefile_code,
+                'managefile_name' => $item->managefile_name,
+                'managefile_step' => $item->managefile_step,
+                'file_path' => null,
+            ]);
         }
+    }
 
         $updateData = $request->all();
         if (!empty($updateData['weight']) && !empty($updateData['height']) && $updateData['height'] > 0) {
