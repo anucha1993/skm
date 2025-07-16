@@ -211,7 +211,7 @@
                                         <td>{{ $row->country->value ?? '-' }}</td>
                                         <td>{{ $row->jobGroup->value ?? '-' }}</td>
 
-                                        <td>
+                                      
 
                                         <td>
                                             <div>
