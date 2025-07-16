@@ -201,7 +201,8 @@
                                         <td class="text-center">
                                             @if (!empty($row->api_candidate_id) || !empty($row->api_imported_at) || $row->source_type === 'api')
                                                 <span class="badge bg-primary"><i
-                                                        class="fas fa-cloud-download-alt me-1"></i>API Import</span>
+                                                        class="fas fa-cloud-download-alt me-1"></i>API Import</span></br>
+                                                        <small style="color:#888;">apiid : {{$row->api_candidate_id}}</small>
                                             @else
                                                 <span class="badge bg-success"><i class="fas fa-user-plus me-1"></i>Manual
                                                     Entry</span>
