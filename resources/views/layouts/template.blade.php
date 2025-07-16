@@ -114,7 +114,7 @@
 					</li>
 
 					<li class="nav-item">
-					    <a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext">Import ข้อมูล API</span></a>
+					    <a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext">import ข้อมูลจาก Recuite</span></a>
 					</li>
 
 					{{-- <li class="nav-item">

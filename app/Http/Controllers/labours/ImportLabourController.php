@@ -26,22 +26,29 @@ class ImportLabourController extends Controller
         // ดึงข้อมูลจาก API
         $candidates = $this->fetchCandidatesFromAPI();
 
-        // นับจำนวน labour ที่แปลงแล้วจาก API candidates
-        $convertedCount = 0;
+        // ดึง id ที่มีในระบบแล้ว
         $candidateIds = collect($candidates)->pluck('id')->toArray();
-
+        $existingIds = [];
         if (!empty($candidateIds)) {
-            $convertedCount = labourModel::whereIn('api_candidate_id', $candidateIds)->whereNotNull('api_candidate_id')->count();
+            $existingIds = labourModel::whereIn('api_candidate_id', $candidateIds)
+                ->whereNotNull('api_candidate_id')
+                ->pluck('api_candidate_id')
+                ->map(fn($id) => (string)$id)
+                ->toArray();
         }
 
-        $totalCandidates = count($candidates);
-        $pendingCount = $totalCandidates - $convertedCount;
+        // กรอง candidates เฉพาะที่ยังไม่มีในระบบ
+        $candidates = collect($candidates)->reject(function($c) use ($existingIds) {
+            return in_array((string)($c['id'] ?? ''), $existingIds);
+        })->values()->all();
+
+        // นับจำนวน labour ที่แปลงแล้วจาก API candidates (เฉพาะที่มีในระบบ)
+        $convertedCount = count($existingIds);
+        $totalCandidates = count($candidates) + $convertedCount;
+        $pendingCount = count($candidates);
 
         // สร้าง array เพื่อระบุว่า candidate ไหนถูก convert แล้ว
-        $convertedCandidateIds = [];
-        if (!empty($candidateIds)) {
-            $convertedCandidateIds = labourModel::whereIn('api_candidate_id', $candidateIds)->whereNotNull('api_candidate_id')->pluck('api_candidate_id')->toArray();
-        }
+        $convertedCandidateIds = $existingIds;
 
         return view('labours.import-index', compact('candidates', 'convertedCount', 'pendingCount', 'totalCandidates', 'convertedCandidateIds'));
     }

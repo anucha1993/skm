@@ -69,6 +69,7 @@ class labourController extends Controller
             });
         }
         $labours = $query->orderByDesc('labour_id')->paginate(50)->appends($request->except('page'));
+        
         $totalLabours = LabourModel::count();
         $allStatus = ['รอดำเนินการ', 'กำลังดำเนินการ', 'ดำเนินการเสร็จ', 'ยกเลิก'];
         $statusCounts = LabourModel::with('labourStatus:value,id')->select('labour_status', DB::raw('COUNT(*) as total'))->groupBy('labour_status')->get()->mapWithKeys(fn($row) => [$row->labourStatus->value ?? 'ไม่ระบุ' => $row->total])->toArray();

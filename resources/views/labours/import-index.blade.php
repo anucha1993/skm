@@ -118,7 +118,7 @@ $(document).on('change', '.candidate-checkbox', function() {
                                     Route: {{ route('import-labours.convert', ['id' => 'ID']) }} | 
                                     CSRF: <span id="csrf-status">{{ csrf_token() ? 'OK' : 'Missing' }}</span> |
                                     jQuery: <span id="jquery-status">Loading...</span> |
-                                    Converted IDs: {{ !empty($convertedCandidateIds) ? implode(', ', $convertedCandidateIds) : 'None' }}
+                                    {{-- Converted IDs: {{ !empty($convertedCandidateIds) ? implode(', ', $convertedCandidateIds) : 'None' }} --}}
                                 </small>
                             </div>
                         </div>
