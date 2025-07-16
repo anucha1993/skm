@@ -209,7 +209,17 @@
                                         </td>
                                         <td>{{ $row->country->value ?? '-' }}</td>
                                         <td>{{ $row->jobGroup->value ?? '-' }}</td>
-                                        <td>{!! $row->steps_badge ?? '-' !!}</td>
+
+                                        <td>
+                                            <div>
+                                                @foreach (['A', 'B'] as $s)
+                                                    <span
+                                                        class="badge bg-{{ in_array($s, $row->completed_steps) ? 'success' : 'secondary' }} rounded-pill me-1">
+                                                        Step {{ $s }}
+                                                    </span>
+                                                @endforeach
+                                        </td>
+
                                         <td>{{ $row->labour_phone_one }}</td>
                                         <td class="text-center">
                                             <a href="{{ url('labours/' . $row->labour_id) }}"
@@ -217,15 +227,15 @@
                                             <a href="{{ url('labours/' . $row->labour_id . '/edit') }}"
                                                 class="btn btn-sm btn-warning me-1">แก้ไข</a>
                                             @can('delete-labour')
-                                                 <form action="{{ url('labours/' . $row->labour_id) }}" method="POST"
-                                                style="display:inline-block;"
-                                                onsubmit="return confirm('ยืนยันการลบข้อมูลคนงานนี้?');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
-                                            </form>
+                                                <form action="{{ url('labours/' . $row->labour_id) }}" method="POST"
+                                                    style="display:inline-block;"
+                                                    onsubmit="return confirm('ยืนยันการลบข้อมูลคนงานนี้?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-sm btn-danger">ลบ</button>
+                                                </form>
                                             @endcan
-                                           
+
                                         </td>
                                     </tr>
                                 @empty
