@@ -43,40 +43,33 @@ class labourController extends Controller
         }
         if (!is_null($source) && $source !== '' && $source !== 'all') {
             if ($source === 'api') {
-                $query->where(function($q) {
-                    $q->whereNotNull('api_candidate_id')
-                      ->orWhereNotNull('api_imported_at');
+                $query->where(function ($q) {
+                    $q->whereNotNull('api_candidate_id')->orWhereNotNull('api_imported_at');
                 });
             } elseif ($source === 'manual') {
-                $query->where(function($q) {
-                    $q->whereNull('api_candidate_id')
-                      ->whereNull('api_imported_at');
+                $query->where(function ($q) {
+                    $q->whereNull('api_candidate_id')->whereNull('api_imported_at');
                 });
             }
         }
         if (!empty($search)) {
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('labour_idcard_number', 'like', "%$search%")
-                  ->orWhere('labour_firstname', 'like', "%$search%")
-                  ->orWhere('labour_lastname', 'like', "%$search%")
-                  ->orWhereRaw("CONCAT(labour_prefix, '. ', labour_firstname, ' ', labour_lastname) like ?", ["%$search%"])
-                  ->orWhere('labour_phone_one', 'like', "%$search%")
-                  ->orWhereHas('country', function($q2) use ($search) {
-                      $q2->where('value', 'like', "%$search%");
-                  })
-                  ->orWhereHas('jobGroup', function($q2) use ($search) {
-                      $q2->where('value', 'like', "%$search%");
-                  });
+                    ->orWhere('labour_firstname', 'like', "%$search%")
+                    ->orWhere('labour_lastname', 'like', "%$search%")
+                    ->orWhereRaw("CONCAT(labour_prefix, '. ', labour_firstname, ' ', labour_lastname) like ?", ["%$search%"])
+                    ->orWhere('labour_phone_one', 'like', "%$search%")
+                    ->orWhereHas('country', function ($q2) use ($search) {
+                        $q2->where('value', 'like', "%$search%");
+                    })
+                    ->orWhereHas('jobGroup', function ($q2) use ($search) {
+                        $q2->where('value', 'like', "%$search%");
+                    });
             });
         }
         $labours = $query->orderByDesc('labour_id')->paginate(50)->appends($request->except('page'));
         $totalLabours = LabourModel::count();
-        $allStatus = [
-            'รอดำเนินการ',
-            'กำลังดำเนินการ',
-            'ดำเนินการเสร็จ',
-            'ยกเลิก',
-        ];
+        $allStatus = ['รอดำเนินการ', 'กำลังดำเนินการ', 'ดำเนินการเสร็จ', 'ยกเลิก'];
         $statusCounts = LabourModel::with('labourStatus:value,id')->select('labour_status', DB::raw('COUNT(*) as total'))->groupBy('labour_status')->get()->mapWithKeys(fn($row) => [$row->labourStatus->value ?? 'ไม่ระบุ' => $row->total])->toArray();
         $statusCounts = array_replace(array_fill_keys($allStatus, 0), $statusCounts);
         $statusGlobalSet = GlobalSetModel::with('values')->where('id', 6)->first();
@@ -87,34 +80,16 @@ class labourController extends Controller
     {
         $fallback = asset('images/user_icon.png');
         // รับ status id จาก filter (id="status-filter")
-        $status = $request->input('status') ?? $request->get('status') ?? ($_GET['status'] ?? null);
+        $status = $request->input('status') ?? ($request->get('status') ?? ($_GET['status'] ?? null));
 
-
-        $query = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value','labourStatus:id,value')
-            ->select([
-                'labour_id', 
-                'labour_prefix', 
-                'labour_status', 
-                'labour_firstname', 
-                'labour_lastname', 
-                'labour_phone_one', 
-                'labour_image_thumbnail_path AS thumbnail', 
-                'labour_idcard_number', 
-                'country_id', 
-                'job_group_id',
-                'api_candidate_id',
-                'api_imported_at',
-                'created_at'
-            ]);
+        $query = LabourModel::with('listFiles', 'country:id,value', 'jobGroup:id,value', 'labourStatus:id,value')->select(['labour_id', 'labour_prefix', 'labour_status', 'labour_firstname', 'labour_lastname', 'labour_phone_one', 'labour_image_thumbnail_path AS thumbnail', 'labour_idcard_number', 'country_id', 'job_group_id', 'api_candidate_id', 'api_imported_at', 'created_at']);
 
         // where labour_status = status id ที่เลือก
         if (!is_null($status) && $status !== '' && $status !== 'all') {
             $query->where('labour_status', $status);
         }
 
-        $labours = $query->orderByDesc('labour_id')
-            ->paginate(50)
-            ->appends($request->except('page'));
+        $labours = $query->orderByDesc('labour_id')->paginate(50)->appends($request->except('page'));
 
         return response()->json(['data' => $labours]);
     }
@@ -133,9 +108,9 @@ class labourController extends Controller
         $customers = Customer::latest()->get();
         $listFiles = listfilesModel::where('labour_id', $labour->labour_id)->get();
         $skillTests = SkillTest::where('labour_id', $labour->labour_id)->get();
-         $statusTestGlobalSet = GlobalSetModel::with('values')->where('id', 10)->first();
+        $statusTestGlobalSet = GlobalSetModel::with('values')->where('id', 10)->first();
 
-        return view('labours.edit', compact('listFiles','skillTests', 'labour','statusTestGlobalSet', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet', 'skillTests'));
+        return view('labours.edit', compact('listFiles', 'skillTests', 'labour', 'statusTestGlobalSet', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet', 'skillTests'));
     }
 
     public function show(labourModel $labour)
@@ -155,12 +130,12 @@ class labourController extends Controller
 
         return view('labours.show', compact('listFiles', 'labour', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet', 'skillTests'));
     }
-    
+
     public function printCV($labour_id)
     {
         // Find the labour by ID
         $labour = labourModel::findOrFail($labour_id);
-        
+
         // Load the same data as in the show method
         $hospitalGlobalSet = GlobalSetModel::with('values')->where('id', 1)->first();
         $countryGlobalSet = GlobalSetModel::with('values')->where('id', 3)->first();
@@ -189,30 +164,33 @@ class labourController extends Controller
         $statusTestGlobalSet = GlobalSetModel::with('values')->where('id', 10)->first();
         $manageDocs = managedocsModel::latest()->get();
         $customers = Customer::latest()->get();
-        return view('labours.create', compact(
-            'customers',
-            'StaffsubGlobalSet',
-            'StaffGlobalSet',
-            'ExaminationCenterGlobalSet',
-            'hospitalGlobalSet',
-            'manageDocs',
-            'countryGlobalSet',
-            'jobGroupGlobalSet',
-            'positionGlobalSet',
-            'statusGlobalSet',
-            'statusTestGlobalSet' // ส่งตัวแปรนี้ไปที่ view ด้วย
-        ));
+        return view(
+            'labours.create',
+            compact(
+                'customers',
+                'StaffsubGlobalSet',
+                'StaffGlobalSet',
+                'ExaminationCenterGlobalSet',
+                'hospitalGlobalSet',
+                'manageDocs',
+                'countryGlobalSet',
+                'jobGroupGlobalSet',
+                'positionGlobalSet',
+                'statusGlobalSet',
+                'statusTestGlobalSet', // ส่งตัวแปรนี้ไปที่ view ด้วย
+            ),
+        );
     }
 
     public function store(Request $request)
     {
         // ตรวจสอบเลขบัตรประชาชนว่าซ้ำหรือไม่
         $exists = labourModel::where('labour_idcard_number', $request->labour_idcard_number)->exists();
-    
+
         if ($exists) {
             return 'เลขบัตรประชาชนนี้มีอยู่ในระบบแล้ว';
         }
-    
+
         // หากไม่ซ้ำ ให้ทำการเพิ่มข้อมูลใหม่
         $requestData = $request->all();
         if (!empty($requestData['weight']) && !empty($requestData['height']) && $requestData['height'] > 0) {
@@ -221,22 +199,38 @@ class labourController extends Controller
         $requestData['created_by'] = Auth::user()->name;
         $labours = labourModel::create($requestData);
 
+        // === เพิ่ม listfilesModel ===
+        if (!empty($requestData['managedoc_id'])) {
+            $managefiles = managefilesModel::where('managedoc_id', $requestData['managedoc_id'])->get();
+            foreach ($managefiles as $item) {
+                listfilesModel::create([
+                    'labour_id' => $labours->labour_id,
+                    'managedoc_id' => $requestData['managedoc_id'],
+                    'managefile_id' => $item->managefile_id,
+                    'managefile_no' => $item->managefile_no,
+                    'managefile_code' => $item->managefile_code,
+                    'managefile_name' => $item->managefile_name,
+                    'managefile_step' => $item->managefile_step,
+                    'file_path' => null,
+                ]);
+            }
+        }
+
         // === เพิ่มบันทึก skill test ===
         $skillTests = $request->input('skill_tests', []);
         if (empty($skillTests)) {
-
-        foreach ($skillTests as $test) {
-            SkillTest::create([
-                'labour_id'         => $labours->labour_id,
-                'customer_id'       => $test['customer_id'] ?? null,
-                'test_date'         => $test['test_date'] ?? null,
-                'test_location_id'  => $test['test_location_id'] ?? null,
-                'test_position_id'  => $test['test_position_id'] ?? null,
-                'test_result_id'    => $test['test_result_id'] ?? null,
-                'note'              => $test['note'] ?? null,
-            ]);
+            foreach ($skillTests as $test) {
+                SkillTest::create([
+                    'labour_id' => $labours->labour_id,
+                    'customer_id' => $test['customer_id'] ?? null,
+                    'test_date' => $test['test_date'] ?? null,
+                    'test_location_id' => $test['test_location_id'] ?? null,
+                    'test_position_id' => $test['test_position_id'] ?? null,
+                    'test_result_id' => $test['test_result_id'] ?? null,
+                    'note' => $test['note'] ?? null,
+                ]);
+            }
         }
-         }
         // === จบ skill test ===
 
         // ส่งข้อมูลไปยัง API ภายนอก พร้อมแนบ Bearer Token
@@ -246,14 +240,13 @@ class labourController extends Controller
                 'name' => trim(($labours->labour_firstname ?? '') . ' ' . ($labours->labour_lastname ?? '')),
                 'email' => $labours->labour_email ?? '',
                 'mobile' => $labours->labour_phone_one ?? '',
-                "idcard" => $labours->labour_idcard_number ?? '',
-                "birthday" => $labours->labour_birthday ?? '',
-                "emergencyname" => $labours->labour_emergency_contact_name ?? '',
-                "emergencymobile" => $labours->labour_phone_one ?? '',
+                'idcard' => $labours->labour_idcard_number ?? '',
+                'birthday' => $labours->labour_birthday ?? '',
+                'emergencyname' => $labours->labour_emergency_contact_name ?? '',
+                'emergencymobile' => $labours->labour_phone_one ?? '',
             ];
             $token = config('thailabor.api_token', '');
-            $response = \Illuminate\Support\Facades\Http::withToken($token)
-                ->post('https://thailaborland.com/api/createaccount', $payload);
+            $response = \Illuminate\Support\Facades\Http::withToken($token)->post('https://thailaborland.com/api/createaccount', $payload);
             if ($response->status() === 200) {
                 $apiSuccess = true;
             }
@@ -261,7 +254,7 @@ class labourController extends Controller
             // สามารถ log error ได้ถ้าต้องการ
             // Console::$response->status();
         }
-    
+
         $msg = 'เพิ่มข้อมูลเรียบร้อยแล้ว';
         if ($apiSuccess) {
             $msg .= ' (ส่งข้อมูลไปยัง thailaborland.com สำเร็จ)';
@@ -302,28 +295,27 @@ class labourController extends Controller
         SkillTest::where('labour_id', $labour->labour_id)->delete();
         // เพิ่ม skill test ใหม่
         $skillTests = $request->input('skill_tests', []);
-         if (empty($skillTests)) {
-        foreach ($skillTests as $test) {
-            SkillTest::create([
-                'labour_id'         => $labour->labour_id,
-                'test_date'         => $test['test_date'] ?? null,
-                'customer_id'  => $test['customer_id'] ?? null,
-                'test_location_id'  => $test['test_location_id'] ?? null,
-                'test_position_id'  => $test['test_position_id'] ?? null,
-                'test_result_id'    => $test['test_result_id'] ?? null,
-                'note'              => $test['note'] ?? null,
-            ]);
-        }
+        if (empty($skillTests)) {
+            foreach ($skillTests as $test) {
+                SkillTest::create([
+                    'labour_id' => $labour->labour_id,
+                    'test_date' => $test['test_date'] ?? null,
+                    'customer_id' => $test['customer_id'] ?? null,
+                    'test_location_id' => $test['test_location_id'] ?? null,
+                    'test_position_id' => $test['test_position_id'] ?? null,
+                    'test_result_id' => $test['test_result_id'] ?? null,
+                    'note' => $test['note'] ?? null,
+                ]);
+            }
         }
         // === จบ skill test ===
 
         return redirect()->back();
     }
-    
+
     public function destroy(labourModel $labour)
     {
         $labour->delete();
         return redirect()->route('labours.index')->with('success', 'เพิ่มข้อมูลเรียบร้อยแล้ว');
     }
-    
 }
