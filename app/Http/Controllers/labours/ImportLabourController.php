@@ -73,19 +73,42 @@ class ImportLabourController extends Controller
 
             Log::info("Labour created successfully with ID: {$labour->labour_id}");
 
-            // ส่งสถานะ 200 กลับไปยัง External API
+            // ส่งสถานะ 200 กลับไปยัง External API 
             $this->notifyExternalAPI($id, $labour);
 
-            return response()->json(
-                [
-                    'success' => true,
-                    'message' => 'แปลงข้อมูลสำเร็จ',
-                    'labour_id' => $labour->labour_id,
-                    'apiid' => $labour->api_candidate_id,
-                    'redirect' => route('labours.edit', $labour->labour_id),
-                ],
-                200,
-            );
+            // เตรียมข้อมูลสำหรับ updateapi
+            $updateApiData = [
+                'success' => true,
+                'message' => 'แปลงข้อมูลสำเร็จ',
+                'labour_id' => $labour->labour_id,
+                'apiid' => $labour->api_candidate_id,
+                'redirect' => route('labours.edit', $labour->labour_id),
+            ];
+
+            // เรียก API updateapi
+            try {
+                $token = env('LABOUR_API_TOKEN') ?: TokenService::fetchAndStoreToken();
+                $updateApiUrl = 'https://thailaborland.com/api/updateapi';
+                // Log ข้อมูลที่จะส่งไป updateapi
+                Log::info('Preparing to call updateapi', [
+                    'url' => $updateApiUrl,
+                    'data' => $updateApiData,
+                ]);
+                $response = \Illuminate\Support\Facades\Http::withToken($token)
+                    ->timeout(30)
+                    ->post($updateApiUrl, $updateApiData);
+                Log::info('Called updateapi', [
+                    'url' => $updateApiUrl,
+                    'status' => $response->status(),
+                    'body' => $updateApiData,
+                ]);
+            } catch (\Exception $ex) {
+                Log::error('Call to updateapi failed: ' . $ex->getMessage());
+            }
+
+            return response()->json($updateApiData, 200);
+
+
         } catch (\Exception $e) {
             Log::error('Import Labour Error: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());
