@@ -2,32 +2,32 @@
 <html lang="en">
 
 <head>
-    <title>thailadstaff</title>
-    <!-- HTML5 Shim and Respond.js IE11 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 11]>
-    	<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
-    	<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
-    	<![endif]-->
-    <!-- Meta -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="description" content="" />
-    <meta name="keywords" content="">
-    <meta name="author" content="Phoenixcoded" />
-    <!-- Favicon icon -->
+	<title>thailadstaff</title>
+	<!-- HTML5 Shim and Respond.js IE11 support of HTML5 elements and media queries -->
+	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+	<!--[if lt IE 11]>
+		<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+		<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+	<!-- Meta -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0, minimal-ui">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<meta name="description" content="" />
+	<meta name="keywords" content="">
+	<meta name="author" content="Phoenixcoded" />
+	<!-- Favicon icon -->
 	
-    <link rel="icon" href="{{URL::asset('/template/dist/assets/images/SKM-logo.png')}}" type="image/x-icon">
+	<link rel="icon" href="{{URL::asset('/template/dist/assets/images/SKM-logo.png')}}" type="image/x-icon"  style="width: 35%">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/5.3.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.bootstrap5.css">
 
-    <!-- vendor css -->
+	<!-- vendor css -->
 	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
 
 
-    <link rel="stylesheet" href="{{URL::asset('/template/dist/assets/css/style.css')}}">
+	<link rel="stylesheet" href="{{URL::asset('/template/dist/assets/css/style.css')}}">
 	
 	
 		
@@ -55,14 +55,14 @@
 </head>
 
 <style>
-    .select2-container .select2-selection--single {
-    height: 40px; /* กำหนดความสูงเป็น 40 พิกเซล */
-    align: center;
+	.select2-container .select2-selection--single {
+	height: 40px; /* กำหนดความสูงเป็น 40 พิกเซล */
+	align: center;
 	
 }
 
 
-    .form-control {
+	.form-control {
   border-radius: 5px;
   border: 1px solid #ccc;
 }
@@ -105,28 +105,28 @@
 					</li>
 
 					<li class="nav-item">
-					    <a href="{{route('customers.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">ข้อมูลนายจ้าง</span></a>
+						<a href="{{route('customers.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">ข้อมูลนายจ้าง</span></a>
 					   
 					</li>
 					<li class="nav-item">
 				
-					    <a href="{{route('labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">ข้อมูลคนงาน</span></a>
+						<a href="{{route('labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">ข้อมูลคนงาน</span></a>
 					</li>
 
 					<li class="nav-item">
-					    <a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext">import ข้อมูลจาก Recuite</span></a>
+						<a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext">import ข้อมูลจาก Recuite</span></a>
 					</li>
 
 					{{-- <li class="nav-item">
-					    <a href="{{route('asset.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-monitor"></i></span><span class="pcoded-mtext">ข้อมูลทรัพย์สิน</span></a>
+						<a href="{{route('asset.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-monitor"></i></span><span class="pcoded-mtext">ข้อมูลทรัพย์สิน</span></a>
 					</li> --}}
 					
 					<li class="nav-item pcoded-hasmenu">
-					    <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-layout"></i></span><span class="pcoded-mtext">รายงาน</span></a>
-					    <ul class="pcoded-submenu">
-					        <li><a href="{{route('report.labours.index')}}">รายงานข้อมูลคนงาน</a></li>
-					        {{-- <li><a href="layout-horizontal.html" target="_blank">Horizontal</a></li> --}}
-					    </ul>
+						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-layout"></i></span><span class="pcoded-mtext">รายงาน</span></a>
+						<ul class="pcoded-submenu">
+							<li><a href="{{route('report.labours.index')}}">รายงานข้อมูลคนงาน</a></li>
+							{{-- <li><a href="layout-horizontal.html" target="_blank">Horizontal</a></li> --}}
+						</ul>
 					</li>
 
 					<li class="nav-item pcoded-hasmenu">
@@ -140,32 +140,32 @@
 					</li>
 					
 					{{-- <li class="nav-item pcoded-menu-caption">
-					    <label>Forms &amp; table</label>
+						<label>Forms &amp; table</label>
 					</li>
 					<li class="nav-item">
-					    <a href="form_elements.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Forms</span></a>
+						<a href="form_elements.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-file-text"></i></span><span class="pcoded-mtext">Forms</span></a>
 					</li>
 					<li class="nav-item">
-					    <a href="tbl_bootstrap.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-align-justify"></i></span><span class="pcoded-mtext">Bootstrap table</span></a>
+						<a href="tbl_bootstrap.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-align-justify"></i></span><span class="pcoded-mtext">Bootstrap table</span></a>
 					</li>
 					<li class="nav-item pcoded-menu-caption">
 						<label>Chart & Maps</label>
 					</li>
 					<li class="nav-item">
-					    <a href="chart-apex.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-pie-chart"></i></span><span class="pcoded-mtext">Chart</span></a>
+						<a href="chart-apex.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-pie-chart"></i></span><span class="pcoded-mtext">Chart</span></a>
 					</li>
 					<li class="nav-item">
-					    <a href="map-google.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-map"></i></span><span class="pcoded-mtext">Maps</span></a>
+						<a href="map-google.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-map"></i></span><span class="pcoded-mtext">Maps</span></a>
 					</li>
 					<li class="nav-item pcoded-menu-caption">
 						<label>Pages</label>
 					</li>
 					<li class="nav-item pcoded-hasmenu">
-					    <a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-lock"></i></span><span class="pcoded-mtext">Authentication</span></a>
-					    <ul class="pcoded-submenu">
-					        <li><a href="auth-signup.html" target="_blank">Sign up</a></li>
-					        <li><a href="auth-signin.html" target="_blank">Sign in</a></li>
-					    </ul>
+						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-lock"></i></span><span class="pcoded-mtext">Authentication</span></a>
+						<ul class="pcoded-submenu">
+							<li><a href="auth-signup.html" target="_blank">Sign up</a></li>
+							<li><a href="auth-signin.html" target="_blank">Sign in</a></li>
+						</ul>
 					</li>
 					<li class="nav-item"><a href="sample-page.html" class="nav-link "><span class="pcoded-micon"><i class="feather icon-sidebar"></i></span><span class="pcoded-mtext">Sample page</span></a></li> --}}
 
@@ -180,17 +180,60 @@
 	<header class="navbar pcoded-header navbar-expand-lg navbar-light header-dark">
 		
 			
-				<div class="m-header">
-					<a class="mobile-menu" id="mobile-collapse" href="#!"><span></span></a>
-					<a href="#!" class="b-brand">
-						<!-- ========   change your logo hear   ============ -->
-						<img src="{{URL::asset('/template/dist/assets/images/SKM-logo.png')}}" alt="" class="logo" style="width: 35%">
-						<img src="{{URL::asset('/template/dist/assets/images/SKM-logo.png')}}" alt="" class="logo-thumb">
-					</a>
-					<a href="#!" class="mob-toggler">
-						<i class="feather icon-more-vertical"></i>
-					</a>
-				</div>
+<style>
+	.m-header {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		padding: 0.5rem 1rem;
+		background: #2C3E50;
+		min-height: 56px;
+	}
+	.m-header .b-brand {
+		display: flex;
+		align-items: center;
+		flex: 1 1 auto;
+		justify-content: center;
+	}
+	.m-header .logo, .m-header .logo-thumb {
+		max-width: 120px;
+		height: auto;
+	}
+	.m-header .mobile-menu, .m-header .mob-toggler {
+		display: flex;
+		align-items: center;
+		background: none;
+		border: none;
+		font-size: 1.5rem;
+		padding: 0 0.5rem;
+	}
+	@media (max-width: 768px) {
+		.m-header {
+			padding: 0.3rem 0.5rem;
+		}
+		.m-header .logo, .m-header .logo-thumb {
+			max-width: 80px;
+		}
+		.m-header .b-brand {
+			justify-content: center;
+		}
+		.m-header .mobile-menu, .m-header .mob-toggler {
+			font-size: 1.8rem;
+			padding: 0 0.2rem;
+		}
+	}
+</style>
+<div class="m-header">
+	<a class="mobile-menu" id="mobile-collapse" href="#"><span></span></a>
+	<a href="#" class="b-brand">
+		<!-- ========   change your logo here   ============ -->
+		<img src="{{URL::asset('/template/dist/assets/images/SKM-logo.png')}}" alt="" class="logo" style="width: 35%">
+		<img src="{{URL::asset('/template/dist/assets/images/SKM-logo.png')}}" alt="" class="logo-thumb d-none">
+	</a>
+	<a href="#" class="mob-toggler">
+		<i class="feather icon-more-vertical"></i>
+	</a>
+</div>
 
 				<div class="collapse navbar-collapse ">
 					<ul class="navbar-nav mr-auto">
@@ -431,40 +474,40 @@
 
 <!-- [ Main Content ] start -->
 <section class="pcoded-main-container">
-    <div class="pcoded-content">
-        <!-- [ breadcrumb ] start -->
-        <div class="page-header">
-            <div class="page-block">
-                <div class="row align-items-center">
-                    <div class="col-md-12">
-                        <div class="page-header-title">
-                            <h5 class="m-b-10">Thailad Staff</h5>
-                        </div>
-                        {{-- <ul class="breadcrumb">
-                            <li class="breadcrumb-item"><a href="index.html"><i class="feather icon-home"></i></a></li>
-                            <li class="breadcrumb-item"><a href="#!">Form Components</a></li>
-                            <li class="breadcrumb-item"><a href="#!">Form Elements</a></li>
-                        </ul> --}}
-                    </div>
-                </div>
-            </div>
-        </div>
+	<div class="pcoded-content">
+		<!-- [ breadcrumb ] start -->
+		<div class="page-header">
+			<div class="page-block">
+				<div class="row align-items-center">
+					<div class="col-md-12">
+						<div class="page-header-title">
+							<h5 class="m-b-10">Thailad Staff</h5>
+						</div>
+						{{-- <ul class="breadcrumb">
+							<li class="breadcrumb-item"><a href="index.html"><i class="feather icon-home"></i></a></li>
+							<li class="breadcrumb-item"><a href="#!">Form Components</a></li>
+							<li class="breadcrumb-item"><a href="#!">Form Elements</a></li>
+						</ul> --}}
+					</div>
+				</div>
+			</div>
+		</div>
 
-        <!-- [ breadcrumb ] end -->
-        <!-- [ Main Content ] start -->
-        <div class="row">
-            @yield('content')
-        </div>
-        <!-- [ Main Content ] end -->
+		<!-- [ breadcrumb ] end -->
+		<!-- [ Main Content ] start -->
+		<div class="row">
+			@yield('content')
+		</div>
+		<!-- [ Main Content ] end -->
 
-    </div>
+	</div>
 </section>
 
 
 
-    <script src="{{URL::asset('/template/dist/assets/js/vendor-all.min.js')}}"></script>
-    <script src="{{URL::asset('/template/dist/assets/js/plugins/bootstrap.min.js')}}"></script>
-    <script src="{{URL::asset('/template/dist/assets/js/pcoded.min.js')}}"></script>
+	<script src="{{URL::asset('/template/dist/assets/js/vendor-all.min.js')}}"></script>
+	<script src="{{URL::asset('/template/dist/assets/js/plugins/bootstrap.min.js')}}"></script>
+	<script src="{{URL::asset('/template/dist/assets/js/pcoded.min.js')}}"></script>
 	
 
 

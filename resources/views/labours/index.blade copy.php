@@ -14,102 +14,91 @@
         .badge.bg-primary {
             background-color: #0d6efd !important;
         }
+
         .badge.bg-success {
             background-color: #198754 !important;
         }
+
         .badge {
             font-size: 0.75em;
             padding: 0.35em 0.65em;
             border-radius: 0.375rem;
         }
+
         .badge i {
             font-size: 0.9em;
         }
+
         #labours-table td {
             vertical-align: middle;
         }
+
         #labours-table .badge {
             white-space: nowrap;
         }
+
         #labours-table td:nth-child(4) {
             min-width: 140px;
             text-align: center;
         }
+
         #labours-table small.text-muted {
             font-size: 0.7em;
             line-height: 1.2;
             display: block;
             margin-top: 2px;
         }
+
         .badge.bg-primary {
             box-shadow: 0 1px 3px rgba(13, 110, 253, 0.3);
         }
+
         .badge.bg-success {
             box-shadow: 0 1px 3px rgba(25, 135, 84, 0.3);
         }
+
         #labours-table tbody tr:hover .badge {
             transform: translateY(-1px);
             transition: transform 0.15s ease-in-out;
         }
+
         @media (max-width: 768px) {
-            /* Responsive: ซ่อนบางคอลัมน์ */
-            #labours-table th:nth-child(2),
-            #labours-table td:nth-child(2), /* รูปภาพ */
-            #labours-table th:nth-child(6),
-            #labours-table td:nth-child(6), /* ประเทศ */
-            #labours-table th:nth-child(7),
-            #labours-table td:nth-child(7), /* ประเภทงาน */
-            #labours-table th:nth-child(8),
-            #labours-table td:nth-child(8), /* Steps */
-            #labours-table th:nth-child(9),
-            #labours-table td:nth-child(9)  /* โทรศัพท์ */
-            {
-                display: none;
-            }
             #labours-table td:nth-child(4) {
                 min-width: 100px;
             }
+
             #labours-table small.text-muted {
                 font-size: 0.65em;
-            }
-            .btn, .btn-sm {
-                font-size: 0.85em;
-                padding: 0.3em 0.6em;
-            }
-            .table th, .table td {
-                font-size: 0.85em;
-                padding: 0.4em 0.3em;
-            }
-            .card .card-body h3 {
-                font-size: 1.2em;
-            }
-            .card .card-body h6 {
-                font-size: 0.9em;
             }
         }
     </style>
 
-    <div class="row flex-wrap">
-        <div class="col-12 col-md-3 mb-2">
-            <div class="card h-100">
+    <div class="row">
+        <div class="col">
+            <div class="card">
                 <div class="card-body">
                     <div class="row align-items-center">
-                        <div class="col-12">
+                        <div class="col-6">
                             <h3 class="text-success">{{ $totalLabours }}</h3>
                             <h6 class="text-muted m-b-0">คนงานทั้งหมด</h6>
+                        </div>
+                        <div class="col-6">
+                            <div id="seo-chart1" class="d-flex align-items-end"></div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
         @foreach ($statusCounts as $label => $count)
-            <div class="col-6 col-md-2 mb-2">
-                <div class="card h-100">
+            <div class="col">
+                <div class="card">
                     <div class="card-body">
                         <div class="row align-items-center">
-                            <div class="col-12">
+                            <div class="col-6">
                                 <h3>{{ $count }}</h3>
                                 <h6 class="text-muted m-b-0">{{ $label }}</h6>
+                            </div>
+                            <div class="col-6">
                             </div>
                         </div>
                     </div>
@@ -129,29 +118,44 @@
                     <div class="row mb-3">
                         <div class="col-12">
 
-                            <form class="row g-2 align-items-center flex-wrap" method="get" action="" id="filter-form">
-                                <div class="col-12 col-md-6 mb-1 mb-md-0">
-                                    <input type="text" name="search" class="form-control form-control-sm" placeholder="ค้นหา: เลขบัตร/ชื่อ-สกุล/ประเทศ/ประเภทงาน/โทรศัพท์" value="{{ request('search') }}">
+                            <form class="row g-2 align-items-center" method="get" action="" id="filter-form">
+
+                                <div class="col-6">
+                                    <input type="text" name="search" class="form-control form-control-sm"
+                                        placeholder="ค้นหา: เลขบัตร/ชื่อ-สกุล/ประเทศ/ประเภทงาน/โทรศัพท์"
+                                        value="{{ request('search') }}">
                                 </div>
-                                <div class="col-6 col-md-2 mb-1 mb-md-0">
+
+                                <div class="col-2">
                                     <select name="status" class="form-select form-select-sm" id="status-select">
                                         <option value="all">ทุกสถานะ</option>
                                         @foreach ($statusGlobalSet->values as $status)
-                                            <option value="{{ $status->id }}" @if (request('status') == $status->id) selected @endif>{{ $status->value }}</option>
+                                            <option value="{{ $status->id }}"
+                                                @if (request('status') == $status->id) selected @endif>{{ $status->value }}
+                                            </option>
                                         @endforeach
                                     </select>
                                 </div>
-                                <div class="col-6 col-md-2 d-flex gap-1 mb-1 mb-md-0">
-                                    <button type="submit" class="btn btn-primary btn-sm w-100">ค้นหา</button>
-                                    <a href="{{ route('labours.index') }}" class="btn btn-outline-secondary btn-sm w-100">ล้าง</a>
+
+                                <div class="col-1">
+                                    <button type="submit" class="btn btn-primary btn-sm">ค้นหา</button>
+                                    <a href="{{ route('labours.index') }}" class="btn btn-outline-secondary btn-sm">ล้าง</a>
                                 </div>
-                                <div class="col-12 col-md-2 foat-end mt-1 mt-md-0">
-                                    <div class="btn-group w-100" role="group" aria-label="Source Filter">
-                                        <a href="?status={{ request('status', 'all') }}&source=all" class="btn btn-outline-secondary btn-sm w-100 @if (request('source', 'all') == 'all') active @endif">ทั้งหมด</a>
-                                        <a href="?status={{ request('status', 'all') }}&source=api" class="btn btn-outline-primary btn-sm w-100 @if (request('source') == 'api') active @endif">API Import</a>
-                                        <a href="?status={{ request('status', 'all') }}&source=manual" class="btn btn-outline-success btn-sm w-100 @if (request('source') == 'manual') active @endif">Manual Entry</a>
+
+
+                                <div class="col-4 foat-end">
+                                    <div class="btn-group" role="group" aria-label="Source Filter">
+                                        <a href="?status={{ request('status', 'all') }}&source=all"
+                                            class="btn btn-outline-secondary btn-sm @if (request('source', 'all') == 'all') active @endif">ทั้งหมด</a>
+                                        <a href="?status={{ request('status', 'all') }}&source=api"
+                                            class="btn btn-outline-primary btn-sm @if (request('source') == 'api') active @endif">API
+                                            Import</a>
+                                        <a href="?status={{ request('status', 'all') }}&source=manual"
+                                            class="btn btn-outline-success btn-sm @if (request('source') == 'manual') active @endif">Manual
+                                            Entry</a>
                                     </div>
                                 </div>
+
                             </form>
                             <script>
                                 document.addEventListener('DOMContentLoaded', function() {
