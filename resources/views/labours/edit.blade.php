@@ -950,16 +950,15 @@
                                         @foreach ($listFiles as $i => $item)
                                             <div class="col-md-6 col-lg-4 mb-4 mt-4">
                                                 @can('delete-labour')
-
-                                                 <a href="{{ route('labours.list-files.destroy', ['labour' => $labour->labour_id, 'list_file' => $item->list_file_id]) }}"
+                                                    <a href="{{ route('labours.list-files.destroy', ['labour' => $labour->labour_id, 'list_file' => $item->list_file_id]) }}"
                                                         onclick="event.preventDefault(); if(confirm('ยืนยันการลบรายการเอกสารนี้?'))"
                                                         class="btn btn-danger btn-sm">
-                                                        <i class="fas fa-trash"></i> ลบรายการเอกสาร ({{ $item->managefile_name }})
+                                                        <i class="fas fa-trash"></i> ลบรายการเอกสาร
+                                                        ({{ $item->managefile_name }})
                                                     </a>
-                                                        
-                                                    @endcan
-                                                  
-                                              
+                                                @endcan
+
+
 
 
 
@@ -1280,6 +1279,8 @@
 
     </div>
 
+    <input type="hidden" name="_token" id="token" value="{{ csrf_token() }}">
+
     <script>
         $(function() {
             // อัปโหลดไฟล์ (แทนที่ไอคอน + input → ปุ่ม)
@@ -1289,7 +1290,6 @@
                 const url = $(this).data('upload');
                 const fd = new FormData();
                 fd.append('file', this.files[0]);
-
                 $.ajax({
                     url,
                     type: 'POST',
@@ -1321,33 +1321,33 @@
             });
 
             // ลบไฟล์ (แทนที่กลับเป็น input)
-            $(document).on('click', '.btn-delete', function() {
-                if (!confirm('ยืนยันการลบไฟล์?')) return;
-                const $row = $(this).closest('tr');
-                const url = $(this).data('url');
+            // $(document).on('click', '.btn-delete', function() {
+            //     if (!confirm('ยืนยันการลบไฟล์?')) return;
+            //     const $row = $(this).closest('tr');
+            //     const url = $(this).data('url');
 
-                $.ajax({
-                    url,
-                    type: 'DELETE',
-                    success() {
-                        // ไอคอนไฟล์
-                        // $row.find('td').eq(3).html('<i class="fa fa-file-earmark-slash fs-3 text-muted"></i>');
-                        // คืน input
-                        const id = $row.data('id');
-                        const inp =
-                            `<input type="file" 
-                                    class="form-control form-control-sm file-input"
-                                    data-upload="{{ route('labours.list-files.upload', [$labour->labour_id, '__ID__']) }}">`
-                            .replace('__ID__', id);
-                        $row.find('td').eq(4).html(inp);
-                        // วันที่
-                        $row.find('td').eq(5).text('-');
-                    },
-                    error(err) {
-                        alert(err.responseJSON?.message || 'ลบไม่สำเร็จ');
-                    }
-                });
-            });
+            //     $.ajax({
+            //         url,
+            //         type: 'DELETE',
+            //         success() {
+            //             // ไอคอนไฟล์
+            //             // $row.find('td').eq(3).html('<i class="fa fa-file-earmark-slash fs-3 text-muted"></i>');
+            //             // คืน input
+            //             const id = $row.data('id');
+            //             const inp =
+            //                 `<input type="file" 
+            //                         class="form-control form-control-sm file-input"
+            //                         data-upload="{{ route('labours.list-files.upload', [$labour->labour_id, '__ID__']) }}">`
+            //                 .replace('__ID__', id);
+            //             $row.find('td').eq(4).html(inp);
+            //             // วันที่
+            //             $row.find('td').eq(5).text('-');
+            //         },
+            //         error(err) {
+            //             alert(err.responseJSON?.message || 'ลบไม่สำเร็จ');
+            //         }
+            //     });
+            // });
         });
     </script>
 
@@ -1833,13 +1833,15 @@
                 if (confirm('คุณต้องการลบไฟล์นี้หรือไม่?')) {
                     var deleteUrl = $(this).data('url');
                     var card = $(this).closest('.card');
+                    var _token = {"_token": $('#token').val()};
+                    console.log('_token :', _token);
 
                     $.ajax({
                         url: deleteUrl,
-                        type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
+                        type: 'GET',
+                          headers: {
+        'X-CSRF-TOKEN': $('#token').val()
+    },
                         success: function(response) {
                             console.log('Delete response:', response);
 

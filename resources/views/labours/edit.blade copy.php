@@ -1175,6 +1175,8 @@ if (typeof pdfjsLib !== 'undefined') {
             </div>
     </form>
 
+    
+
     <script>
         $(function() {
             // อัปโหลดไฟล์ (แทนที่ไอคอน + input → ปุ่ม)
@@ -1709,9 +1711,7 @@ if (typeof pdfjsLib !== 'undefined') {
                     $.ajax({
                         url: deleteUrl,
                         type: 'DELETE',
-                        headers: {
-                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                        },
+                       headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
                         success: function(response) {
                             console.log('Delete response:', response);
                             

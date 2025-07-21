@@ -95,7 +95,7 @@ Route::get('/labour-import', [LabourImportController::class, 'index']);
 
 Route::get('mock-labours', [LabourApiController::class, 'getMockData']);
 Route::post('labours/{labour}/list-files', [\App\Http\Controllers\labours\labourController::class, 'addListFile'])->name('labours.list-files.store');
-Route::delete('labours/{labour}/list-files/{list_file}', [\App\Http\Controllers\labours\labourController::class, 'deleteListFile'])->name('labours.list-files.destroy');
+Route::get('labours/{labour}/list-files/{list_file}', [\App\Http\Controllers\labours\labourController::class, 'deleteListFile'])->name('labours.list-files.destroy');
 
 
 
