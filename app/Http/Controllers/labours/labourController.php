@@ -269,8 +269,10 @@ class labourController extends Controller
         $managedocNew = $request->managedoc_id;
         $managedocOld = $labour->managedoc_id;
 
+       /// dd($managedocOld, $managedocNew);
+
          // เช็คเฉพาะตอนเปลี่ยน managedoc_id
-    if ($managedocNew !== $managedocOld) {
+   if ((string)$managedocNew !== (string)$managedocOld) {
         // ลบรายการเดิมทั้งหมดก่อนเพิ่มใหม่
         listfilesModel::where('labour_id', $labour->labour_id)->delete();
 
