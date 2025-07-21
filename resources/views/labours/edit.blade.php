@@ -1198,7 +1198,7 @@
 
                                                                 <button type="button"
                                                                     class="btn btn-danger btn-sm btn-delete"
-                                                                    data-url="{{ route('labours.list-files.destroy', $item) }}"
+                                                                    data-url="{{ route('labours.list-files.destroy', ['labour' => $labour->labour_id, 'list_file' => $item->list_file_id]) }}"
                                                                     title="ลบไฟล์">
                                                                     <i class="fas fa-trash"></i>
                                                                 </button>
