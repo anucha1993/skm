@@ -21,8 +21,7 @@
 	<!-- Modern CSS -->
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-	<link rel="stylesheet" href="{{URL::asset('/template/dist/assets/css/style.css')}}">
-
+	
 	<style>
 		:root {
 			--primary: #2563eb;
@@ -215,41 +214,62 @@
 								<i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
 							</div>
 						@enderror
-						</div>
-						<div class="form-group mb-4">
-							<input id="password" type="password" class="form-control @error('password') is-invalid @enderror" placeholder="********" name="password" required autocomplete="current-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-						</div>
-						<div class="custom-control custom-checkbox text-left mb-4 mt-2">
-							<input type="checkbox" class="custom-control-input" id="customCheck1">
-							<label class="custom-control-label" for="customCheck1">จดจำระหัสผ่าน.</label>
-						</div>
-						<button type="submit" class="btn btn-block btn-primary mb-4">Login</button>
-						<hr>
-                    </form>
-						{{-- <p class="mb-2 text-muted">Forgot password? <a href="auth-reset-password.html" class="f-w-400">Reset</a></p>
-						<p class="mb-0 text-muted">Don’t have an account? <a href="auth-signup.html" class="f-w-400">Signup</a></p> --}}
 					</div>
-				</div>
+
+					<div class="form-floating">
+						<input type="password" 
+							   class="form-control @error('password') is-invalid @enderror" 
+							   id="password" 
+							   name="password" 
+							   placeholder="รหัสผ่าน"
+							   required 
+							   autocomplete="current-password">
+						<label for="password">
+							<i class="fas fa-lock me-2"></i>รหัสผ่าน
+						</label>
+						@error('password')
+							<div class="invalid-feedback">
+								<i class="fas fa-exclamation-circle me-1"></i>{{ $message }}
+							</div>
+						@enderror
+					</div>
+
+					<div class="form-check mb-3">
+						<input class="form-check-input" type="checkbox" name="remember" id="remember" 
+							   {{ old('remember') ? 'checked' : '' }}>
+						<label class="form-check-label" for="remember">
+							<i class="fas fa-check me-2"></i>จดจำการเข้าสู่ระบบ
+						</label>
+					</div>
+
+					<button type="submit" class="btn btn-primary btn-login">
+						<i class="fas fa-sign-in-alt me-2"></i>เข้าสู่ระบบ
+					</button>
+				</form>
+
+				@if (session('status'))
+					<div class="alert alert-success mt-3" role="alert">
+						<i class="fas fa-info-circle me-2"></i>{{ session('status') }}
+					</div>
+				@endif
 			</div>
 		</div>
 	</div>
-</div>
-<!-- [ auth-signin ] end -->
 
-<!-- Required Js -->
-<script src="{{URL::asset('/template/dist/assets/js/vendor-all.min.js')}}"></script>
-<script src="{{URL::asset('/template/dist/assets/js/plugins/bootstrap.min.js')}}"></script>
+	<!-- Scripts -->
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-<script src="{{URL::asset('/template/dist/assets/js/pcoded.min.js')}}"></script>
+	<script>
+		// Form validation and animation
+		document.getElementById('loginForm').addEventListener('submit', function(e) {
+			const submitBtn = this.querySelector('.btn-login');
+			submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>กำลังเข้าสู่ระบบ...';
+			submitBtn.disabled = true;
+		});
 
-
+		// Auto focus on email field
+		document.getElementById('email').focus();
+	</script>
 
 </body>
-
 </html>

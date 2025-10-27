@@ -20,7 +20,19 @@ class labourModel extends Model
     'labour_lastname', 'labour_birthday', 'labour_phone_one', 'labour_phone_two', 'labour_passport_number', 'labour_passport_issue_date', 'labour_passport_expiry_date', 'labour_hospital', 'labour_disease_receive_date', 'labour_disease_issue_date', 'company_id', 'labour_register_number', 'country_id', 'job_group_id', 'position_id', 'labour_status', 'lacation_test_id', 'lacation_test_date', 'staff_id', 'staff_sub_id', 'labour_image_path', 'labour_image_thumbnail_path', 'managedoc_id', 'created_by', 'updated_by', 'api_imported_at', 'api_candidate_id', 'labour_address', 'labour_address_type', 'labour_province', 'labour_district', 'labour_sub_district', 'labour_postcode', 'labour_emergency_contact_name', 'labour_line_id', 'labour_email',
     'weight',
     'height',
-    'bmi'];
+    'bmi',
+    // CID Fields
+    'labour_cid_number',
+    'labour_cid_issue_date',
+    'labour_cid_expiry_date',
+    // Affidavit Fields
+    'labour_affidavit_number',
+    'labour_affidavit_issue_date',
+    'labour_affidavit_expiry_date',
+    // Visa Fields
+    'labour_visa_status',
+    'labour_visa_submission_date',
+    'labour_visa_approval_date'];
 
     public function listFiles()
     {

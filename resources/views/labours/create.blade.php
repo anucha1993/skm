@@ -550,6 +550,78 @@
                                                 class="form-control form-control-sm bg-light" placeholder="0">
                                         </div>
                                     </div>
+
+                                    <div class="col-12 mt-4">
+                                        <b class="">ข้อมูล CID</b>
+                                        <hr>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">เลขที่ CID</label>
+                                            <input type="text" name="labour_cid_number"
+                                                class="form-control form-control-sm" placeholder="CID Number">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่ออก CID</label>
+                                            <input type="date" name="labour_cid_issue_date"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่หมดอายุ CID</label>
+                                            <input type="date" name="labour_cid_expiry_date"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-4">
+                                        <b class="">ข้อมูล Affidavit</b>
+                                        <hr>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">เลขที่ Affidavit</label>
+                                            <input type="text" name="labour_affidavit_number"
+                                                class="form-control form-control-sm" placeholder="Affidavit Number">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่ออก Affidavit</label>
+                                            <input type="date" name="labour_affidavit_issue_date"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่หมดอายุ Affidavit</label>
+                                            <input type="date" name="labour_affidavit_expiry_date"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+
+                                    <div class="col-12 mt-4">
+                                        <b class="">ข้อมูล VISA</b>
+                                        <hr>
+                                    </div>
+                                    <div class="row g-3 mb-3">
+                                        <div class="col-md-4">
+                                            <label class="form-label">สถานะ VISA</label>
+                                            <select name="labour_visa_status" class="form-select form-select-sm">
+                                                <option value="">--Select--</option>
+                                                <option value="รอดำเนินการ">รอดำเนินการ</option>
+                                                <option value="ยื่นแล้ว">ยื่นแล้ว</option>
+                                                <option value="อนุมัติ">อนุมัติ</option>
+                                                <option value="ไม่อนุมัติ">ไม่อนุมัติ</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่ยื่น VISA</label>
+                                            <input type="date" name="labour_visa_submission_date"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <label class="form-label">วันที่อนุมัติ VISA</label>
+                                            <input type="date" name="labour_visa_approval_date"
+                                                class="form-control form-control-sm">
+                                        </div>
+                                    </div>
+
                                     <div class="col-12 mt-4">
                                         <b class="">ข้อมูลรายละเอียดงาน & จัดเก็บเอกสาร</b>
                                         <hr>

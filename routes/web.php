@@ -34,6 +34,13 @@ use App\Http\Controllers\labours\labourUploadImageProfileController;
 // Route::get('/', function () {
 //     return view('welcome');
 // });
+Route::get('/layout/new', function () {
+    return view('layouts.template-new');
+});
+Route::get('/layout/new/modern', function () {
+    return view('layouts.template-modern-alt');
+});
+
 
 Auth::routes();
 
@@ -47,8 +54,19 @@ Route::resources([
 ]);
 
 //labour
-Route::get('/', [labourController::class, 'index'])->name('home');
-Route::get('/home', [labourController::class, 'index'])->name('home');
+Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('home');
+Route::get('/home', [\App\Http\Controllers\DashboardController::class, 'index'])->name('home');
+
+// Dashboard Routes
+Route::prefix('dashboard')->name('dashboard.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\DashboardController::class, 'index'])->name('index');
+    Route::get('/notification-details', [\App\Http\Controllers\DashboardController::class, 'viewNotificationDetails'])->name('notification-details');
+    Route::get('/export-notification', [\App\Http\Controllers\DashboardController::class, 'exportNotification'])->name('export-notification');
+    Route::get('/statistic-details', [\App\Http\Controllers\DashboardController::class, 'viewStatisticDetails'])->name('statistic-details');
+    Route::get('/export-statistic', [\App\Http\Controllers\DashboardController::class, 'exportStatistic'])->name('export-statistic');
+});
+
+Route::get('/labours-list', [labourController::class, 'index'])->name('labours.list');
 Route::resource('labours', labourController::class);
 Route::get('/labours/{labour_id}/print-cv', [labourController::class, 'printCV'])->name('labours.print-cv');
 Route::prefix('labours/api')->group(function () {
