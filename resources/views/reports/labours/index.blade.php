@@ -1,5 +1,6 @@
 @extends('layouts.template')
 @section('content')
+
     <h4 class="mb-3">รายงานข้อมูลคนงาน</h4>
 
     <div class="row">
@@ -14,7 +15,7 @@
 
                     <div class="col-md-3">
                         <label class="form-label">บริษัท</label>
-                        <select name="company_id" class="form-select form-control-sm">
+                        <select name="company_id" class="form-select">
                             <option value="">-- ทั้งหมด --</option>
                             @foreach ($companies as $c)
                                 <option value="{{ $c->id }}" {{ request('company_id') == $c->id ? 'selected' : '' }}>
@@ -27,7 +28,7 @@
                     {{-- สถานะคนงาน --}}
                     <div class="col-md-2">
                         <label class="form-label">สถานะ</label>
-                        <select name="labour_status" class="form-select form-control-sm">
+                        <select name="labour_status" class="form-select ">
                             <option value="">-- ทั้งหมด --</option>
                             @foreach ($statuses as $st)
                                 <option value="{{ $st->id }}" {{ request('labour_status') == $st->id ? 'selected' : '' }}>
@@ -42,7 +43,7 @@
                     {{-- สัญชาติ --}}
                     <div class="col-md-2">
                         <label class="form-label">สัญชาติ</label>
-                        <select name="country_id" class="form-select form-control-sm">
+                        <select name="country_id" class="form-select">
                             <option value="">-- ทั้งหมด --</option>
                             @foreach ($countries as $ct)
                                 <option value="{{ $ct->id }}" {{ request('country_id') == $ct->id ? 'selected' : '' }}>
@@ -56,23 +57,21 @@
                     {{-- วันที่สร้าง --}}
                     <div class="col-md-2">
                         <label class="form-label">วันที่เริ่ม</label>
-                        <input type="date" name="date_from" class="form-control form-control-sm" value="{{ request('date_from') }}">
+                        <input type="date" name="date_from" class="form-control" value="{{ request('date_from') }}">
                     </div>
                     <div class="col-md-2">
                         <label class="form-label">ถึงวันที่</label>
-                        <input type="date" name="date_to" class="form-control form-control-sm" value="{{ request('date_to') }}">
+                        <input type="date" name="date_to" class="form-control" value="{{ request('date_to') }}">
                     </div>
                     <div class="col-md-5">
                         <label class="form-label">Step เอกสาร</label>
-                        <select name="steps[]" class="form-control form-control-sm form-select form-control-sm select2" multiple >
-                          
+                        <select name="steps[]" class="form-select select2" multiple data-placeholder="-- ทั้งหมด --">
                             @foreach($allSteps as $s)
                             <option value="{{ $s }}" {{ collect(request('steps'))->contains($s)?'selected':'' }}>
                                Step {{ $s }}
                             </option>
                             @endforeach
                         </select>
-                        
                     </div>
 
                     {{-- ปุ่ม --}}
@@ -126,6 +125,41 @@
 
 
 <script>
-    $('.select2').select2();
+    $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: "-- ทั้งหมด --",
+            allowClear: true,
+            width: '100%',
+            theme: 'default',
+            language: {
+                noResults: function() {
+                    return "ไม่พบข้อมูล";
+                }
+            }
+        });
+        
+        // Force refresh styling after initialization and on change
+        function fixSelect2Styling() {
+            setTimeout(function() {
+                $('.select2-selection__rendered').css('color', '#495057');
+                $('.select2-selection__choice').css({
+                    'color': '#ffffff !important',
+                    'background-color': '#0d6efd !important',
+                    'border': '1px solid #0d6efd !important',
+                    'display': 'inline-block !important'
+                });
+                $('.select2-selection__choice span, .select2-selection__choice .select2-selection__choice__display').css({
+                    'color': '#ffffff !important',
+                    'font-weight': '500 !important',
+                    'display': 'inline !important',
+                    'visibility': 'visible !important'
+                });
+            }, 50);
+        }
+        
+        // Apply styling on load and change events
+        fixSelect2Styling();
+        $('.select2').on('select2:select select2:unselect', fixSelect2Styling);
+    });
 </script>
 @endsection

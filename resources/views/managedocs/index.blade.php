@@ -15,7 +15,7 @@
                 <h5>จัดการเอกสาร</h5>
             </div>
             <div class="card-body">
-                <table class="table table-bordered nowrap dataTable" id="managedocs">
+                <table class="table  nowrap dataTable" id="managedocs">
                     <thead>
                         <tr>
                             <th>ลำดับ</th>
