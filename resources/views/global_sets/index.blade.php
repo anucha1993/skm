@@ -3,6 +3,31 @@
 @extends('layouts.template')
 
 @section('content')
+<style>
+    /* Fix table header text visibility */
+    .table thead th {
+        color: #000000 !important;
+        font-weight: 600 !important;
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Make sure DataTable headers are also dark */
+    table.dataTable thead th {
+        color: #000000 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Fix any sorting icons visibility */
+    table.dataTable thead .sorting:before,
+    table.dataTable thead .sorting:after,
+    table.dataTable thead .sorting_asc:before,
+    table.dataTable thead .sorting_asc:after,
+    table.dataTable thead .sorting_desc:before,
+    table.dataTable thead .sorting_desc:after {
+        color: #000000 !important;
+    }
+</style>
+
 <div class="container">
     <h3>Global Sets</h3>
 
