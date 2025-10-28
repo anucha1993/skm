@@ -9,13 +9,7 @@
         color: #2d3748;
     }
 
-    .dashboard-container {
-        padding: 1.25rem 1rem;
-        min-height: 100vh;
-        max-width: 1200px;
-        margin: 2rem auto;
-    }
-
+  
     .dashboard-header {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);

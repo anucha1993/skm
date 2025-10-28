@@ -1442,20 +1442,20 @@ body {
 					</li>
 
 					<li class="nav-item">
-						<a href="{{route('dashboard.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-home"></i></span><span class="pcoded-mtext">Dashboard</span></a>
+						<a href="{{route('dashboard.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-home"></i></span><span class="pcoded-mtext" style="font-size: 18px" >Dashboard</span></a>
 					</li>
 
 					<li class="nav-item">
-						<a href="{{route('customers.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext">ข้อมูลนายจ้าง</span></a>
+						<a href="{{route('customers.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-users"></i></span><span class="pcoded-mtext" style="font-size: 18px">ข้อมูลนายจ้าง</span></a>
 					   
 					</li>
 					<li class="nav-item">
 				
-						<a href="{{route('labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext">ข้อมูลคนงาน</span></a>
+						<a href="{{route('labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-user"></i></span><span class="pcoded-mtext" style="font-size: 18px">ข้อมูลคนงาน</span></a>
 					</li>
 
 					<li class="nav-item">
-						<a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext">import ข้อมูลจาก Recuite</span></a>
+						<a href="{{route('import-labours.index')}}" class="nav-link "><span class="pcoded-micon"><i class="feather icon-download-cloud"></i></span><span class="pcoded-mtext" style="font-size: 18px">import ข้อมูลจาก Recuite</span></a>
 					</li>
 
 					{{-- <li class="nav-item">
@@ -1463,18 +1463,18 @@ body {
 					</li> --}}
 					
 					<li class="nav-item pcoded-hasmenu">
-						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-layout"></i></span><span class="pcoded-mtext">รายงาน</span></a>
+						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-layout"></i></span><span class="pcoded-mtext" style="font-size: 18px">รายงาน</span></a>
 						<ul class="pcoded-submenu">
-							<li><a href="{{route('report.labours.index')}}">รายงานข้อมูลคนงาน</a></li>
+							<li><a href="{{route('report.labours.index')}}" style="font-size: 18px">รายงานข้อมูลคนงาน</a></li>
 							{{-- <li><a href="layout-horizontal.html" target="_blank">Horizontal</a></li> --}}
 						</ul>
 					</li>
 
 					<li class="nav-item pcoded-hasmenu">
-						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext">Setting</span></a>
+						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-box"></i></span><span class="pcoded-mtext" style="font-size: 18px">Setting</span></a>
 						<ul class="pcoded-submenu">
-							<li><a href="{{route('managedocs.index')}}">ManageDocument</a></li>
-							<li><a href="{{route('global-sets.index')}}">GlobalSets</a></li>
+							<li><a href="{{route('managedocs.index')}}" style="font-size: 18px">ManageDocument</a></li>
+							<li><a href="{{route('global-sets.index')}}" style="font-size: 18px">GlobalSets</a></li>
 		
 						</ul>
 			
