@@ -75,6 +75,7 @@ class DashboardController extends Controller
             'passport_expiring' => $this->getPassportExpiring($today, $warningDays),
             'cid_expiring' => $this->getCidExpiring($today, $warningDays),
             'affidavit_expiring' => $this->getAffidavitExpiring($today, $warningDays),
+            'unpaid_deposits' => $this->getUnpaidDeposits($today),
         ];
     }
     
@@ -118,6 +119,18 @@ class DashboardController extends Controller
                          ->get();
     }
     
+    private function getUnpaidDeposits($today)
+    {
+        // คำนวณวันที่ที่เกิน 15 วันหลังจากยื่น CID
+        $fifteenDaysAgo = $today->copy()->subDays(15);
+        
+        return labourModel::whereNotNull('labour_cid_stand_date')
+                         ->where('labour_cid_stand_date', '<=', $fifteenDaysAgo->format('Y-m-d'))
+                         ->whereNull('labour_cid_deposit_date')
+                         ->with(['company', 'labourStatus', 'country', 'jobGroup', 'position'])
+                         ->get();
+    }
+    
     public function exportNotification(Request $request)
     {
         $type = $request->get('type');
@@ -147,6 +160,7 @@ class DashboardController extends Controller
             'passport_expiring' => 'แจ้งเตือนพาสปอร์ตหมดอายุ',
             'cid_expiring' => 'แจ้งเตือน CID หมดอายุ',
             'affidavit_expiring' => 'แจ้งเตือน Affidavit หมดอายุ',
+            'unpaid_deposits' => 'แจ้งเตือนเงินมัดจำ CID ค้างชำระ',
         ];
         
         return $titles[$type] ?? 'การแจ้งเตือน';

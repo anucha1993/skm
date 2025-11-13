@@ -36,6 +36,13 @@ class CustomerController extends Controller
         return view('customers.create', compact('countryGlobalSet'));
     }
 
+    // แสดงรายละเอียดลูกค้า
+    public function show(Customer $customer)
+    {
+        $countryGlobalSet = GlobalSetModel::with('values')->where('id', 3)->first();
+        return view('customers.show', compact('customer', 'countryGlobalSet'));
+    }
+
     // บันทึกข้อมูลลูกค้าใหม่พร้อมกับไฟล์แนบ (ถ้ามี)
     public function store(Request $request)
     {

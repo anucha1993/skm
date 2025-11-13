@@ -195,6 +195,7 @@
     .notification-card.passport .notification-icon { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
     .notification-card.cid .notification-icon { background: linear-gradient(135deg, #f59e0b, #d97706); }
     .notification-card.affidavit .notification-icon { background: linear-gradient(135deg, #8b5cf6, #7c3aed); }
+    .notification-card.unpaid-deposits .notification-icon { background: linear-gradient(135deg, #dc2626, #991b1b); }
 
     .notification-title {
         font-size: 1.1rem;
@@ -354,7 +355,7 @@
     <div class="notifications-section">
         <h2 class="section-title">
             <i class="fas fa-bell"></i>
-            การแจ้งเตือนหมดอายุ (15 วันก่อนหมดอายุ)
+            การแจ้งเตือนหมดอายุและการเงิน (15 วันก่อนหมดอายุ / เงินมัดจำค้างชำระ)
         </h2>
 
         <div class="notifications-grid">
@@ -473,6 +474,37 @@
                     <div class="empty-state">ไม่มีรายการแจ้งเตือน</div>
                 @endif
             </div>
+
+            <!-- Unpaid Deposits -->
+            @canany(['account-update-labour'])
+            <div class="notification-card unpaid-deposits">
+                <div class="notification-header">
+                    <div class="notification-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="notification-title">เงินมัดจำ CID ค้างชำระ</div>
+                        <div class="notification-count">{{ $notifications['unpaid_deposits']->count() }}</div>
+                    </div>
+                </div>
+                
+                <div class="notification-actions">
+                    <a href="{{ route('dashboard.notification-details', ['type' => 'unpaid_deposits']) }}" 
+                       class="btn-modern btn-view">
+                        <i class="fas fa-eye"></i>ดูรายละเอียด
+                    </a>
+                    @if($notifications['unpaid_deposits']->count() > 0)
+                        <a href="{{ route('dashboard.export-notification', ['type' => 'unpaid_deposits']) }}" 
+                           class="btn-modern btn-export">
+                            <i class="fas fa-download"></i>Export Excel
+                        </a>
+                    @endif
+                </div>
+                @if($notifications['unpaid_deposits']->count() == 0)
+                    <div class="empty-state">ไม่มีรายการแจ้งเตือน</div>
+                @endif
+            </div>
+            @endcanany
         </div>
     </div>
     <br>

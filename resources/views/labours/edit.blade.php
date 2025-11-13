@@ -370,6 +370,12 @@
                                     </a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="nav-link text-uppercase fw-bold" id="finance-tab" data-toggle="tab"
+                                        href="#finance" role="tab" aria-controls="finance" aria-selected="false">
+                                        <i class="fas fa-coins me-1"></i>การเงินและบัญชี
+                                    </a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="nav-link text-uppercase fw-bold" id="contact-tab" data-toggle="tab"
                                         href="#contact" role="tab" aria-controls="contact" aria-selected="false">
                                         <i class="fa fa-file-alt me-1"></i>ไฟล์เอกสาร
@@ -614,19 +620,25 @@
                                         <hr>
                                     </div>
                                     <div class="row g-3 mb-3">
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">เลขที่ CID</label>
                                             <input type="text" name="labour_cid_number"
                                                 class="form-control form-control-sm" placeholder="CID Number"
                                                 value="{{ old('labour_cid_number', $labour->labour_cid_number ?? '') }}">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
+                                            <label class="form-label">วันที่ยื่น CID</label>
+                                            <input type="date" name="labour_cid_stand_date"
+                                                class="form-control form-control-sm"
+                                                value="{{ old('labour_cid_stand_date', $labour->labour_cid_stand_date ?? '') }}">
+                                        </div>
+                                        <div class="col-md-3">
                                             <label class="form-label">วันที่ออก CID</label>
                                             <input type="date" name="labour_cid_issue_date"
                                                 class="form-control form-control-sm"
                                                 value="{{ old('labour_cid_issue_date', $labour->labour_cid_issue_date ?? '') }}">
                                         </div>
-                                        <div class="col-md-4">
+                                        <div class="col-md-3">
                                             <label class="form-label">วันที่หมดอายุ CID</label>
                                             <input type="date" name="labour_cid_expiry_date"
                                                 class="form-control form-control-sm"
@@ -1017,6 +1029,194 @@
 
                                     </div>
                                 </div>
+                                
+                                {{-- Finance & Accounting Tab --}}
+                                <div class="tab-pane fade" id="finance" role="tabpanel" aria-labelledby="finance-tab">
+                                    @canany(['account-update-labour'])
+                                        {{-- มีสิทธิ์แก้ไข --}}
+                                        <div class="col-12 mt-2">
+                                            <div class="alert alert-info">
+                                                <i class="fas fa-info-circle me-2"></i>
+                                                <strong>การเงินและบัญชี CID</strong> - จัดการข้อมูลทางการเงินที่เกี่ยวข้องกับกระบวนการ CID (การขอใบอนุญาตทำงาน)
+                                            </div>
+                                        </div>
+
+                                        {{-- เงินประกัน Section --}}
+                                        <div class="col-12 mt-3">
+                                            <h5 class="text-primary"><i class="fas fa-shield-alt me-2"></i>เงินประกัน (Deposit)</h5>
+                                            <hr>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label">วันที่วางเงินประกัน</label>
+                                                <input type="date" name="labour_cid_deposit_date"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('labour_cid_deposit_date', $labour->labour_cid_deposit_date ?? '') }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">จำนวนเงินประกัน (บาท)</label>
+                                                <input type="number" name="labour_cid_deposit_total" step="0.01"
+                                                    class="form-control form-control-sm" placeholder="0.00"
+                                                    value="{{ old('labour_cid_deposit_total', $labour->labour_cid_deposit_total ?? '') }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">วิธีการจ่าย</label>
+                                                <select name="payment_type" class="form-select form-select-sm">
+                                                    <option value="">--เลือกวิธีการจ่าย--</option>
+                                                    <option value="เงินสด" {{ old('payment_type', $labour->payment_type ?? '') == 'เงินสด' ? 'selected' : '' }}>เงินสด</option>
+                                                    <option value="SCB" {{ old('payment_type', $labour->payment_type ?? '') == 'SCB' ? 'selected' : '' }}>SCB</option>
+                                                    <option value="BBL" {{ old('payment_type', $labour->payment_type ?? '') == 'BBL' ? 'selected' : '' }}>BBL</option>
+                                                </select>
+                                            </div>
+                                        </div>
+
+                                        {{-- CID-P Section --}}
+                                        <div class="col-12 mt-4">
+                                            <h5 class="text-success"><i class="fas fa-money-bill-wave me-2"></i>CID-P (CID Payment)</h5>
+                                            <hr>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-3">
+                                                <label class="form-label">Date CID-P</label>
+                                                <input type="date" name="labour_cidp_date"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('labour_cidp_date', $labour->labour_cidp_date ?? '') }}">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">CID-P Total (บาท)</label>
+                                                <input type="number" name="labour_cidp_total" step="0.01"
+                                                    class="form-control form-control-sm" placeholder="0.00"
+                                                    value="{{ old('labour_cidp_total', $labour->labour_cidp_total ?? '') }}">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">วันที่รับ Date CID-P</label>
+                                                <input type="date" name="labour_cidp_in_date"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('labour_cidp_in_date', $labour->labour_cidp_in_date ?? '') }}">
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label">จำนวนเงินรับ CID-P (บาท)</label>
+                                                <input type="number" name="labour_cidp_in_total" step="0.01"
+                                                    class="form-control form-control-sm" placeholder="0.00"
+                                                    value="{{ old('labour_cidp_in_total', $labour->labour_cidp_in_total ?? '') }}">
+                                            </div>
+                                        </div>
+
+                                        {{-- การคืนเงินประกัน Section --}}
+                                        <div class="col-12 mt-4">
+                                            <h5 class="text-warning"><i class="fas fa-undo me-2"></i>การคืนเงินประกัน</h5>
+                                            <hr>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label">สถานะการคืนเงินประกัน</label>
+                                                <select name="labour_cid_deposit_status" class="form-select form-select-sm">
+                                                    <option value="">--เลือกสถานะ--</option>
+                                                    <option value="None" {{ old('labour_cid_deposit_status', $labour->labour_cid_deposit_status ?? '') == 'None' ? 'selected' : '' }}>None</option>
+                                                    <option value="ยกเลิก-คืนเงินประกัน" {{ old('labour_cid_deposit_status', $labour->labour_cid_deposit_status ?? '') == 'ยกเลิก-คืนเงินประกัน' ? 'selected' : '' }}>ยกเลิก-คืนเงินประกัน</option>
+                                                    <option value="ยกเลิก-ไม่คืนเงินประกัน" {{ old('labour_cid_deposit_status', $labour->labour_cid_deposit_status ?? '') == 'ยกเลิก-ไม่คืนเงินประกัน' ? 'selected' : '' }}>ยกเลิก-ไม่คืนเงินประกัน</option>
+                                                </select>
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">วันที่คืนเงินประกัน</label>
+                                                <input type="date" name="labour_refund_deposit_date"
+                                                    class="form-control form-control-sm"
+                                                    value="{{ old('labour_refund_deposit_date', $labour->labour_refund_deposit_date ?? '') }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">จำนวนเงินคืน (บาท)</label>
+                                                <input type="number" name="labour_refund_deposit_total" step="0.01"
+                                                    class="form-control form-control-sm" placeholder="0.00"
+                                                    value="{{ old('labour_refund_deposit_total', $labour->labour_refund_deposit_total ?? '') }}">
+                                            </div>
+                                        </div>
+
+                                        {{-- สรุปทางการเงิน --}}
+                                        <div class="col-12 mt-4">
+                                            <div class="card" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border: 1px solid #dee2e6;">
+                                                <div class="card-header bg-info text-white">
+                                                    <h6 class="mb-0"><i class="fas fa-calculator me-2"></i>สรุปทางการเงิน</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <div class="row text-center">
+                                                        <div class="col-md-3">
+                                                            <div class="border-end">
+                                                                <h6 class="text-muted">เงินประกัน</h6>
+                                                                <h5 class="text-primary" id="summary-deposit">{{ number_format($labour->labour_cid_deposit_total ?? 0, 2) }} บาท</h5>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="border-end">
+                                                                <h6 class="text-muted">CID-P จ่าย</h6>
+                                                                <h5 class="text-warning" id="summary-cidp-out">{{ number_format($labour->labour_cidp_total ?? 0, 2) }} บาท</h5>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <div class="border-end">
+                                                                <h6 class="text-muted">CID-P รับคืน</h6>
+                                                                <h5 class="text-success" id="summary-cidp-in">{{ number_format($labour->labour_cidp_in_total ?? 0, 2) }} บาท</h5>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-md-3">
+                                                            <h6 class="text-muted">เงินคืนประกัน</h6>
+                                                            <h5 class="text-info" id="summary-refund">{{ number_format($labour->labour_refund_deposit_total ?? 0, 2) }} บาท</h5>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        
+                                    @else
+                                        {{-- ไม่มีสิทธิ์แก้ไข --}}
+                                        <div class="col-12 mt-2">
+                                            <div class="alert alert-warning">
+                                                <i class="fas fa-lock me-2"></i>
+                                                <strong>ไม่มีสิทธิ์เข้าถึง</strong> - คุณไม่มีสิทธิ์ในการดูหรือแก้ไขข้อมูลการเงินและบัญชี
+                                            </div>
+                                        </div>
+                                        
+                                        {{-- แสดงข้อมูลแบบ Read-only --}}
+                                        <div class="col-12 mt-3">
+                                            <h5 class="text-muted"><i class="fas fa-shield-alt me-2"></i>เงินประกัน (Deposit)</h5>
+                                            <hr>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-4">
+                                                <label class="form-label">วันที่วางเงินประกัน</label>
+                                                <input type="date" class="form-control form-control-sm bg-light" readonly
+                                                    value="{{ $labour->labour_cid_deposit_date ?? '' }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">จำนวนเงินประกัน (บาท)</label>
+                                                <input type="text" class="form-control form-control-sm bg-light" readonly
+                                                    value="{{ $labour->labour_cid_deposit_total ? number_format($labour->labour_cid_deposit_total, 2) : '-' }}">
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label">วิธีการจ่าย</label>
+                                                <input type="text" class="form-control form-control-sm bg-light" readonly
+                                                    value="{{ $labour->payment_type ?? '-' }}">
+                                            </div>
+                                        </div>
+
+                                        <div class="col-12 mt-4">
+                                            <h5 class="text-muted"><i class="fas fa-money-bill-wave me-2"></i>CID-P (CID Payment)</h5>
+                                            <hr>
+                                        </div>
+                                        <div class="row g-3 mb-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Date CID-P</label>
+                                                <input type="date" class="form-control form-control-sm bg-light" readonly
+                                                    value="{{ $labour->labour_cidp_date ?? '' }}">
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">CID-P Total (บาท)</label>
+                                                <input type="text" class="form-control form-control-sm bg-light" readonly
+                                                    value="{{ $labour->labour_cidp_total ? number_format($labour->labour_cidp_total, 2) : '-' }}">
+                                            </div>
+                                        </div>
+                                    @endcanany
+                                </div>
+                                
                                 <div class="tab-pane fade" id="contact" role="tabpanel" aria-labelledby="contact-tab">
                                     <br>
                                     <div class="row">
@@ -1980,6 +2180,24 @@
                         }
                     });
                 }
+            });
+
+            // Financial Summary Update
+            function updateFinancialSummary() {
+                var depositTotal = parseFloat($('input[name="labour_cid_deposit_total"]').val()) || 0;
+                var cidpTotal = parseFloat($('input[name="labour_cidp_total"]').val()) || 0;
+                var cidpInTotal = parseFloat($('input[name="labour_cidp_in_total"]').val()) || 0;
+                var refundTotal = parseFloat($('input[name="labour_refund_deposit_total"]').val()) || 0;
+
+                $('#summary-deposit').text(depositTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท');
+                $('#summary-cidp-out').text(cidpTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท');
+                $('#summary-cidp-in').text(cidpInTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท');
+                $('#summary-refund').text(refundTotal.toLocaleString('th-TH', {minimumFractionDigits: 2}) + ' บาท');
+            }
+
+            // Bind financial fields to update summary
+            $(document).on('input', 'input[name="labour_cid_deposit_total"], input[name="labour_cidp_total"], input[name="labour_cidp_in_total"], input[name="labour_refund_deposit_total"]', function() {
+                updateFinancialSummary();
             });
 
             // Check PDF support and show fallback if needed

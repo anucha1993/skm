@@ -112,7 +112,12 @@ class labourController extends Controller
         $skillTests = SkillTest::where('labour_id', $labour->labour_id)->get();
         $statusTestGlobalSet = GlobalSetModel::with('values')->where('id', 10)->first();
 
-        return view('labours.edit', compact('listFiles', 'skillTests', 'labour', 'statusTestGlobalSet', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet', 'skillTests'));
+        // Prepare global sets array for easier access in views
+        $globalsets = [
+            'labour_cid_deposit_status' => $statusGlobalSet->values ?? collect()
+        ];
+
+        return view('labours.edit', compact('listFiles', 'skillTests', 'labour', 'statusTestGlobalSet', 'customers', 'StaffsubGlobalSet', 'StaffGlobalSet', 'ExaminationCenterGlobalSet', 'hospitalGlobalSet', 'manageDocs', 'countryGlobalSet', 'jobGroupGlobalSet', 'positionGlobalSet', 'statusGlobalSet', 'skillTests', 'globalsets'));
     }
 
     public function show(labourModel $labour)
@@ -166,6 +171,12 @@ class labourController extends Controller
         $statusTestGlobalSet = GlobalSetModel::with('values')->where('id', 10)->first();
         $manageDocs = managedocsModel::latest()->get();
         $customers = Customer::latest()->get();
+        
+        // Prepare global sets array for easier access in views
+        $globalsets = [
+            'labour_cid_deposit_status' => $statusGlobalSet->values ?? collect()
+        ];
+        
         return view(
             'labours.create',
             compact(
@@ -179,7 +190,8 @@ class labourController extends Controller
                 'jobGroupGlobalSet',
                 'positionGlobalSet',
                 'statusGlobalSet',
-                'statusTestGlobalSet', // ส่งตัวแปรนี้ไปที่ view ด้วย
+                'statusTestGlobalSet',
+                'globalsets'
             ),
         );
     }

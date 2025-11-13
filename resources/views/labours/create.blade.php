@@ -342,6 +342,14 @@
                                         <i class="fa fa-file-alt me-1"></i>ไฟล์เอกสาร
                                     </a>
                                 </li>
+                                @canany(['account-update-labour'])
+                                <li class="nav-item">
+                                    <a class="nav-link text-uppercase fw-bold" id="finance-tab" data-toggle="tab"
+                                        href="#finance" role="tab" aria-controls="finance" aria-selected="false">
+                                        <i class="fa fa-calculator me-1"></i>การเงินและบัญชี
+                                    </a>
+                                </li>
+                                @endcanany
                             </ul>
                             <div class="tab-content" id="myTabContent">
                                 <div class="tab-pane fade show active" id="home" role="tabpanel"
@@ -864,6 +872,147 @@
                                     <div class="alert alert-info mt-3">คุณจำเป็นต้องบันทึกข้อมูลก่อนจึงจะสามารถ Uploads
                                         ไฟล์เอกสารลงระบบได้</div>
                                 </div>
+
+                                @canany(['account-update-labour'])
+                                <div class="tab-pane fade" id="finance" role="tabpanel" aria-labelledby="finance-tab">
+                                    <!-- Finance Summary Section -->
+                                    <div class="finance-summary-card mb-4 p-3 border rounded bg-light">
+                                        <h6 class="text-primary fw-bold mb-3">
+                                            <i class="fa fa-chart-line me-2"></i>สรุปการเงิน
+                                        </h6>
+                                        <div class="row">
+                                            <div class="col-md-3 text-center">
+                                                <div class="summary-item">
+                                                    <small class="text-muted">เงินมัดจำ CID ทั้งหมด</small>
+                                                    <div id="total-cid-deposit" class="fs-5 fw-bold text-success">0 บาท</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 text-center">
+                                                <div class="summary-item">
+                                                    <small class="text-muted">เงิน CID-P ทั้งหมด</small>
+                                                    <div id="total-cidp-amount" class="fs-5 fw-bold text-info">0 บาท</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 text-center">
+                                                <div class="summary-item">
+                                                    <small class="text-muted">เงินคืนทั้งหมด</small>
+                                                    <div id="total-refund" class="fs-5 fw-bold text-warning">0 บาท</div>
+                                                </div>
+                                            </div>
+                                            <div class="col-md-3 text-center">
+                                                <div class="summary-item">
+                                                    <small class="text-muted">ยอดคงเหลือ</small>
+                                                    <div id="total-balance" class="fs-5 fw-bold text-primary">0 บาท</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- CID Deposit Section -->
+                                    <div class="card mb-4 shadow-sm">
+                                        <div class="card-header bg-success text-white">
+                                            <h6 class="mb-0"><i class="fa fa-money-bill-wave me-2"></i>เงินมัดจำ CID</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-4">
+                                                    <label class="form-label">วันที่มัดจำ CID</label>
+                                                    <input type="date" name="labour_cid_deposit_date" class="form-control form-control-sm finance-input" id="cid-deposit-date">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">จำนวนเงินมัดจำ CID</label>
+                                                    <input type="number" name="labour_cid_deposit_total" class="form-control form-control-sm finance-input" placeholder="0.00" step="0.01" id="cid-deposit-amount">
+                                                </div>
+                                                <div class="col-md-4">
+                                                    <label class="form-label">สถานะการมัดจำ</label>
+                                                    <select name="labour_cid_deposit_status" class="form-select form-select-sm" id="cid-deposit-status">
+                                                        <option value="">เลือกสถานะ</option>
+                                                        @if(isset($globalsets['labour_cid_deposit_status']))
+                                                            @foreach($globalsets['labour_cid_deposit_status'] as $status)
+                                                                <option value="{{ $status->globalset_value }}">{{ $status->globalset_name }}</option>
+                                                            @endforeach
+                                                        @endif
+                                                    </select>
+                                                </div>
+                                                <div class="col-md-12">
+                                                    <label class="form-label">วิธีการชำระเงิน</label>
+                                                    <select name="payment_type" class="form-select form-select-sm">
+                                                        <option value="">เลือกวิธีการชำระเงิน</option>
+                                                        <option value="cash">เงินสด</option>
+                                                        <option value="transfer">โอนเงิน</option>
+                                                        <option value="check">เช็ค</option>
+                                                        <option value="credit_card">บัตรเครดิต</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- CID-P Section -->
+                                    <div class="card mb-4 shadow-sm">
+                                        <div class="card-header bg-info text-white">
+                                            <h6 class="mb-0"><i class="fa fa-credit-card me-2"></i>การชำระเงิน CID-P</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3 mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">วันที่ CID-P</label>
+                                                    <input type="date" name="labour_cidp_date" class="form-control form-control-sm finance-input" id="cidp-date">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">จำนวนเงิน CID-P</label>
+                                                    <input type="number" name="labour_cidp_total" class="form-control form-control-sm finance-input" placeholder="0.00" step="0.01" id="cidp-amount">
+                                                </div>
+                                            </div>
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">วันที่ CID-P เข้า</label>
+                                                    <input type="date" name="labour_cidp_in_date" class="form-control form-control-sm finance-input" id="cidp-in-date">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">จำนวนเงิน CID-P เข้า</label>
+                                                    <input type="number" name="labour_cidp_in_total" class="form-control form-control-sm finance-input" placeholder="0.00" step="0.01" id="cidp-in-amount">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Refund Section -->
+                                    <div class="card mb-4 shadow-sm">
+                                        <div class="card-header bg-warning text-dark">
+                                            <h6 class="mb-0"><i class="fa fa-undo-alt me-2"></i>การคืนเงินมัดจำ</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">วันที่คืนเงินมัดจำ</label>
+                                                    <input type="date" name="labour_refund_deposit_date" class="form-control form-control-sm finance-input" id="refund-date">
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">จำนวนเงินคืน</label>
+                                                    <input type="number" name="labour_refund_deposit_total" class="form-control form-control-sm finance-input" placeholder="0.00" step="0.01" id="refund-amount">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <!-- Additional Information -->
+                                    <div class="card mb-4 shadow-sm">
+                                        <div class="card-header bg-secondary text-white">
+                                            <h6 class="mb-0"><i class="fa fa-info-circle me-2"></i>ข้อมูลเพิ่มเติม</h6>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="row g-3">
+                                                <div class="col-md-12">
+                                                    <label class="form-label">วันที่ยื่น CID</label>
+                                                    <input type="date" name="labour_cid_stand_date" class="form-control form-control-sm" id="cid-stand-date">
+                                                    <small class="text-muted">ใช้สำหรับคำนวณการแจ้งเตือนการมัดจำที่ค้างชำระ</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                @endcanany
                             </div>
                         </div>
                         <div class="card-footer text-end">
@@ -1048,6 +1197,42 @@
                 });
             }
             updateSkillTestIndexes();
+        });
+
+        // Finance Tab Calculations
+        $(document).ready(function() {
+            function updateFinanceSummary() {
+                let cidDepositAmount = parseFloat($('#cid-deposit-amount').val()) || 0;
+                let cidpAmount = parseFloat($('#cidp-amount').val()) || 0;
+                let cidpInAmount = parseFloat($('#cidp-in-amount').val()) || 0;
+                let refundAmount = parseFloat($('#refund-amount').val()) || 0;
+                
+                // Calculate balance (CID Deposit + CID-P In - Refund)
+                let balance = cidDepositAmount + cidpInAmount - refundAmount;
+                
+                // Update display
+                $('#total-cid-deposit').text(cidDepositAmount.toLocaleString() + ' บาท');
+                $('#total-cidp-amount').text(cidpAmount.toLocaleString() + ' บาท');
+                $('#total-refund').text(refundAmount.toLocaleString() + ' บาท');
+                $('#total-balance').text(balance.toLocaleString() + ' บาท');
+                
+                // Change balance color based on value
+                let balanceElement = $('#total-balance');
+                balanceElement.removeClass('text-success text-danger text-primary');
+                if (balance > 0) {
+                    balanceElement.addClass('text-success');
+                } else if (balance < 0) {
+                    balanceElement.addClass('text-danger');
+                } else {
+                    balanceElement.addClass('text-primary');
+                }
+            }
+            
+            // Bind calculation to finance input changes
+            $('.finance-input').on('input change', updateFinanceSummary);
+            
+            // Initial calculation
+            updateFinanceSummary();
         });
     </script>
 @endsection

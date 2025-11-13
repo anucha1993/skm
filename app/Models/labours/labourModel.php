@@ -25,6 +25,7 @@ class labourModel extends Model
     'labour_cid_number',
     'labour_cid_issue_date',
     'labour_cid_expiry_date',
+    'labour_cid_stand_date',
     // Affidavit Fields
     'labour_affidavit_number',
     'labour_affidavit_issue_date',
@@ -32,7 +33,18 @@ class labourModel extends Model
     // Visa Fields
     'labour_visa_status',
     'labour_visa_submission_date',
-    'labour_visa_approval_date'];
+    'labour_visa_approval_date',
+    // Finance & Accounting Fields
+    'labour_cid_deposit_date',
+    'labour_cid_deposit_total',
+    'labour_cidp_date',
+    'labour_cidp_total',
+    'labour_cidp_in_date',
+    'labour_cidp_in_total',
+    'payment_type',
+    'labour_cid_deposit_status',
+    'labour_refund_deposit_date',
+    'labour_refund_deposit_total'];
 
     public function listFiles()
     {

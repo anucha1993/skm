@@ -1,7 +1,79 @@
 @extends('layouts.template')
 
 @section('content')
-    <div class="col-12                            <div class="row">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="card fade-in">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h4 class="mb-0"><i class="fas fa-user-plus me-2 text-primary"></i>เพิ่มนายจ้างใหม่</h4>
+                                <small class="text-muted">กรอกข้อมูลนายจ้างใหม่</small>
+                            </div>
+                            <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left me-2"></i>กลับ
+                            </a>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
+                            @csrf
+
+                            <div class="row">
+                                <div class="col-md-12 mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-user me-2"></i>ชื่อนายจ้าง <span class="text-danger">*</span>
+                                    </label>
+                                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
+                                           value="{{ old('name') }}" required placeholder="กรอกชื่อนายจ้าง">
+                                    @error('name')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-flag me-2"></i>ประเทศ <span class="text-danger">*</span>
+                                    </label>
+                                    <select name="country" class="form-select @error('country') is-invalid @enderror" required>
+                                        <option value="">-- เลือกประเทศ --</option>
+                                        @if(!empty($countryGlobalSet))
+                                            @php
+                                                $values = $countryGlobalSet->values;
+                                                if($countryGlobalSet->sort_order_preference == 'alphabetical') {
+                                                    $values = $values->sortBy('value');
+                                                }
+                                            @endphp
+                                            @foreach($values as $item)
+                                                <option value="{{ $item->id }}" {{ old('country') == $item->id ? 'selected' : '' }}>
+                                                    {{ $item->value }}
+                                                </option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                    @error('country')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label">
+                                        <i class="fas fa-toggle-on me-2"></i>สถานะ <span class="text-danger">*</span>
+                                    </label>
+                                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
+                                        <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>ใช้งาน</option>
+                                        <option value="disabled" {{ old('status') == 'disabled' ? 'selected' : '' }}>ไม่ใช้งาน</option>
+                                    </select>
+                                    @error('status')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+
+                            <div class="row">
                                 <div class="col-md-12 mb-3">
                                     <label class="form-label">
                                         <i class="fas fa-paperclip me-2"></i>แนบไฟล์ (ถ้ามี)
@@ -87,90 +159,4 @@ $(document).ready(function() {
     });
 });
 </script>
-@endsection class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="card fade-in">
-                    <div class="card-header">
-                        <div class="d-flex justify-content-between align-items-center">
-                            <div>
-                                <h4 class="mb-0"><i class="fas fa-user-plus me-2 text-primary"></i>เพิ่มนายจ้างใหม่</h4>
-                                <small class="text-muted">กรอกข้อมูลนายจ้างใหม่</small>
-                            </div>
-                            <a href="{{ route('customers.index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-arrow-left me-2"></i>กลับ
-                            </a>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <form action="{{ route('customers.store') }}" method="POST" enctype="multipart/form-data">
-                            @csrf
-
-                            <div class="row">
-                                <div class="col-md-12 mb-3">
-                                    <label class="form-label">
-                                        <i class="fas fa-user me-2"></i>ชื่อนายจ้าง <span class="text-danger">*</span>
-                                    </label>
-                                    <input type="text" name="name" class="form-control @error('name') is-invalid @enderror" 
-                                           value="{{ old('name') }}" required placeholder="กรอกชื่อนายจ้าง">
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">
-                                        <i class="fas fa-flag me-2"></i>ประเทศ <span class="text-danger">*</span>
-                                    </label>
-                                    <select name="country" class="form-select @error('country') is-invalid @enderror" required>
-                                        <option value="">-- เลือกประเทศ --</option>
-                                        @if(!empty($countryGlobalSet))
-                                            @php
-                                                $values = $countryGlobalSet->values;
-                                                if($countryGlobalSet->sort_order_preference == 'alphabetical') {
-                                                    $values = $values->sortBy('value');
-                                                }
-                                            @endphp
-                                            @foreach($values as $item)
-                                                <option value="{{ $item->id }}" {{ old('country') == $item->id ? 'selected' : '' }}>
-                                                    {{ $item->value }}
-                                                </option>
-                                            @endforeach
-                                        @endif
-                                    </select>
-                                    @error('country')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="col-md-6 mb-3">
-                                    <label class="form-label">
-                                        <i class="fas fa-toggle-on me-2"></i>สถานะ <span class="text-danger">*</span>
-                                    </label>
-                                    <select name="status" class="form-select @error('status') is-invalid @enderror" required>
-                                        <option value="active" {{ old('status') == 'active' ? 'selected' : '' }}>ใช้งาน</option>
-                                        <option value="disabled" {{ old('status') == 'disabled' ? 'selected' : '' }}>ไม่ใช้งาน</option>
-                                    </select>
-                                    @error('status')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-                            </div>
-
-                    <div class="form-group mb-2">
-                        <label>Attach Files</label>
-                        <input type="file" name="files[]" class="form-control" multiple>
-                    </div>
-
-                    <div class="form-group mb-2">
-                        <label>Additional Notes</label>
-                        <textarea name="notes" class="form-control"></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary">Create Customer</button>
-                </form>
-            </div>
-        </div>
-    </div>
 @endsection
