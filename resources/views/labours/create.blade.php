@@ -342,7 +342,7 @@
                                         <i class="fa fa-file-alt me-1"></i>ไฟล์เอกสาร
                                     </a>
                                 </li>
-                                @canany(['account-update-labour'])
+                                @canany(['finance-view', 'finance-manage', 'account-update-labour'])
                                 <li class="nav-item">
                                     <a class="nav-link text-uppercase fw-bold" id="finance-tab" data-toggle="tab"
                                         href="#finance" role="tab" aria-controls="finance" aria-selected="false">
@@ -873,7 +873,7 @@
                                         ไฟล์เอกสารลงระบบได้</div>
                                 </div>
 
-                                @canany(['account-update-labour'])
+                                @canany(['finance-view', 'finance-manage', 'account-update-labour'])
                                 <div class="tab-pane fade" id="finance" role="tabpanel" aria-labelledby="finance-tab">
                                     <!-- Finance Summary Section -->
                                     <div class="finance-summary-card mb-4 p-3 border rounded bg-light">

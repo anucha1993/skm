@@ -1032,7 +1032,7 @@
                                 
                                 {{-- Finance & Accounting Tab --}}
                                 <div class="tab-pane fade" id="finance" role="tabpanel" aria-labelledby="finance-tab">
-                                    @canany(['account-update-labour'])
+                                    @canany(['finance-view', 'finance-manage', 'account-update-labour'])
                                         {{-- มีสิทธิ์แก้ไข --}}
                                         <div class="col-12 mt-2">
                                             <div class="alert alert-info">
@@ -1049,15 +1049,35 @@
                                         <div class="row g-3 mb-3">
                                             <div class="col-md-4">
                                                 <label class="form-label">วันที่วางเงินประกัน</label>
-                                                <input type="date" name="labour_cid_deposit_date"
-                                                    class="form-control form-control-sm"
-                                                    value="{{ old('labour_cid_deposit_date', $labour->labour_cid_deposit_date ?? '') }}">
+                                                @can('finance-manage')
+                                                    <input type="date" name="labour_cid_deposit_date"
+                                                        class="form-control form-control-sm"
+                                                        value="{{ old('labour_cid_deposit_date', $labour->labour_cid_deposit_date ?? '') }}">
+                                                @elsecan('finance-view')
+                                                    <input type="date" name="labour_cid_deposit_date"
+                                                        class="form-control form-control-sm" readonly
+                                                        value="{{ old('labour_cid_deposit_date', $labour->labour_cid_deposit_date ?? '') }}">
+                                                @else
+                                                    <input type="date" name="labour_cid_deposit_date"
+                                                        class="form-control form-control-sm"
+                                                        value="{{ old('labour_cid_deposit_date', $labour->labour_cid_deposit_date ?? '') }}">
+                                                @endcan
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">จำนวนเงินประกัน (บาท)</label>
-                                                <input type="number" name="labour_cid_deposit_total" step="0.01"
-                                                    class="form-control form-control-sm" placeholder="0.00"
-                                                    value="{{ old('labour_cid_deposit_total', $labour->labour_cid_deposit_total ?? '') }}">
+                                                @can('finance-manage')
+                                                    <input type="number" name="labour_cid_deposit_total" step="0.01"
+                                                        class="form-control form-control-sm" placeholder="0.00"
+                                                        value="{{ old('labour_cid_deposit_total', $labour->labour_cid_deposit_total ?? '') }}">
+                                                @elsecan('finance-view')
+                                                    <input type="number" name="labour_cid_deposit_total" step="0.01"
+                                                        class="form-control form-control-sm" placeholder="0.00" readonly
+                                                        value="{{ old('labour_cid_deposit_total', $labour->labour_cid_deposit_total ?? '') }}">
+                                                @else
+                                                    <input type="number" name="labour_cid_deposit_total" step="0.01"
+                                                        class="form-control form-control-sm" placeholder="0.00"
+                                                        value="{{ old('labour_cid_deposit_total', $labour->labour_cid_deposit_total ?? '') }}">
+                                                @endcan
                                             </div>
                                             <div class="col-md-4">
                                                 <label class="form-label">วิธีการจ่าย</label>

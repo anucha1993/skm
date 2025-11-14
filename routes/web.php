@@ -115,6 +115,23 @@ Route::get('mock-labours', [LabourApiController::class, 'getMockData']);
 Route::post('labours/{labour}/list-files', [\App\Http\Controllers\labours\labourController::class, 'addListFile'])->name('labours.list-files.store');
 Route::get('labours/{labour}/list-files/{list_file}', [\App\Http\Controllers\labours\labourController::class, 'deleteListFile'])->name('labours.list-files.destroy');
 
+// Documentation Routes
+Route::prefix('documentation')->name('documentation.')->middleware('auth')->group(function () {
+    Route::get('/user-manual', [\App\Http\Controllers\DocumentationController::class, 'userManual'])->name('user-manual');
+    Route::get('/admin-guide', [\App\Http\Controllers\DocumentationController::class, 'adminGuide'])->name('admin-guide');
+    Route::get('/system-overview', [\App\Http\Controllers\DocumentationController::class, 'systemOverview'])->name('system-overview');
+});
+
+// Admin Role & Permission Management Routes
+Route::prefix('admin')->name('admin.')->middleware('auth')->group(function () {
+    Route::get('/roles-permissions', [\App\Http\Controllers\RolePermissionController::class, 'index'])->name('roles-permissions.index');
+    Route::post('/roles', [\App\Http\Controllers\RolePermissionController::class, 'storeRole'])->name('roles.store');
+    Route::put('/roles/{id}', [\App\Http\Controllers\RolePermissionController::class, 'updateRole'])->name('roles.update');
+    Route::delete('/roles/{id}', [\App\Http\Controllers\RolePermissionController::class, 'destroyRole'])->name('roles.destroy');
+    Route::post('/assign-role', [\App\Http\Controllers\RolePermissionController::class, 'assignRole'])->name('assign-role');
+    Route::get('/users/{userId}/finance-permissions', [\App\Http\Controllers\RolePermissionController::class, 'getUserFinancePermissions'])->name('users.finance-permissions');
+});
+
 
 
 

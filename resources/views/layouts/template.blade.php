@@ -1479,6 +1479,24 @@ body {
 						</ul>
 			
 					</li>
+
+					<li class="nav-item pcoded-hasmenu">
+						<a href="#!" class="nav-link "><span class="pcoded-micon"><i class="feather icon-book-open"></i></span><span class="pcoded-mtext" style="font-size: 18px">คู่มือการใช้งาน</span></a>
+						<ul class="pcoded-submenu">
+							<li><a href="{{route('documentation.user-manual')}}" style="font-size: 18px">คู่มือผู้ใช้งาน</a></li>
+							<li><a href="{{route('documentation.admin-guide')}}" style="font-size: 18px">คู่มือผู้ดูแลระบบ</a></li>
+							{{-- <li><a href="{{route('documentation.system-overview')}}" style="font-size: 18px">ภาพรวมระบบ</a></li> --}}
+						</ul>
+					</li>
+
+					@canany(['create-role', 'edit-role', 'delete-role'])
+					<li class="nav-item">
+						<a href="{{ route('admin.roles-permissions.index') }}" class="nav-link">
+							<span class="pcoded-micon"><i class="feather icon-shield"></i></span>
+							<span class="pcoded-mtext" style="font-size: 18px">จัดการสิทธิ์</span>
+						</a>
+					</li>
+					@endcanany
 					
 					{{-- <li class="nav-item pcoded-menu-caption">
 						<label>Forms &amp; table</label>

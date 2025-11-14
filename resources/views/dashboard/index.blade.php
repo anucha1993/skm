@@ -506,6 +506,76 @@
             </div>
             @endcanany
         </div>
+        
+        <!-- Documentation Section -->
+        <h2 class="section-title">
+            <i class="fas fa-book-open"></i>
+            คู่มือการใช้งานระบบ
+        </h2>
+        <div class="notifications-grid">
+            <div class="notification-card" style="border-left: 4px solid #667eea;">
+                <div class="notification-header">
+                    <div class="notification-icon" style="background: linear-gradient(135deg, #667eea, #764ba2);">
+                        <i class="fas fa-user-graduate"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="notification-title">คู่มือผู้ใช้งาน</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                            วิธีการใช้งานสำหรับผู้ใช้ทั่วไป
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notification-actions">
+                    <a href="{{ route('documentation.user-manual') }}" 
+                       class="btn-modern btn-view">
+                        <i class="fas fa-book-reader"></i>อ่านคู่มือ
+                    </a>
+                </div>
+            </div>
+
+            <div class="notification-card" style="border-left: 4px solid #e53e3e;">
+                <div class="notification-header">
+                    <div class="notification-icon" style="background: linear-gradient(135deg, #e53e3e, #dd6b20);">
+                        <i class="fas fa-user-shield"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="notification-title">คู่มือผู้ดูแลระบบ</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                            สำหรับผู้ดูแลและจัดการระบบ
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notification-actions">
+                    <a href="{{ route('documentation.admin-guide') }}" 
+                       class="btn-modern btn-view">
+                        <i class="fas fa-cog"></i>เข้าดูคู่มือ
+                    </a>
+                </div>
+            </div>
+
+            <div class="notification-card" style="border-left: 4px solid #4299e1;">
+                <div class="notification-header">
+                    <div class="notification-icon" style="background: linear-gradient(135deg, #4299e1, #3182ce);">
+                        <i class="fas fa-sitemap"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="notification-title">ภาพรวมระบบ</div>
+                        <div style="font-size: 0.85rem; color: #6b7280; margin-top: 0.25rem;">
+                            สถิติ คุณสมบัติ และแผนงาน
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="notification-actions">
+                    <a href="{{ route('documentation.system-overview') }}" 
+                       class="btn-modern btn-view">
+                        <i class="fas fa-chart-line"></i>ดูภาพรวม
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
     <br>
      <!-- Chart -->
